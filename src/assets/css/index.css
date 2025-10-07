@@ -1,0 +1,30 @@
+@import "./root.css";
+@import "./print.css";
+
+html,
+body,
+#root {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.panel {
+  background-color: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Menú desplegable sólido (sin opacidad) */
+.menu-solid {
+  background-color: var(--menu-bg);
+  border: 1px solid var(--panel-border);
+}
+
+/* Sidebar sólido (sin opacidades), usando el color de fondo del tema */
+.sidebar-solid {
+  background-color: var(--bg);
+  border-right: 1px solid var(--panel-border);
+}

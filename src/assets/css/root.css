@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  /* Tema base: oscuro grisáceo, menos contrastado que negro puro */
+  --bg: #1e1e1e;
+  /* antes #0f0f0f */
+  --panel: rgba(255, 255, 255, 0.08);
+  /* antes 0.06 */
+  --panel-border: rgba(255, 255, 255, 0.18);
+  /* antes 0.12 */
+  --text: rgba(255, 255, 255, 0.92);
+  /* antes 0.9 */
+  --muted: rgba(255, 255, 255, 0.72);
+  /* antes 0.65 */
+  /* Menú sólido (sin transparencia) */
+  --menu-bg: #262626;
+  /* opaco sobre fondo #1e1e1e */
+  --menu-hover: #333333;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1e1e1e;
+  /* gris más claro que el negro puro */
+  --panel: rgba(255, 255, 255, 0.08);
+  --panel-border: rgba(255, 255, 255, 0.18);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.72);
+  --menu-bg: #262626;
+  --menu-hover: #333333;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7f7f7;
+  --panel: rgba(0, 0, 0, 0.04);
+  --panel-border: rgba(0, 0, 0, 0.12);
+  --text: #0f0f0f;
+  --muted: rgba(0, 0, 0, 0.6);
+  --menu-bg: #ffffff;
+  --menu-hover: #f2f2f2;
+}
+
+/* Tema “papel antiguo” */
+:root[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #f3edd7;
+  /* pergamino */
+  --panel: #efe6cda6;
+  --panel-border: #d7c9a1;
+  --text: #3f2f1a;
+  --muted: #6a5636;
+  --menu-bg: #efe6cd;
+  /* opaco */
+  --menu-hover: #e6dcc3;
+}

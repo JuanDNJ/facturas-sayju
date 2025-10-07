@@ -1,0 +1,66 @@
+/* Estilos de impresión */
+@media print {
+  :root {
+    --text: #111;
+    --muted: #424242;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  #root {
+    background: #fff !important;
+  }
+
+  .panel {
+    background: #fff !important;
+    border-color: #666 !important;
+  }
+
+  /* Ocultar elementos de navegación/acciones comunes */
+  a[href]:after {
+    content: "" !important;
+  }
+
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Asegurar visibilidad del contenido principal a imprimir */
+  .print-area {
+    display: block !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Quitar sombras y asegurar alta legibilidad */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Tablas más definidas */
+  table {
+    border-collapse: collapse !important;
+  }
+
+  th,
+  td {
+    border-color: #888 !important;
+  }
+
+  thead {
+    background: #f2f2f2 !important;
+  }
+
+  /* Márgenes de página recomendados */
+  @page {
+    margin: 12mm;
+  }
+}
