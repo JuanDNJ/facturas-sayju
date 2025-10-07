@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import StampMark from "../components/ui/Stamp";
 import type { Stamp as StampModel } from "../types/invoice.types";
@@ -13,19 +13,16 @@ import {
   updateStamp as updateStampFs,
   type StampsPage,
 } from "../apis/stamps";
-import { getUserProfile, saveUserProfile } from "../apis/user";
-import { getStamps as getFakeStamps } from "../data/fakeStamps";
 import { uploadStampLogo } from "../apis/storage";
 import { isValidDNI } from "../utils/validators";
 
 export default function Stamps() {
-  const ENABLE_STAMPS_MIGRATION = false;
   const { user } = useAuth();
   const { show } = useToast();
   const [stampsList, setStampsList] = useState<StampModel[]>([]);
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const didInit = useRef(false);
+  // (eliminado didInit de migración)
   // Paginación
   const [pageSize, setPageSize] = useState<number>(() => {
     const v = localStorage.getItem("st_pageSize");
@@ -188,42 +185,7 @@ export default function Stamps() {
     setPageIndex(0);
   }, [query, filterHasImage, filterInitial]);
 
-  // Migración inicial desde datos mock si el usuario no tiene sellos aún (desactivada por defecto)
-  useEffect(() => {
-    if (!ENABLE_STAMPS_MIGRATION) return;
-    if (!user?.uid || didInit.current) return;
-    didInit.current = true;
-    (async () => {
-      try {
-        const existing = await getStampsFs(user.uid, {
-          pageSize: 1,
-          withTotal: false,
-        });
-        if (existing.items.length === 0) {
-          const profile = await getUserProfile(user.uid);
-          if (!profile || !profile.stampsImported) {
-            const legacy = getFakeStamps();
-            for (const s of legacy) {
-              await addStampFs(user.uid, {
-                name: s.name,
-                companyName: s.companyName,
-                address: s.address,
-                taxId: s.taxId,
-                imgUrl: s.imgUrl,
-              } as StampModel);
-            }
-            await saveUserProfile(user.uid, { stampsImported: true });
-            show("Sellos importados");
-          }
-        }
-      } catch {
-        // Ignorar silenciosamente errores de migración
-      } finally {
-        await loadPage(true);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, ENABLE_STAMPS_MIGRATION]);
+  // (Eliminada migración desde datos mock)
 
   // Carga inicial desde Firestore (independiente de la migración mock)
   useEffect(() => {

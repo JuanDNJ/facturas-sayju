@@ -44,6 +44,13 @@ export default function NewInvoice() {
   const [invoiceId, setInvoiceId] = useState("");
   const [invoiceDate, setInvoiceDate] = useState(defaultDate);
   const [expirationDate, setExpirationDate] = useState(defaultDate);
+  // Tipo de factura
+  const [invoiceKind, setInvoiceKind] = useState<"normal" | "rectificativa">(
+    "normal"
+  );
+  const [rectifiedRef, setRectifiedRef] = useState("");
+  const [rectifiedDate, setRectifiedDate] = useState(defaultDate);
+  const [rectificationReason, setRectificationReason] = useState("");
 
   // Emisor
   const [issuerMode, setIssuerMode] = useState<"stamp" | "manual">("manual");
@@ -250,8 +257,17 @@ export default function NewInvoice() {
         e[`item_${idx}_description`] = "Descripción requerida";
       if (!it.quantity || it.quantity <= 0)
         e[`item_${idx}_quantity`] = "Cantidad > 0";
-      if (toNumber(it.price) < 0) e[`item_${idx}_price`] = "Precio >= 0";
+      // En rectificativas se permiten precios negativos
+      if (invoiceKind !== "rectificativa" && toNumber(it.price) < 0)
+        e[`item_${idx}_price`] = "Precio >= 0";
     });
+
+    if (invoiceKind === "rectificativa") {
+      if (!rectifiedRef.trim())
+        e.rectifiedRef = "Referencia de factura requerida";
+      if (!rectificationReason.trim())
+        e.rectificationReason = "Motivo requerido";
+    }
 
     return e;
   }
@@ -463,8 +479,24 @@ export default function NewInvoice() {
 
       {/* Identificación */}
       <div className="rounded p-4 panel text-sm space-y-3">
-        {/* Nº, Fechas */}
+        {/* Tipo, Nº, Fechas */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="muted block mb-1" htmlFor="invoiceKind">
+              Tipo
+            </label>
+            <select
+              id="invoiceKind"
+              className="w-full rounded px-3 py-2 panel"
+              value={invoiceKind}
+              onChange={(e) =>
+                setInvoiceKind(e.target.value as typeof invoiceKind)
+              }
+            >
+              <option value="normal">Normal</option>
+              <option value="rectificativa">Rectificativa</option>
+            </select>
+          </div>
           <div>
             <label className="muted block mb-1" htmlFor="invoiceId">
               Nº Factura
@@ -506,6 +538,55 @@ export default function NewInvoice() {
             />
           </div>
         </div>
+
+        {invoiceKind === "rectificativa" && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="muted block mb-1" htmlFor="rectifiedRef">
+                Nº factura rectificada
+              </label>
+              <input
+                id="rectifiedRef"
+                className="w-full rounded px-3 py-2 panel"
+                value={rectifiedRef}
+                onChange={(e) => setRectifiedRef(e.target.value)}
+              />
+              {errors.rectifiedRef && (
+                <div style={{ color: "crimson" }} className="text-xs mt-1">
+                  {errors.rectifiedRef}
+                </div>
+              )}
+            </div>
+            <div>
+              <label className="muted block mb-1" htmlFor="rectifiedDate">
+                Fecha factura rectificada
+              </label>
+              <input
+                id="rectifiedDate"
+                type="date"
+                className="w-full rounded px-3 py-2 panel"
+                value={rectifiedDate}
+                onChange={(e) => setRectifiedDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="muted block mb-1" htmlFor="rectificationReason">
+                Motivo de rectificación
+              </label>
+              <input
+                id="rectificationReason"
+                className="w-full rounded px-3 py-2 panel"
+                value={rectificationReason}
+                onChange={(e) => setRectificationReason(e.target.value)}
+              />
+              {errors.rectificationReason && (
+                <div style={{ color: "crimson" }} className="text-xs mt-1">
+                  {errors.rectificationReason}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Emisor y Cliente */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -851,7 +932,7 @@ export default function NewInvoice() {
                     <label className="muted block mb-1">Cantidad</label>
                     <input
                       type="number"
-                      min={0}
+                      min={invoiceKind === "rectificativa" ? -999999 : 0}
                       step={1}
                       className="w-full rounded px-2 py-1 panel text-right"
                       value={it.quantity}
@@ -891,7 +972,7 @@ export default function NewInvoice() {
                     <label className="muted block mb-1">Precio</label>
                     <input
                       type="number"
-                      min={0}
+                      min={invoiceKind === "rectificativa" ? -999999 : 0}
                       step={0.01}
                       className="w-full rounded px-2 py-1 panel text-right"
                       value={it.price as unknown as number}
@@ -982,7 +1063,7 @@ export default function NewInvoice() {
                     <td className="px-3 py-2 text-right">
                       <input
                         type="number"
-                        min={0}
+                        min={invoiceKind === "rectificativa" ? -999999 : 0}
                         step={1}
                         className="w-24 rounded px-2 py-1 panel text-right"
                         value={it.quantity}
@@ -1002,7 +1083,7 @@ export default function NewInvoice() {
                     <td className="px-3 py-2 text-right">
                       <input
                         type="number"
-                        min={0}
+                        min={invoiceKind === "rectificativa" ? -999999 : 0}
                         step={0.01}
                         className="w-28 rounded px-2 py-1 panel text-right"
                         value={it.price as unknown as number}
@@ -1143,6 +1224,19 @@ export default function NewInvoice() {
                     customer: customer || { name: "", address: "", taxId: "" },
                     items,
                     totals,
+                    invoiceKind,
+                    rectifiedRef:
+                      invoiceKind === "rectificativa"
+                        ? rectifiedRef
+                        : undefined,
+                    rectifiedDate:
+                      invoiceKind === "rectificativa"
+                        ? rectifiedDate
+                        : undefined,
+                    rectificationReason:
+                      invoiceKind === "rectificativa"
+                        ? rectificationReason
+                        : undefined,
                   };
                   try {
                     await addInvoice(user.uid, invoice);

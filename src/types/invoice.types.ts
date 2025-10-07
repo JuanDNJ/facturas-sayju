@@ -47,6 +47,11 @@ export interface Invoice {
   customer: Customer;
   items: Item[];
   totals: Totals;
+  // Nuevos campos para facturas rectificativas
+  invoiceKind?: "normal" | "rectificativa";
+  rectifiedRef?: string; // Nº factura rectificada
+  rectifiedDate?: Date | string; // Fecha factura rectificada
+  rectificationReason?: string; // Motivo de rectificación
   createdAt?: Date;
   updatedAt?: Date;
 }

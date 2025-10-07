@@ -57,6 +57,10 @@ function mapInvoice(doc: QueryDocumentSnapshot<DocumentData>): Invoice {
       irpfAmount: 0,
       totalAmount: 0,
     },
+    invoiceKind: (d.invoiceKind as Invoice["invoiceKind"]) || "normal",
+    rectifiedRef: (d.rectifiedRef as string) || undefined,
+    rectifiedDate: toDateStrict(d.rectifiedDate),
+    rectificationReason: (d.rectificationReason as string) || undefined,
     createdAt: toDateStrict(d.createdAt),
     updatedAt: toDateStrict(d.updatedAt),
   };
@@ -157,6 +161,10 @@ export async function addInvoice(uid: string, invoice: Invoice): Promise<string>
       code: typeof it.code === "string" && !isNaN(Number(it.code)) ? Number(it.code) : it.code,
     })),
     totals: invoice.totals,
+    invoiceKind: invoice.invoiceKind ?? "normal",
+    rectifiedRef: invoice.rectifiedRef ?? null,
+    rectifiedDate: invoice.rectifiedDate ? Timestamp.fromDate(parseDateInput(invoice.rectifiedDate)!) : null,
+    rectificationReason: invoice.rectificationReason ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
