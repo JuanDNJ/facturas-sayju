@@ -112,7 +112,7 @@ export default function InvoiceView() {
           Volver
         </Link>
         <button
-          className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+          className="btn btn-secondary w-full sm:w-auto text-center"
           onClick={() => window.print()}
         >
           Imprimir / Guardar PDF
@@ -177,7 +177,7 @@ export default function InvoiceView() {
             <div className="font-semibold">Cliente</div>
             <button
               type="button"
-              className="sm:hidden rounded px-2 py-1 panel text-xs"
+              className="sm:hidden btn btn-secondary text-xs px-2 py-1"
               aria-expanded={clienteOpen}
               onClick={() => setClienteOpen((v) => !v)}
             >

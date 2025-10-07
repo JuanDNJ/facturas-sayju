@@ -276,7 +276,7 @@ export default function NewInvoice() {
                 {editingCustomerId ? "Editar cliente" : "Nuevo cliente"}
               </h2>
               <button
-                className="rounded px-3 py-2 panel"
+                className="btn btn-ghost"
                 onClick={() => setCustomerModalOpen(false)}
                 aria-label="Cerrar"
               >
@@ -380,7 +380,7 @@ export default function NewInvoice() {
 
               <div className="flex gap-2 pt-2">
                 <button
-                  className="rounded px-3 py-2 panel"
+                  className="btn btn-primary"
                   onClick={async () => {
                     if (!user?.uid) return;
                     const e: Record<string, string> = {};
@@ -442,7 +442,7 @@ export default function NewInvoice() {
                   Guardar
                 </button>
                 <button
-                  className="rounded px-3 py-2 panel"
+                  className="btn btn-ghost"
                   onClick={() => setCustomerModalOpen(false)}
                 >
                   Cancelar
@@ -456,7 +456,7 @@ export default function NewInvoice() {
         <h1 className="text-lg font-semibold">Nueva factura</h1>
         <Link
           to="/invoices"
-          className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+          className="btn btn-ghost w-full sm:w-auto text-center"
         >
           Volver
         </Link>
@@ -535,7 +535,7 @@ export default function NewInvoice() {
               <div className="font-semibold">Cliente</div>
               <button
                 type="button"
-                className="sm:hidden rounded px-2 py-1 panel text-xs"
+                className="sm:hidden btn btn-secondary text-xs px-2 py-1"
                 aria-expanded={clienteOpen}
                 onClick={() => setClienteOpen((v) => !v)}
               >
@@ -554,7 +554,7 @@ export default function NewInvoice() {
                   </label>
                   <div className="flex items-center gap-2">
                     <button
-                      className="rounded px-2 py-1 panel text-xs"
+                      className="btn btn-primary text-xs px-2 py-1"
                       onClick={() => {
                         setEditingCustomerId(null);
                         setCustomerDraft({
@@ -571,7 +571,7 @@ export default function NewInvoice() {
                       Nuevo
                     </button>
                     <button
-                      className="rounded px-2 py-1 panel text-xs"
+                      className="btn btn-secondary text-xs px-2 py-1"
                       onClick={() => {
                         const c = customers.find((x) => x.id === customerId);
                         if (!c) return;

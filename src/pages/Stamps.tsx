@@ -41,17 +41,7 @@ export default function Stamps() {
   const [orderDirection, setOrderDirection] = useState<"asc" | "desc">(
     () => (localStorage.getItem("st_orderDirection") as "asc" | "desc") || "asc"
   );
-  const [filtersOpen, setFiltersOpen] = useState<boolean>(() => {
-    const v = localStorage.getItem("st_filtersOpen");
-    return v ? v === "true" : false;
-  });
-  const [filterHasImage, setFilterHasImage] = useState<boolean>(() => {
-    const v = localStorage.getItem("st_filterHasImage");
-    return v ? v === "true" : false;
-  });
-  const [filterInitial, setFilterInitial] = useState<string>(
-    () => localStorage.getItem("st_filterInitial") || ""
-  );
+  // Filtros avanzados eliminados (solo queda búsqueda y orden)
 
   async function loadPage(reset = false) {
     if (!user?.uid) return;
@@ -149,15 +139,7 @@ export default function Stamps() {
   useEffect(() => {
     localStorage.setItem("st_orderDirection", orderDirection);
   }, [orderDirection]);
-  useEffect(() => {
-    localStorage.setItem("st_filtersOpen", String(filtersOpen));
-  }, [filtersOpen]);
-  useEffect(() => {
-    localStorage.setItem("st_filterHasImage", String(filterHasImage));
-  }, [filterHasImage]);
-  useEffect(() => {
-    localStorage.setItem("st_filterInitial", filterInitial);
-  }, [filterInitial]);
+  // Persistencia de filtros avanzados eliminada
 
   // Datos filtrados en cliente
   const data = useMemo(() => {
@@ -170,20 +152,14 @@ export default function Stamps() {
           .some((v) => String(v).toLowerCase().includes(q))
       );
     }
-    if (filterHasImage) res = res.filter((s) => Boolean(s.imgUrl));
-    if (filterInitial) {
-      const prefix = filterInitial.toLowerCase();
-      res = res.filter((s) =>
-        (s.companyName || s.name || "").toLowerCase().startsWith(prefix)
-      );
-    }
+    // Sin filtros avanzados (solo búsqueda)
     return res;
-  }, [stampsList, query, filterHasImage, filterInitial]);
+  }, [stampsList, query]);
 
   // Reset de paginación visual al cambiar filtros client-side
   useEffect(() => {
     setPageIndex(0);
-  }, [query, filterHasImage, filterInitial]);
+  }, [query]);
 
   // (Eliminada migración desde datos mock)
 
@@ -291,7 +267,7 @@ export default function Stamps() {
             <div className="flex items-start justify-between mb-3">
               <h1 className="text-xl font-semibold">Diseñador de sellos</h1>
               <button
-                className="rounded px-3 py-2 panel"
+                className="btn btn-ghost"
                 onClick={() => setDesignerOpen(false)}
                 aria-label="Cerrar"
               >
@@ -402,7 +378,7 @@ export default function Stamps() {
                     </label>
                     <div className="mt-1 flex items-center gap-2">
                       <button
-                        className="rounded px-2 py-1 panel"
+                        className="btn btn-secondary px-2 py-1"
                         onClick={() => setFontPx((v) => Math.max(8, v - 1))}
                         disabled={useImage}
                         title={
@@ -424,7 +400,7 @@ export default function Stamps() {
                         disabled={useImage}
                       />
                       <button
-                        className="rounded px-2 py-1 panel"
+                        className="btn btn-secondary px-2 py-1"
                         onClick={() => setFontPx((v) => Math.min(28, v + 1))}
                         disabled={useImage}
                         title={
@@ -523,7 +499,7 @@ export default function Stamps() {
                   </div>
                   <div className="flex gap-2 pt-2">
                     <button
-                      className="rounded px-3 py-2 panel"
+                      className="btn btn-primary"
                       onClick={async () => {
                         if (!user?.uid) return;
                         const e: Record<string, string> = {};
@@ -580,7 +556,7 @@ export default function Stamps() {
                       Guardar sello
                     </button>
                     <button
-                      className="rounded px-3 py-2 panel"
+                      className="btn btn-ghost"
                       onClick={() => {
                         setStampDraft({
                           name: "SAYJU",
@@ -659,11 +635,47 @@ export default function Stamps() {
 
       {/* Listado de sellos creados */}
       <div className="rounded p-4 panel">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-3 gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-semibold">Mis sellos</h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-3">
+          <h1 className="text-2xl font-semibold">Mis sellos</h1>
+          <div className="flex items-center gap-2 flex-wrap md:flex-nowrap w-full md:w-auto">
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email, DNI, teléfono..."
+              className="rounded px-3 py-2 panel w-full sm:w-64"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              className="rounded px-2 py-1 panel text-sm w-full sm:w-auto"
+              value={orderDirection}
+              onChange={(e) => {
+                setOrderDirection(e.target.value as "asc" | "desc");
+                setPageIndex(0);
+                void loadPage(true);
+              }}
+              aria-label="Orden por nombre"
+            >
+              <option value="asc">Nombre A–Z</option>
+              <option value="desc">Nombre Z–A</option>
+            </select>
+            {/* Sin toggle de filtros avanzados */}
+            <label className="muted text-xs">Por página</label>
+            <select
+              className="rounded px-2 py-1 panel text-sm"
+              value={pageSize}
+              onChange={(e) => {
+                const size = Number(e.target.value);
+                setPageSize(size);
+                setPageIndex(0);
+                resetWithSize(size);
+              }}
+            >
+              <option value={6}>6</option>
+              <option value={12}>12</option>
+              <option value={24}>24</option>
+            </select>
             <button
-              className="rounded px-3 py-2 panel"
+              className="btn btn-primary btn-sm w-full sm:w-auto"
               onClick={() => {
                 setDesignerOpen(true);
                 setEditingId(null);
@@ -682,192 +694,173 @@ export default function Stamps() {
             >
               Nuevo sello
             </button>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
-            <input
-              type="text"
-              placeholder="Buscar por nombre, razón social, NIF..."
-              className="rounded px-3 py-2 panel w-full sm:w-64"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <select
-              className="rounded px-2 py-1 panel text-sm w-full sm:w-auto"
-              value={orderDirection}
-              onChange={(e) => {
-                setOrderDirection(e.target.value as "asc" | "desc");
-                setPageIndex(0);
-                void loadPage(true);
-              }}
-              aria-label="Orden por nombre"
-            >
-              <option value="asc">Nombre A–Z</option>
-              <option value="desc">Nombre Z–A</option>
-            </select>
-            <button
-              type="button"
-              className="rounded px-3 py-2 panel sm:hidden w-full"
-              onClick={() => setFiltersOpen((v) => !v)}
-              aria-expanded={filtersOpen}
-            >
-              {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
-            </button>
-            <label className="muted text-xs">Por página</label>
-            <select
-              className="rounded px-2 py-1 panel text-sm"
-              value={pageSize}
-              onChange={(e) => {
-                const size = Number(e.target.value);
-                setPageSize(size);
-                setPageIndex(0);
-                resetWithSize(size);
-              }}
-            >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
-              <option value={24}>24</option>
-            </select>
-            <div className="flex items-center gap-1">
-              <button
-                className="rounded px-2 py-1 panel text-sm"
-                onClick={() => {
-                  if (pageIndex > 0) void goToPage(pageIndex - 1);
-                }}
-                disabled={loading || pageIndex === 0}
-                title="Anterior"
-              >
-                ←
-              </button>
-              <span className="muted text-xs">Página {pageIndex + 1}</span>
-              <button
-                className="rounded px-2 py-1 panel text-sm"
-                onClick={() => void loadPage(false)}
-                disabled={loading || !hasNext}
-                title="Siguiente"
-              >
-                →
-              </button>
-            </div>
             {loading && <span className="muted text-xs">Cargando…</span>}
           </div>
         </div>
 
-        {/* Filtros avanzados */}
-        <div
-          className={`${
-            filtersOpen ? "grid" : "hidden"
-          } sm:grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3`}
-        >
-          <label className="flex items-center gap-2 rounded px-3 py-2 panel">
-            <input
-              type="checkbox"
-              checked={filterHasImage}
-              onChange={(e) => setFilterHasImage(e.target.checked)}
-            />
-            <span className="text-sm">Solo con imagen</span>
-          </label>
-          <div className="rounded px-3 py-2 panel">
-            <label className="muted block mb-1 text-sm" htmlFor="initialFilter">
-              Inicial del nombre
-            </label>
-            <select
-              id="initialFilter"
-              className="w-full rounded px-3 py-2 panel"
-              value={filterInitial}
-              onChange={(e) => setFilterInitial(e.target.value)}
-            >
-              <option value="">Todas</option>
-              {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((ch) => (
-                <option key={ch} value={ch}>
-                  {ch}
-                </option>
+        {/* Filtros avanzados eliminados */}
+        {data.length === 0 ? (
+          <div className="muted text-sm">No hay sellos aún.</div>
+        ) : (
+          <>
+            {/* Tabla (md+) */}
+            <div className="hidden md:block overflow-x-auto rounded panel">
+              <table className="w-full text-sm">
+                <thead className="text-left muted">
+                  <tr>
+                    <th className="px-4 py-3">Nombre</th>
+                    <th className="px-4 py-3">Email</th>
+                    <th className="px-4 py-3">Teléfono</th>
+                    <th className="px-4 py-3">DNI</th>
+                    <th className="px-4 py-3 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((s) => (
+                    <tr
+                      key={s.id}
+                      className="border-t border-[var(--panel-border)]"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-[var(--text)]">
+                          {s.companyName || s.name}
+                        </div>
+                        <div className="muted text-xs truncate max-w-[360px]">
+                          {s.address}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">—</td>
+                      <td className="px-4 py-3">—</td>
+                      <td className="px-4 py-3">{s.taxId || "—"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex gap-2">
+                          <button
+                            className="btn btn-secondary h-8 px-3"
+                            onClick={() => {
+                              setStampDraft({
+                                name: s.name,
+                                companyName: s.companyName,
+                                address: s.address,
+                                taxId: s.taxId,
+                                imgUrl: s.imgUrl,
+                              });
+                              setUseImage(Boolean(s.imgUrl));
+                              setImageUrl(s.imgUrl || "");
+                              setFileUrl(null);
+                              setEditingId(s.id || null);
+                              setDesignerOpen(true);
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="btn btn-danger h-8 px-3"
+                            onClick={async () => {
+                              if (!user?.uid || !s.id) return;
+                              if (!confirm("¿Eliminar este sello?")) return;
+                              try {
+                                await removeStampFs(user.uid, s.id);
+                                if (editingId === s.id) setEditingId(null);
+                                await loadPage(true);
+                                show("Sello eliminado");
+                              } catch {
+                                show("No se pudo eliminar el sello");
+                              }
+                            }}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Lista en tarjetas (móvil) */}
+            <div className="md:hidden grid grid-cols-1 gap-3">
+              {data.map((s) => (
+                <div key={s.id} className="rounded p-4 panel">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-medium text-[var(--text)]">
+                        {s.companyName || s.name}
+                      </div>
+                      <div className="muted text-xs truncate max-w-[220px]">
+                        {s.address}
+                      </div>
+                      <div className="muted text-xs">{s.taxId || "—"}</div>
+                    </div>
+                    <div className="flex gap-2 flex-wrap w-[120px] sm:w-auto">
+                      <button
+                        className="btn btn-secondary h-8 px-3 w-full sm:w-auto text-center"
+                        onClick={() => {
+                          setStampDraft({
+                            name: s.name,
+                            companyName: s.companyName,
+                            address: s.address,
+                            taxId: s.taxId,
+                            imgUrl: s.imgUrl,
+                          });
+                          setUseImage(Boolean(s.imgUrl));
+                          setImageUrl(s.imgUrl || "");
+                          setFileUrl(null);
+                          setEditingId(s.id || null);
+                          setDesignerOpen(true);
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn btn-danger h-8 px-3 w-full sm:w-auto text-center"
+                        onClick={async () => {
+                          if (!user?.uid || !s.id) return;
+                          const ok = window.confirm("¿Eliminar este sello?");
+                          if (!ok) return;
+                          try {
+                            await removeStampFs(user.uid, s.id);
+                            if (editingId === s.id) setEditingId(null);
+                            await loadPage(true);
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </select>
+            </div>
+          </>
+        )}
+
+        {/* Paginación al pie, mismo estilo que Clientes */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-2 mt-3">
+          <div className="text-sm muted w-full sm:w-auto text-center sm:text-left">
+            Página {pageIndex + 1}
           </div>
-          <div className="sm:col-span-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              type="button"
-              className="rounded px-3 py-2 panel w-full sm:w-auto"
-              aria-label="Limpiar filtros"
-              onClick={async () => {
-                setQuery("");
-                setFilterHasImage(false);
-                setFilterInitial("");
-                await loadPage(true);
+              className="btn btn-secondary w-full sm:w-auto"
+              disabled={pageIndex <= 0 || loading}
+              onClick={() => {
+                if (pageIndex > 0) void goToPage(pageIndex - 1);
               }}
             >
-              Limpiar filtros
+              Anterior
+            </button>
+            <button
+              className="btn btn-secondary w-full sm:w-auto"
+              disabled={!hasNext || loading}
+              onClick={() => void loadPage(false)}
+            >
+              Siguiente
             </button>
           </div>
         </div>
-        {data.length === 0 ? (
-          <div className="muted text-sm">
-            No hay sellos aún. Crea uno con el formulario.
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3 lg:max-w-3xl mx-auto">
-            {data.map((s) => (
-              <div
-                key={s.id}
-                className="rounded p-3 panel text-sm flex items-center gap-3 justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  {s.imgUrl ? (
-                    <img
-                      src={s.imgUrl}
-                      alt={s.companyName || s.name}
-                      className="w-16 h-10 object-contain"
-                    />
-                  ) : (
-                    <StampMark text={s.name} size="sm" angled={false} />
-                  )}
-                  <div>
-                    <div className="font-medium">{s.companyName || s.name}</div>
-                    <div className="muted text-xs">{s.taxId}</div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    className="rounded px-2 py-1 panel"
-                    onClick={() => {
-                      setStampDraft({
-                        name: s.name,
-                        companyName: s.companyName,
-                        address: s.address,
-                        taxId: s.taxId,
-                        imgUrl: s.imgUrl,
-                      });
-                      setUseImage(Boolean(s.imgUrl));
-                      setImageUrl(s.imgUrl || "");
-                      setFileUrl(null);
-                      setEditingId(s.id || null);
-                      setDesignerOpen(true);
-                    }}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="rounded px-2 py-1 panel"
-                    onClick={async () => {
-                      if (!user?.uid || !s.id) return;
-                      if (!confirm("¿Eliminar este sello?")) return;
-                      try {
-                        await removeStampFs(user.uid, s.id);
-                        if (editingId === s.id) setEditingId(null);
-                        await loadPage(true);
-                        show("Sello eliminado");
-                      } catch {
-                        show("No se pudo eliminar el sello");
-                      }
-                    }}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

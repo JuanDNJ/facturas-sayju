@@ -212,7 +212,7 @@ export default function CompleteProfile() {
           </div>
         )}
 
-        <button className="rounded px-3 py-2 panel" type="submit">
+        <button className="btn btn-primary" type="submit">
           Guardar
         </button>
       </form>

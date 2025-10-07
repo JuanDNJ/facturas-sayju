@@ -16,6 +16,40 @@
   --menu-bg: #262626;
   /* opaco sobre fondo #1e1e1e */
   --menu-hover: #333333;
+
+  /* Botones - variables por defecto (tema dark/base) */
+  /* Primary */
+  --btn-primary-bg: #3b82f6;
+  /* blue-500 */
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: transparent;
+  --btn-primary-hover-bg: #2563eb;
+  /* blue-600 */
+  --btn-primary-hover-border: transparent;
+  --btn-primary-ring: rgba(59, 130, 246, 0.4);
+  /* Secondary (neutro sobre panel) */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.08);
+  --btn-secondary-text: var(--text);
+  --btn-secondary-border: var(--panel-border);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.12);
+  --btn-secondary-hover-border: var(--panel-border);
+  --btn-secondary-ring: rgba(255, 255, 255, 0.25);
+  /* Ghost (sin borde, solo hover) */
+  --btn-ghost-bg: transparent;
+  --btn-ghost-text: var(--text);
+  --btn-ghost-border: transparent;
+  --btn-ghost-hover-bg: var(--panel);
+  --btn-ghost-hover-border: var(--panel-border);
+  --btn-ghost-ring: rgba(255, 255, 255, 0.2);
+  /* Destructive */
+  --btn-danger-bg: #ef4444;
+  /* red-500 */
+  --btn-danger-text: #ffffff;
+  --btn-danger-border: transparent;
+  --btn-danger-hover-bg: #dc2626;
+  /* red-600 */
+  --btn-danger-hover-border: transparent;
+  --btn-danger-ring: rgba(239, 68, 68, 0.4);
 }
 
 :root[data-theme="dark"] {
@@ -28,6 +62,7 @@
   --muted: rgba(255, 255, 255, 0.72);
   --menu-bg: #262626;
   --menu-hover: #333333;
+  /* Mantener misma paleta por defecto que :root */
 }
 
 :root[data-theme="light"] {
@@ -39,6 +74,42 @@
   --muted: rgba(0, 0, 0, 0.6);
   --menu-bg: #ffffff;
   --menu-hover: #f2f2f2;
+
+  /* Botones (ajuste para contraste en claro) */
+  --btn-primary-bg: #2563eb;
+  /* blue-600 */
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: transparent;
+  --btn-primary-hover-bg: #1d4ed8;
+  /* blue-700 */
+  --btn-primary-hover-border: transparent;
+  --btn-primary-ring: rgba(37, 99, 235, 0.35);
+
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-text: #111827;
+  /* gray-900 */
+  --btn-secondary-border: rgba(0, 0, 0, 0.12);
+  --btn-secondary-hover-bg: #f3f4f6;
+  /* gray-100 */
+  --btn-secondary-hover-border: rgba(0, 0, 0, 0.18);
+  --btn-secondary-ring: rgba(0, 0, 0, 0.15);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-text: #111827;
+  --btn-ghost-border: transparent;
+  --btn-ghost-hover-bg: #f3f4f6;
+  /* gray-100 */
+  --btn-ghost-hover-border: rgba(0, 0, 0, 0.08);
+  --btn-ghost-ring: rgba(0, 0, 0, 0.12);
+
+  --btn-danger-bg: #dc2626;
+  /* red-600 */
+  --btn-danger-text: #ffffff;
+  --btn-danger-border: transparent;
+  --btn-danger-hover-bg: #b91c1c;
+  /* red-700 */
+  --btn-danger-hover-border: transparent;
+  --btn-danger-ring: rgba(220, 38, 38, 0.35);
 }
 
 /* Tema “papel antiguo” */
@@ -53,4 +124,37 @@
   --menu-bg: #efe6cd;
   /* opaco */
   --menu-hover: #e6dcc3;
+
+  /* Botones (tonos cálidos) */
+  --btn-primary-bg: #8b5e34;
+  /* marrón medio */
+  --btn-primary-text: #fff8ee;
+  --btn-primary-border: transparent;
+  --btn-primary-hover-bg: #704225;
+  --btn-primary-hover-border: transparent;
+  --btn-primary-ring: rgba(139, 94, 52, 0.35);
+
+  --btn-secondary-bg: #efe6cd;
+  /* combinar con panel */
+  --btn-secondary-text: #3f2f1a;
+  --btn-secondary-border: #d7c9a1;
+  --btn-secondary-hover-bg: #e6dcc3;
+  --btn-secondary-hover-border: #cfbf94;
+  --btn-secondary-ring: rgba(63, 47, 26, 0.2);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-text: #3f2f1a;
+  --btn-ghost-border: transparent;
+  --btn-ghost-hover-bg: #efe6cda6;
+  --btn-ghost-hover-border: #d7c9a1;
+  --btn-ghost-ring: rgba(63, 47, 26, 0.16);
+
+  --btn-danger-bg: #c2410c;
+  /* orange-600 tostado */
+  --btn-danger-text: #fff8ee;
+  --btn-danger-border: transparent;
+  --btn-danger-hover-bg: #9a3412;
+  /* orange-700 */
+  --btn-danger-hover-border: transparent;
+  --btn-danger-ring: rgba(194, 65, 12, 0.35);
 }

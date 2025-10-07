@@ -35,7 +35,7 @@ export default function NewClient() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Nuevo cliente</h1>
-        <Link to="/clientes" className="rounded px-3 py-2 panel">
+        <Link to="/clientes" className="btn btn-ghost">
           Volver
         </Link>
       </div>
@@ -126,7 +126,7 @@ export default function NewClient() {
 
         <div className="flex gap-2 pt-2">
           <button
-            className="rounded px-3 py-2 panel"
+            className="btn btn-primary"
             disabled={saving}
             onClick={async () => {
               const e = validate(draft);
@@ -151,7 +151,7 @@ export default function NewClient() {
             Guardar
           </button>
           <button
-            className="rounded px-3 py-2 panel"
+            className="btn btn-ghost"
             onClick={() => navigate("/clientes")}
           >
             Cancelar

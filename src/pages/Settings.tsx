@@ -169,7 +169,7 @@ export default function Settings() {
 
         <div className="flex gap-2">
           <button
-            className="rounded px-3 py-2 panel"
+            className="btn btn-primary"
             type="submit"
             disabled={loading || !user}
           >
@@ -177,7 +177,7 @@ export default function Settings() {
           </button>
           <button
             type="button"
-            className="rounded px-3 py-2 panel"
+            className="btn btn-ghost"
             disabled={loading}
             onClick={() => {
               setPhotoURL("");

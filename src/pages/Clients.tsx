@@ -29,21 +29,7 @@ export default function Clients() {
   const [orderDirection, setOrderDirection] = useState<"asc" | "desc">(
     () => (localStorage.getItem("cl_orderDirection") as "asc" | "desc") || "asc"
   );
-  const [filtersOpen, setFiltersOpen] = useState<boolean>(() => {
-    const v = localStorage.getItem("cl_filtersOpen");
-    return v ? v === "true" : false;
-  });
-  const [filterHasEmail, setFilterHasEmail] = useState<boolean>(() => {
-    const v = localStorage.getItem("cl_filterHasEmail");
-    return v ? v === "true" : false;
-  });
-  const [filterHasPhone, setFilterHasPhone] = useState<boolean>(() => {
-    const v = localStorage.getItem("cl_filterHasPhone");
-    return v ? v === "true" : false;
-  });
-  const [filterInitial, setFilterInitial] = useState<string>(
-    () => localStorage.getItem("cl_filterInitial") || ""
-  );
+  // Filtros avanzados eliminados
   const [pageCursors, setPageCursors] = useState<
     QueryDocumentSnapshot<DocumentData>[]
   >([]);
@@ -96,18 +82,7 @@ export default function Clients() {
   useEffect(() => {
     localStorage.setItem("cl_orderDirection", orderDirection);
   }, [orderDirection]);
-  useEffect(() => {
-    localStorage.setItem("cl_filterHasEmail", String(filterHasEmail));
-  }, [filterHasEmail]);
-  useEffect(() => {
-    localStorage.setItem("cl_filterHasPhone", String(filterHasPhone));
-  }, [filterHasPhone]);
-  useEffect(() => {
-    localStorage.setItem("cl_filterInitial", filterInitial);
-  }, [filterInitial]);
-  useEffect(() => {
-    localStorage.setItem("cl_filtersOpen", String(filtersOpen));
-  }, [filtersOpen]);
+  // Persistencia de filtros avanzados eliminada
 
   // Recoger toast que venga desde navegación (por ejemplo, tras crear o borrar)
   useEffect(() => {
@@ -130,31 +105,24 @@ export default function Clients() {
           .some((v) => String(v).toLowerCase().includes(q))
       );
     }
-    if (filterHasEmail) res = res.filter((c) => Boolean(c.email));
-    if (filterHasPhone) res = res.filter((c) => Boolean(c.phone));
-    if (filterInitial) {
-      const prefix = filterInitial.toLowerCase();
-      res = res.filter((c) => (c.name || "").toLowerCase().startsWith(prefix));
-    }
+    // Sin filtros avanzados
     return res;
-  }, [items, query, filterHasEmail, filterHasPhone, filterInitial]);
+  }, [items, query]);
 
-  // Si cambian filtros client-side o la búsqueda, volver a página 1
+  // Si cambia la búsqueda, volver a página 1
   useEffect(() => {
     setCurrentPage(1);
-  }, [query, filterHasEmail, filterHasPhone, filterInitial]);
+  }, [query]);
 
   const hasClientSideFilters = useMemo(() => {
-    return Boolean(
-      query.trim() || filterHasEmail || filterHasPhone || filterInitial
-    );
-  }, [query, filterHasEmail, filterHasPhone, filterInitial]);
+    return Boolean(query.trim());
+  }, [query]);
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <h1 className="text-2xl font-semibold">Clientes</h1>
-        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap w-full md:w-auto">
           <input
             type="text"
             placeholder="Buscar por nombre, email, DNI, teléfono..."
@@ -187,97 +155,12 @@ export default function Clients() {
             <option value="asc">Nombre A–Z</option>
             <option value="desc">Nombre Z–A</option>
           </select>
-          <button
-            type="button"
-            className="rounded px-3 py-2 panel sm:hidden w-full"
-            onClick={() => setFiltersOpen((v) => !v)}
-            aria-expanded={filtersOpen}
-          >
-            {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
-          </button>
           <Link
             to="/clientes/nuevo"
-            className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+            className="btn btn-primary btn-sm w-full sm:w-auto text-center"
           >
             Nuevo cliente
           </Link>
-        </div>
-      </div>
-
-      {/* Filtros avanzados */}
-      <div
-        className={`${
-          filtersOpen ? "grid" : "hidden"
-        } sm:grid grid-cols-1 sm:grid-cols-3 gap-3`}
-      >
-        <label className="flex items-center gap-2 rounded px-3 py-2 panel">
-          <input
-            type="checkbox"
-            checked={filterHasEmail}
-            onChange={(e) => setFilterHasEmail(e.target.checked)}
-          />
-          <span className="text-sm">Solo con email</span>
-        </label>
-        <label className="flex items-center gap-2 rounded px-3 py-2 panel">
-          <input
-            type="checkbox"
-            checked={filterHasPhone}
-            onChange={(e) => setFilterHasPhone(e.target.checked)}
-          />
-          <span className="text-sm">Solo con teléfono</span>
-        </label>
-        <div className="rounded px-3 py-2 panel">
-          <label className="muted block mb-1 text-sm" htmlFor="initialFilter">
-            Inicial del nombre
-          </label>
-          <select
-            id="initialFilter"
-            className="w-full rounded px-3 py-2 panel"
-            value={filterInitial}
-            onChange={(e) => setFilterInitial(e.target.value)}
-          >
-            <option value="">Todas</option>
-            {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((ch) => (
-              <option key={ch} value={ch}>
-                {ch}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sm:col-span-3">
-          <button
-            type="button"
-            className="rounded px-3 py-2 panel w-full sm:w-auto"
-            aria-label="Limpiar filtros"
-            onClick={async () => {
-              setQuery("");
-              setFilterHasEmail(false);
-              setFilterHasPhone(false);
-              setFilterInitial("");
-              if (!user) return;
-              setLoading(true);
-              setError(null);
-              try {
-                const page = await getCustomers(user.uid, {
-                  pageSize,
-                  withTotal: true,
-                  orderByField: "name",
-                  direction: orderDirection,
-                });
-                setItems(page.items);
-                setHasNext(Boolean(page.nextCursor));
-                setPageCursors(page.nextCursor ? [page.nextCursor] : []);
-                setCurrentPage(1);
-                setTotal(page.total);
-              } catch {
-                setError("No se pudieron cargar los clientes");
-              } finally {
-                setLoading(false);
-              }
-            }}
-          >
-            Limpiar filtros
-          </button>
         </div>
       </div>
 
@@ -321,18 +204,18 @@ export default function Clients() {
                   <div className="inline-flex gap-2">
                     <Link
                       to={`/clientes/${c.id}`}
-                      className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                      className="btn btn-ghost h-8 px-3"
                     >
                       Ver
                     </Link>
                     <Link
                       to={`/clientes/${c.id}?edit=1`}
-                      className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                      className="btn btn-secondary h-8 px-3"
                     >
                       Editar
                     </Link>
                     <button
-                      className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                      className="btn btn-danger h-8 px-3"
                       onClick={async () => {
                         if (!user || !c.id) return;
                         const ok = window.confirm(
@@ -374,18 +257,18 @@ export default function Clients() {
               <div className="flex gap-2 flex-wrap w-[120px] sm:w-auto">
                 <Link
                   to={`/clientes/${c.id}`}
-                  className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)] w-full sm:w-auto text-center"
+                  className="btn btn-ghost h-8 px-3 w-full sm:w-auto text-center"
                 >
                   Ver
                 </Link>
                 <Link
                   to={`/clientes/${c.id}?edit=1`}
-                  className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)] w-full sm:w-auto text-center"
+                  className="btn btn-secondary h-8 px-3 w-full sm:w-auto text-center"
                 >
                   Editar
                 </Link>
                 <button
-                  className="rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)] w-full sm:w-auto text-center"
+                  className="btn btn-danger h-8 px-3 w-full sm:w-auto text-center"
                   onClick={async () => {
                     if (!user || !c.id) return;
                     const ok = window.confirm(
@@ -426,7 +309,7 @@ export default function Clients() {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
-            className="rounded px-3 py-2 panel w-full sm:w-auto"
+            className="btn btn-secondary w-full sm:w-auto"
             disabled={currentPage <= 1 || loading}
             onClick={async () => {
               if (!user) return;
@@ -455,7 +338,7 @@ export default function Clients() {
             Anterior
           </button>
           <button
-            className="rounded px-3 py-2 panel w-full sm:w-auto"
+            className="btn btn-secondary w-full sm:w-auto"
             disabled={!hasNext || loading}
             onClick={async () => {
               if (!user) return;

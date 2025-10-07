@@ -147,7 +147,7 @@ export default function Invoices() {
         <h1 className="text-2xl font-semibold">Facturas</h1>
         <Link
           to="/invoices/new"
-          className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+          className="btn btn-primary w-full sm:w-auto text-center"
         >
           Nueva factura
         </Link>
@@ -156,7 +156,7 @@ export default function Invoices() {
       {/* Filtros */}
       <div className="sm:hidden">
         <button
-          className="rounded px-3 py-2 panel w-full"
+          className="btn btn-secondary w-full"
           onClick={() => setFiltersOpen((v) => !v)}
         >
           {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
@@ -173,7 +173,7 @@ export default function Invoices() {
           </label>
           <input
             id="f_id"
-            className="w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel"
+            className="btn btn-primary w-full sm:w-auto"
             placeholder="Ej: 2025-001"
             value={qInvoiceId}
             onChange={(e) => setQInvoiceId(e.target.value)}
@@ -185,7 +185,7 @@ export default function Invoices() {
           </label>
           <input
             id="f_cust"
-            className="w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel"
+            className="btn btn-secondary w-full sm:w-auto"
             placeholder="Nombre o DNI"
             value={qCustomer}
             onChange={(e) => setQCustomer(e.target.value)}
@@ -238,7 +238,7 @@ export default function Invoices() {
           <div className="flex items-center gap-2 sm:self-auto self-end w-full sm:w-auto justify-end">
             <span className="muted text-xs">Tamaño</span>
             <select
-              className="rounded px-2 py-1 sm:px-2 sm:py-1 panel text-xs w-full sm:w-auto"
+              className="btn btn-ghost text-xs px-2 py-1 w-full sm:w-auto"
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
             >
@@ -253,7 +253,7 @@ export default function Invoices() {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="muted text-xs">Ordenar por</span>
             <select
-              className="rounded px-2 py-1 sm:px-2 sm:py-1 panel text-xs w-full sm:w-auto"
+              className="btn btn-secondary text-xs px-2 py-1 w-full sm:w-auto"
               value={sortBy}
               onChange={(e) => {
                 const next = e.target.value as "date" | "customer" | "id";
@@ -276,7 +276,7 @@ export default function Invoices() {
           <div className="flex items-center gap-2 flex-wrap sm:justify-end">
             <span className="muted text-xs">Dirección</span>
             <select
-              className="rounded px-2 py-1 sm:px-2 sm:py-1 panel text-xs w-full sm:w-auto"
+              className="btn btn-danger text-xs px-2 py-1 w-full sm:w-auto"
               value={sortDir}
               onChange={(e) => setSortDir(e.target.value as "asc" | "desc")}
             >
@@ -329,19 +329,19 @@ export default function Invoices() {
                     <div className="flex justify-end gap-2">
                       <Link
                         to={`/invoices/${row.id}`}
-                        className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                        className="btn btn-ghost h-8 px-3"
                       >
                         Ver
                       </Link>
                       <Link
                         to={`/invoices/${row.id}/edit`}
-                        className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                        className="btn btn-secondary h-8 px-3"
                       >
                         Editar
                       </Link>
                       <button
                         onClick={() => handleDelete(row.id)}
-                        className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                        className="btn btn-danger h-8 px-3"
                       >
                         Eliminar
                       </button>
@@ -371,19 +371,19 @@ export default function Invoices() {
               <div className="mt-2 flex justify-end gap-2">
                 <Link
                   to={`/invoices/${row.id}`}
-                  className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                  className="btn btn-ghost h-8 px-3"
                 >
                   Ver
                 </Link>
                 <Link
                   to={`/invoices/${row.id}/edit`}
-                  className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                  className="btn btn-secondary h-8 px-3"
                 >
                   Editar
                 </Link>
                 <button
                   onClick={() => handleDelete(row.id)}
-                  className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                  className="btn btn-danger h-8 px-3"
                 >
                   Eliminar
                 </button>
@@ -396,7 +396,7 @@ export default function Invoices() {
           <div className="muted text-xs">Página {currentPage}</div>
           <div className="flex gap-2 w-full sm:w-auto">
             <button
-              className="rounded px-3 py-1 panel w-full sm:w-auto"
+              className="btn btn-secondary w-full sm:w-auto h-9"
               onClick={async () => {
                 if (!user) return;
                 if (currentPage <= 1) return;
@@ -438,7 +438,7 @@ export default function Invoices() {
               Anterior
             </button>
             <button
-              className="rounded px-3 py-1 panel w-full sm:w-auto"
+              className="btn btn-secondary w-full sm:w-auto h-9"
               onClick={async () => {
                 if (!user) return;
                 const lastCursor = cursorStack[cursorStack.length - 1];

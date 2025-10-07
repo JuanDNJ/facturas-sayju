@@ -389,7 +389,7 @@ export function InvoiceForm(props: {
           <div className="font-semibold">Conceptos</div>
           <div className="flex gap-2 w-full sm:w-auto">
             <button
-              className="rounded px-3 py-2 panel w-full sm:w-auto"
+              className="btn btn-secondary w-full sm:w-auto"
               onClick={onAddItem}
             >
               Añadir línea
@@ -489,7 +489,7 @@ export function InvoiceForm(props: {
                       </div>
                     </div>
                     <button
-                      className="rounded px-2 py-1 panel"
+                      className="btn btn-ghost h-8 px-2"
                       onClick={() => onRemoveItem(idx)}
                     >
                       Eliminar
@@ -603,7 +603,7 @@ export function InvoiceForm(props: {
                     </td>
                     <td className="px-3 py-2 text-right">
                       <button
-                        className="rounded px-2 py-1 panel"
+                        className="btn btn-ghost h-8 px-2"
                         onClick={() => onRemoveItem(idx)}
                       >
                         Eliminar
@@ -678,7 +678,7 @@ export function InvoiceForm(props: {
           </div>
           <div className="flex gap-2 pt-3">
             <button
-              className="rounded px-3 py-2 panel"
+              className="btn btn-primary"
               disabled={submitting}
               onClick={onSubmit}
             >

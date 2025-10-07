@@ -86,13 +86,13 @@ export default function ClientView() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Cliente</h1>
         <div className="flex items-center gap-2">
-          <Link className="rounded px-3 py-2 panel" to="/clientes">
+          <Link className="btn btn-ghost" to="/clientes">
             Volver
           </Link>
           {!editing && (
             <button
               type="button"
-              className="rounded px-3 py-2 panel"
+              className="btn btn-secondary"
               onClick={() => setEditing(true)}
             >
               Editar
@@ -101,7 +101,7 @@ export default function ClientView() {
           {!editing && current?.id && (
             <button
               type="button"
-              className="rounded px-3 py-2 panel"
+              className="btn btn-danger"
               onClick={async () => {
                 if (!user || !current?.id) return;
                 const ok = window.confirm(
@@ -167,7 +167,7 @@ export default function ClientView() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="rounded px-3 py-2 panel"
+                className="btn btn-ghost"
                 onClick={() => {
                   setDraft(current!);
                   setErrors({});
@@ -178,7 +178,7 @@ export default function ClientView() {
               </button>
               <button
                 type="button"
-                className="rounded px-3 py-2 panel"
+                className="btn btn-primary"
                 disabled={saving}
                 onClick={async () => {
                   if (!user || !current?.id) return;

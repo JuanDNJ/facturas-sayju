@@ -24,7 +24,7 @@ export default function Dashboard() {
         </div>
         <Link
           to="/sugerencias"
-          className="rounded px-3 py-2 panel text-sm whitespace-nowrap"
+          className="btn btn-primary text-sm whitespace-nowrap"
         >
           Enviar sugerencia
         </Link>
@@ -61,7 +61,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Link to="/invoices" className="rounded px-3 py-2 panel text-sm">
+            <Link to="/invoices" className="btn btn-secondary text-sm">
               Ir a facturas
             </Link>
             <span className="muted text-xs">
@@ -91,7 +91,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <Link to="/clientes" className="rounded px-3 py-2 panel text-sm">
+            <Link to="/clientes" className="btn btn-secondary text-sm">
               Ir a clientes
             </Link>
             <span className="muted text-xs">Altas, edición, historial</span>
@@ -119,7 +119,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <Link to="/sugerencias" className="rounded px-3 py-2 panel text-sm">
+            <Link to="/sugerencias" className="btn btn-secondary text-sm">
               Enviar sugerencia
             </Link>
             <span className="muted text-xs">Gracias por tu feedback</span>
@@ -147,7 +147,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <Link to="/sellos" className="rounded px-3 py-2 panel text-sm">
+            <Link to="/sellos" className="btn btn-secondary text-sm">
               Ir a sellos
             </Link>
           </div>
@@ -174,7 +174,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <Link to="/settings" className="rounded px-3 py-2 panel text-sm">
+            <Link to="/settings" className="btn btn-secondary text-sm">
               Ir a ajustes
             </Link>
           </div>

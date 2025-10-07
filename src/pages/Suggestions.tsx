@@ -94,12 +94,12 @@ export default function Suggestions() {
           />
         </div>
         <div className="flex gap-2">
-          <button className="rounded px-3 py-2 panel" disabled={sending}>
+          <button className="btn btn-primary" disabled={sending}>
             {sending ? "Enviando..." : "Enviar"}
           </button>
           <button
             type="reset"
-            className="rounded px-3 py-2 panel"
+            className="btn btn-ghost"
             onClick={() => {
               setTitle("");
               setMessage("");

@@ -87,7 +87,7 @@ export default function Login() {
           )}
 
           <button
-            className="w-full rounded px-3 py-2 panel"
+            className="btn btn-primary w-full"
             type="submit"
             disabled={loading}
           >
@@ -96,7 +96,7 @@ export default function Login() {
           <div className="flex items-center justify-between text-xs mt-2">
             <button
               type="button"
-              className="underline hover:opacity-80 disabled:opacity-50"
+              className="btn btn-ghost h-8 px-2 underline"
               disabled={cooldown > 0}
               onClick={async () => {
                 setError(null);
@@ -121,7 +121,7 @@ export default function Login() {
                 ? `Reintentar en ${cooldown}s`
                 : "¿Olvidaste tu contraseña?"}
             </button>
-            <Link to="/registro" className="underline hover:opacity-80">
+            <Link to="/registro" className="btn btn-ghost h-8 px-2 underline">
               Crear cuenta
             </Link>
           </div>

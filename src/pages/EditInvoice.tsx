@@ -198,7 +198,7 @@ export default function EditInvoice() {
         <div className="rounded p-6 panel" style={{ color: "crimson" }}>
           {error}
         </div>
-        <Link to="/invoices" className="rounded px-3 py-2 panel inline-block">
+        <Link to="/invoices" className="btn btn-ghost inline-block">
           Volver
         </Link>
       </section>
@@ -213,13 +213,13 @@ export default function EditInvoice() {
         <div className="flex gap-2 w-full sm:w-auto">
           <Link
             to={`/invoices/${id}`}
-            className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+            className="btn btn-secondary w-full sm:w-auto text-center"
           >
             Ver
           </Link>
           <Link
             to="/invoices"
-            className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
+            className="btn btn-ghost w-full sm:w-auto text-center"
           >
             Volver
           </Link>
