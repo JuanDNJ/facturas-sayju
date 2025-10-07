@@ -5,6 +5,12 @@
     --muted: #424242;
   }
 
+  :root[data-theme="dark"] {
+    --panel-border: rgba(8, 8, 8, 0.92);
+    --text: rgba(8, 8, 8, 0.92);
+    --muted: rgba(8, 8, 8, 0.92);
+  }
+
   html,
   body {
     background: #fff !important;

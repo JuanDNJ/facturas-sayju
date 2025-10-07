@@ -19,6 +19,7 @@ import { uploadStampLogo } from "../apis/storage";
 import { isValidDNI } from "../utils/validators";
 
 export default function Stamps() {
+  const ENABLE_STAMPS_MIGRATION = false;
   const { user } = useAuth();
   const { show } = useToast();
   const [stampsList, setStampsList] = useState<StampModel[]>([]);
@@ -187,13 +188,13 @@ export default function Stamps() {
     setPageIndex(0);
   }, [query, filterHasImage, filterInitial]);
 
-  // Migración inicial desde datos mock si el usuario no tiene sellos aún
+  // Migración inicial desde datos mock si el usuario no tiene sellos aún (desactivada por defecto)
   useEffect(() => {
+    if (!ENABLE_STAMPS_MIGRATION) return;
     if (!user?.uid || didInit.current) return;
     didInit.current = true;
     (async () => {
       try {
-        // Comprobamos si ya existen sellos; si no, importamos los mock una sola vez
         const existing = await getStampsFs(user.uid, {
           pageSize: 1,
           withTotal: false,
@@ -222,13 +223,20 @@ export default function Stamps() {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid, ENABLE_STAMPS_MIGRATION]);
+
+  // Carga inicial desde Firestore (independiente de la migración mock)
+  useEffect(() => {
+    if (!user?.uid) return;
+    void loadPage(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid]);
 
   const [stampDraft, setStampDraft] = useState<StampModel>({
-    name: "SAYJU",
-    companyName: "Sayju S.A.",
-    address: "C/ Ejemplo 123, Madrid",
-    taxId: "B-12345678",
+    name: "",
+    companyName: "",
+    address: "",
+    taxId: "",
     imgUrl: undefined,
   });
   const [editingId, setEditingId] = useState<string | null>(null);
