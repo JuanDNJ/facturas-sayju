@@ -138,6 +138,19 @@ export default function Sidebar({
             <span>⚙️</span>
             {!collapsed && <span>Ajustes</span>}
           </NavLink>
+          <NavLink
+            to="/sugerencias"
+            className={({ isActive }) =>
+              (isActive ? `${linkBase} bg-[var(--menu-hover)]` : linkBase) +
+              (collapsed ? " justify-center" : "")
+            }
+            onClick={() => {
+              if (isModal) onClose();
+            }}
+          >
+            <span>💬</span>
+            {!collapsed && <span>Sugerencias</span>}
+          </NavLink>
         </nav>
       </aside>
     </>

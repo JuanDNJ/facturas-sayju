@@ -14,6 +14,7 @@ import NewInvoice from "./pages/NewInvoice";
 import Register from "./pages/Register";
 import CompleteProfile from "./pages/CompleteProfile";
 import Login from "./pages/Login";
+import Suggestions from "./pages/Suggestions";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               {/* Ruta antigua de ejemplo 'factura' ya no es necesaria */}
               <Route path="clientes" element={<Clients />} />
               <Route path="sellos" element={<Stamps />} />
+              <Route path="sugerencias" element={<Suggestions />} />
               <Route path="settings" element={<Settings />} />
               <Route path="registro/datos" element={<CompleteProfile />} />
             </Route>
