@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { getInvoices } from "../apis/invoices";
+import { getInvoices, deleteInvoice } from "../apis/invoices";
 import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import type { Invoice } from "../types/invoice.types";
+import { useToast } from "../hooks/useToast";
 
 export default function Invoices() {
   const { user } = useAuth();
+  const { show } = useToast();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(false);
@@ -25,8 +27,9 @@ export default function Invoices() {
   const [qTo, setQTo] = useState<string>("");
 
   // ordenación
-  const [sortBy, setSortBy] = useState<"date" | "customer">("date");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<"date" | "customer" | "id">("id");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [dateClearedNotice, setDateClearedNotice] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -39,7 +42,9 @@ export default function Invoices() {
           pageSize,
           fromDate: qFrom || undefined,
           toDate: qTo || undefined,
-          orderDirection: sortBy === "date" ? sortDir : undefined,
+          orderDirection:
+            sortBy === "date" || sortBy === "id" ? sortDir : undefined,
+          orderByField: sortBy === "id" ? "invoiceId" : "invoiceDate",
         });
         if (active) {
           setInvoices(page.items);
@@ -103,6 +108,39 @@ export default function Invoices() {
           : "—",
     }));
   }, [invoices, qInvoiceId, qCustomer, sortBy, sortDir]);
+
+  async function handleDelete(id: string) {
+    if (!user) return;
+    const ok = confirm(
+      "¿Eliminar esta factura? Esta acción no se puede deshacer."
+    );
+    if (!ok) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteInvoice(user.uid, id);
+      show("Factura eliminada", { type: "success" });
+      // recargar primera página con filtros vigentes
+      const page = await getInvoices(user.uid, {
+        pageSize,
+        fromDate: qFrom || undefined,
+        toDate: qTo || undefined,
+        orderDirection:
+          sortBy === "date" || sortBy === "id" ? sortDir : undefined,
+        orderByField: sortBy === "id" ? "invoiceId" : "invoiceDate",
+      });
+      setInvoices(page.items);
+      setHasNext(Boolean(page.nextCursor));
+      setCursorStack(page.nextCursor ? [page.nextCursor] : []);
+      setCurrentPage(1);
+    } catch (e) {
+      console.error(e);
+      show("No se pudo eliminar", { type: "error" });
+      setError("No se pudo eliminar la factura");
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -160,9 +198,17 @@ export default function Invoices() {
           <input
             id="f_from"
             type="date"
-            className="w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel"
+            className={`w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel ${
+              sortBy === "id" ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             value={qFrom}
             onChange={(e) => setQFrom(e.target.value)}
+            disabled={sortBy === "id"}
+            title={
+              sortBy === "id"
+                ? "No disponible al ordenar por número de factura"
+                : undefined
+            }
           />
         </div>
         <div>
@@ -172,9 +218,17 @@ export default function Invoices() {
           <input
             id="f_to"
             type="date"
-            className="w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel"
+            className={`w-full rounded px-2 py-1 sm:px-3 sm:py-2 panel ${
+              sortBy === "id" ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             value={qTo}
             onChange={(e) => setQTo(e.target.value)}
+            disabled={sortBy === "id"}
+            title={
+              sortBy === "id"
+                ? "No disponible al ordenar por número de factura"
+                : undefined
+            }
           />
         </div>
         <div className="sm:col-span-2 lg:col-span-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mt-1">
@@ -201,10 +255,22 @@ export default function Invoices() {
             <select
               className="rounded px-2 py-1 sm:px-2 sm:py-1 panel text-xs w-full sm:w-auto"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "date" | "customer")}
+              onChange={(e) => {
+                const next = e.target.value as "date" | "customer" | "id";
+                // Si el usuario selecciona orden por número, limpiamos fechas para permitir ordenación por invoiceId en servidor
+                if (next === "id" && (qFrom || qTo)) {
+                  setQFrom("");
+                  setQTo("");
+                  setDateClearedNotice(true);
+                  // ocultar aviso después de unos segundos
+                  window.setTimeout(() => setDateClearedNotice(false), 3500);
+                }
+                setSortBy(next);
+              }}
             >
               <option value="date">Fecha de emisión</option>
               <option value="customer">Nombre de cliente</option>
+              <option value="id">Número de factura</option>
             </select>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:justify-end">
@@ -219,6 +285,12 @@ export default function Invoices() {
             </select>
           </div>
         </div>
+        {sortBy === "id" && dateClearedNotice && (
+          <div className="sm:col-span-2 lg:col-span-4 text-xs px-2 py-1 rounded bg-[var(--panel)] border border-[var(--panel-border)]">
+            Aviso: al ordenar por número de factura, los filtros de fecha no se
+            aplican y se han desactivado.
+          </div>
+        )}
       </div>
 
       <div className="rounded panel overflow-x-auto">
@@ -261,6 +333,18 @@ export default function Invoices() {
                       >
                         Ver
                       </Link>
+                      <Link
+                        to={`/invoices/${row.id}/edit`}
+                        className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                      >
+                        Editar
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(row.id)}
+                        className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -284,13 +368,25 @@ export default function Invoices() {
                   <div className="font-semibold">{row.total}</div>
                 </div>
               </div>
-              <div className="mt-2 flex justify-end">
+              <div className="mt-2 flex justify-end gap-2">
                 <Link
                   to={`/invoices/${row.id}`}
                   className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
                 >
                   Ver
                 </Link>
+                <Link
+                  to={`/invoices/${row.id}/edit`}
+                  className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                >
+                  Editar
+                </Link>
+                <button
+                  onClick={() => handleDelete(row.id)}
+                  className="inline-block rounded px-3 py-1 border border-[var(--panel-border)] hover:bg-[var(--panel)]"
+                >
+                  Eliminar
+                </button>
               </div>
             </div>
           ))}
@@ -303,16 +399,11 @@ export default function Invoices() {
               className="rounded px-3 py-1 panel w-full sm:w-auto"
               onClick={async () => {
                 if (!user) return;
-                // Ir a página anterior: necesitamos cargar desde el inicio hasta el cursor anterior.
-                // Simplificación: recargamos desde el principio y usamos stack menos 2 para recalcular.
                 if (currentPage <= 1) return;
                 setLoading(true);
                 setError(null);
                 try {
-                  // Página destino = currentPage - 1
-                  // Para obtener esa página, pedimos con el cursor del inicio de esa página:
-                  // que es el lastDoc de la página anterior (índice currentPage-3)
-                  const prevCursorIdx = currentPage - 3; // puede ser -1 para ir a la primera
+                  const prevCursorIdx = currentPage - 3; // -1 para ir a la primera
                   const prevCursor =
                     prevCursorIdx >= 0 ? cursorStack[prevCursorIdx] : undefined;
                   const page = await getInvoices(user.uid, {
@@ -320,10 +411,14 @@ export default function Invoices() {
                     cursor: prevCursor ?? undefined,
                     fromDate: qFrom || undefined,
                     toDate: qTo || undefined,
+                    orderDirection:
+                      sortBy === "date" || sortBy === "id"
+                        ? sortDir
+                        : undefined,
+                    orderByField: sortBy === "id" ? "invoiceId" : "invoiceDate",
                   });
                   setInvoices(page.items);
                   setHasNext(Boolean(page.nextCursor));
-                  // Al retroceder una página, la nueva longitud de stack es currentPage-1
                   setCursorStack((s) => {
                     const nextLen = Math.max(0, currentPage - 1);
                     const trimmed = s.slice(0, nextLen - 1);
@@ -356,7 +451,11 @@ export default function Invoices() {
                     cursor: lastCursor,
                     fromDate: qFrom || undefined,
                     toDate: qTo || undefined,
-                    orderDirection: sortBy === "date" ? sortDir : undefined,
+                    orderDirection:
+                      sortBy === "date" || sortBy === "id"
+                        ? sortDir
+                        : undefined,
+                    orderByField: sortBy === "id" ? "invoiceId" : "invoiceDate",
                   });
                   setInvoices(page.items);
                   setHasNext(Boolean(page.nextCursor));

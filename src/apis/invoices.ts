@@ -25,8 +25,12 @@ function mapInvoice(doc: QueryDocumentSnapshot<DocumentData>): Invoice {
   const hasToDate = (v: unknown): v is Timestamp =>
     typeof v === "object" && v !== null && v instanceof Timestamp;
 
-  const toDateStrict = (v: unknown): Date | undefined =>
-    hasToDate(v) ? v.toDate() : v instanceof Date ? v : undefined;
+  const toDateStrict = (v: unknown): Date | undefined => {
+    if (hasToDate(v)) return v.toDate();
+    if (v instanceof Date) return v;
+    if (typeof v === "string" && v) return parseDateInput(v);
+    return undefined;
+  };
 
   const invoiceDate =
     toDateStrict(d.invoiceDate) || toDateStrict(d.createdAt) || new Date();
@@ -81,6 +85,7 @@ export async function getInvoices(
     fromDate?: Date | string;
     toDate?: Date | string;
     orderDirection?: "asc" | "desc";
+    orderByField?: "invoiceDate" | "invoiceId";
   }
 ): Promise<InvoicesPage> {
   const colRef = collection(db, "users", uid, "invoices");
@@ -93,7 +98,10 @@ export async function getInvoices(
   if (to) whereConstraints.push(where("invoiceDate", "<=", Timestamp.fromDate(to)));
 
   const dir = opts?.orderDirection ?? "desc";
-  const baseConstraints: QueryConstraint[] = [orderBy("invoiceDate", dir), limit(pageSize)];
+  // Si no hay filtros de fecha y se solicita ordenar por número, ordenamos por invoiceId.
+  // Si hay filtros de fecha, mantenemos orden por invoiceDate para cumplir restricciones de Firestore.
+  const field: "invoiceDate" | "invoiceId" = !from && !to && opts?.orderByField === "invoiceId" ? "invoiceId" : "invoiceDate";
+  const baseConstraints: QueryConstraint[] = [orderBy(field, dir), limit(pageSize)];
   const cursorConstraint: QueryConstraint[] = opts?.cursor ? [startAfter(opts.cursor)] : [];
   const q = query(colRef, ...whereConstraints, ...baseConstraints, ...cursorConstraint);
   const snap = await getDocs(q);
@@ -112,26 +120,35 @@ export async function getInvoices(
 function parseDateInput(v: Date | string): Date | undefined {
   if (v instanceof Date) return v;
   if (typeof v === "string" && v) {
-    // Asumimos formato YYYY-MM-DD
+    // Preferir YYYY-MM-DD como fecha local (evitar parse UTC por defecto que puede restar un día)
+    const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+      const year = Number(m[1]);
+      const month = Number(m[2]);
+      const day = Number(m[3]);
+      const d = new Date(year, month - 1, day, 0, 0, 0, 0); // local midnight
+      return isNaN(d.getTime()) ? undefined : d;
+    }
+    // Fallback: intentar parsear ISO u otros formatos
     const d = new Date(v);
     return isNaN(d.getTime()) ? undefined : d;
   }
   return undefined;
 }
 
+// elimina propiedades undefined para cumplir con restricciones de Firestore
+function clean<T extends Record<string, unknown>>(obj: T) {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) out[k] = v;
+  }
+  return out as T;
+}
+
 export async function addInvoice(uid: string, invoice: Invoice): Promise<string> {
   const colRef = collection(db, "users", uid, "invoices");
   const invoiceDate = parseDateInput(invoice.invoiceDate);
   const expirationDate = parseDateInput(invoice.expirationDate);
-
-  // elimina propiedades undefined para cumplir con restricciones de Firestore
-  const clean = <T extends Record<string, unknown>>(obj: T) => {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) {
-      if (v !== undefined) out[k] = v;
-    }
-    return out;
-  };
 
   const stampClean = clean({
     name: invoice.stamp?.name,
@@ -173,7 +190,7 @@ export async function addInvoice(uid: string, invoice: Invoice): Promise<string>
   return res.id;
 }
 
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
 
 export async function getInvoice(uid: string, id: string): Promise<Invoice | null> {
   const ref = doc(db, "users", uid, "invoices", id);
@@ -185,4 +202,77 @@ export async function getInvoice(uid: string, id: string): Promise<Invoice | nul
     data: () => snap.data() as DocumentData,
   } as unknown as QueryDocumentSnapshot<DocumentData>;
   return mapInvoice(shim);
+}
+
+export async function deleteInvoice(uid: string, id: string): Promise<void> {
+  const ref = doc(db, "users", uid, "invoices", id);
+  await deleteDoc(ref);
+}
+
+export async function updateInvoice(
+  uid: string,
+  id: string,
+  invoice: Partial<Invoice>
+): Promise<void> {
+  const ref = doc(db, "users", uid, "invoices", id);
+  const patch: Record<string, unknown> = {};
+
+  if (invoice.invoiceId !== undefined) patch.invoiceId = invoice.invoiceId;
+  if (invoice.stamp !== undefined) {
+    patch.stamp = clean({
+      name: invoice.stamp?.name,
+      companyName: invoice.stamp?.companyName,
+      address: invoice.stamp?.address,
+      taxId: invoice.stamp?.taxId,
+      imgUrl: invoice.stamp?.imgUrl,
+    });
+  }
+  if (invoice.invoiceDate !== undefined) {
+    const d = parseDateInput(invoice.invoiceDate);
+    patch.invoiceDate = d ? Timestamp.fromDate(d) : null;
+  }
+  if (invoice.expirationDate !== undefined) {
+    const d = parseDateInput(invoice.expirationDate);
+    patch.expirationDate = d ? Timestamp.fromDate(d) : null;
+  }
+  if (invoice.customer !== undefined) {
+    patch.customer = clean({
+      name: invoice.customer?.name,
+      address: invoice.customer?.address,
+      taxId: invoice.customer?.taxId,
+      email: invoice.customer?.email,
+      phone: invoice.customer?.phone,
+    });
+  }
+  if (invoice.items !== undefined) {
+    patch.items = invoice.items.map((it) => ({
+      ...it,
+      price: typeof it.price === "string" ? Number(it.price || 0) : it.price,
+      code:
+        typeof it.code === "string" && !isNaN(Number(it.code))
+          ? Number(it.code)
+          : it.code,
+    }));
+  }
+  if (invoice.totals !== undefined) patch.totals = invoice.totals;
+  if (invoice.invoiceKind !== undefined) patch.invoiceKind = invoice.invoiceKind;
+  if (invoice.rectifiedRef !== undefined) patch.rectifiedRef = invoice.rectifiedRef ?? null;
+  if (invoice.rectifiedDate !== undefined) {
+    const d = parseDateInput(invoice.rectifiedDate);
+    patch.rectifiedDate = d ? Timestamp.fromDate(d) : null;
+  }
+  if (invoice.rectificationReason !== undefined)
+    patch.rectificationReason = invoice.rectificationReason ?? null;
+
+  patch.updatedAt = serverTimestamp();
+  // Dev-only: validar que no enviamos undefined en el patch
+  if (import.meta.env.DEV) {
+    const hasUndefined = Object.values(patch).some((v) => v === undefined);
+    if (hasUndefined) {
+      console.warn("[updateInvoice] Patch contiene undefined:", patch);
+    } else {
+      console.debug("[updateInvoice] Patch listo:", patch);
+    }
+  }
+  await updateDoc(ref, patch);
 }

@@ -11,6 +11,7 @@ import InvoiceView from "./pages/InvoiceView";
 import ClientView from "./pages/ClientView";
 import NewClient from "./pages/NewClient";
 import NewInvoice from "./pages/NewInvoice";
+import EditInvoice from "./pages/EditInvoice";
 import Register from "./pages/Register";
 import CompleteProfile from "./pages/CompleteProfile";
 import Login from "./pages/Login";
@@ -31,6 +32,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="invoices" element={<Invoices />} />
               <Route path="invoices/new" element={<NewInvoice />} />
+              <Route path="invoices/:id/edit" element={<EditInvoice />} />
               <Route path="invoices/:id" element={<InvoiceView />} />
               <Route path="clientes/:id" element={<ClientView />} />
               <Route path="clientes/nuevo" element={<NewClient />} />
