@@ -225,6 +225,47 @@ export default function NewInvoice() {
     return e
   }
 
+  async function handleSubmit() {
+    const e = validate()
+    setErrors(e)
+    if (Object.keys(e).length === 0) {
+      if (!user) {
+        alert('Debes iniciar sesión para guardar la factura')
+        return
+      }
+      const stamp: Stamp =
+        issuerMode === 'stamp'
+          ? (stampsList.find((s: Stamp) => s.id === selectedStampId) as Stamp)
+          : {
+              name: issuerName,
+              companyName: issuerCompany,
+              address: issuerAddress,
+              taxId: issuerTaxId,
+              imgUrl: issuerImgUrl || undefined,
+            }
+      const invoice: Invoice = {
+        invoiceId,
+        stamp,
+        invoiceDate,
+        expirationDate,
+        customer: customer || { name: '', address: '', taxId: '' },
+        items,
+        totals,
+        invoiceKind,
+        rectifiedRef: invoiceKind === 'rectificativa' ? rectifiedRef : undefined,
+        rectifiedDate: invoiceKind === 'rectificativa' ? rectifiedDate : undefined,
+        rectificationReason: invoiceKind === 'rectificativa' ? rectificationReason : undefined,
+      }
+      try {
+        await addInvoice(user.uid, invoice)
+        navigate('/invoices')
+      } catch (err) {
+        console.error(err)
+        alert('No se pudo guardar la factura')
+      }
+    }
+  }
+
   return (
     <section className="space-y-4">
       {/* Modal Cliente */}
@@ -534,47 +575,180 @@ export default function NewInvoice() {
               </Disclosure>
             </div>
           }
-          onSubmit={async () => {
-            const e = validate()
-            setErrors(e)
-            if (Object.keys(e).length === 0) {
-              if (!user) {
-                alert('Debes iniciar sesión para guardar la factura')
-                return
-              }
-              const stamp: Stamp =
-                issuerMode === 'stamp'
-                  ? (stampsList.find((s: Stamp) => s.id === selectedStampId) as Stamp)
-                  : {
-                      name: issuerName,
-                      companyName: issuerCompany,
-                      address: issuerAddress,
-                      taxId: issuerTaxId,
-                      imgUrl: issuerImgUrl || undefined,
-                    }
-              const invoice: Invoice = {
-                invoiceId,
-                stamp,
-                invoiceDate,
-                expirationDate,
-                customer: customer || { name: '', address: '', taxId: '' },
-                items,
-                totals,
-                invoiceKind,
-                rectifiedRef: invoiceKind === 'rectificativa' ? rectifiedRef : undefined,
-                rectifiedDate: invoiceKind === 'rectificativa' ? rectifiedDate : undefined,
-                rectificationReason:
-                  invoiceKind === 'rectificativa' ? rectificationReason : undefined,
-              }
-              try {
-                await addInvoice(user.uid, invoice)
-                navigate('/invoices')
-              } catch (err) {
-                console.error(err)
-                alert('No se pudo guardar la factura')
-              }
-            }
-          }}
+          rightAside={
+            <div className="panel w-full rounded p-4 text-sm lg:w-[420px]">
+              <div className="mb-2 font-semibold">Impuestos</div>
+              {/* Móvil: contenido colapsable */}
+              <div className="sm:hidden">
+                <Disclosure
+                  open={impuestosOpen}
+                  onOpenChange={setImpuestosOpen}
+                  buttonClassName="btn btn-secondary px-2 py-1 text-xs"
+                  panelClassName="mt-2"
+                  header={<span>{impuestosOpen ? 'Ocultar' : 'Mostrar'}</span>}
+                >
+                  <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="muted mb-1 block" htmlFor="vat">
+                        IVA (%)
+                      </label>
+                      <input
+                        id="vat"
+                        type="number"
+                        step={0.1}
+                        className="panel w-full rounded px-3 py-2"
+                        value={vatPercentage}
+                        onChange={(e) => setVatPercentage(Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="muted mb-1 block" htmlFor="irpf">
+                        IRPF (%)
+                      </label>
+                      <input
+                        id="irpf"
+                        type="number"
+                        step={0.1}
+                        className="panel w-full rounded px-3 py-2"
+                        value={irpfPercentage}
+                        onChange={(e) => setIrpfPercentage(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-2 font-semibold">Totales</div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">Base imponible</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.taxableBase || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">IVA ({totals.vatPercentage}%)</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.vatAmount || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">Base + IVA</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.taxableBasePlusVat || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
+                    <span>
+                      -
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.irpfAmount || 0)}
+                    </span>
+                  </div>
+                  <div className="my-2 border-t border-[var(--panel-border)]" />
+                  <div className="flex justify-between py-1 text-base font-semibold">
+                    <span>Total</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.totalAmount || 0)}
+                    </span>
+                  </div>
+                </Disclosure>
+              </div>
+
+              {/* Desktop: contenido siempre visible */}
+              <div className="hidden sm:block">
+                <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="muted mb-1 block" htmlFor="vat-sm">
+                      IVA (%)
+                    </label>
+                    <input
+                      id="vat-sm"
+                      type="number"
+                      step={0.1}
+                      className="panel w-full rounded px-3 py-2"
+                      value={vatPercentage}
+                      onChange={(e) => setVatPercentage(Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="muted mb-1 block" htmlFor="irpf-sm">
+                      IRPF (%)
+                    </label>
+                    <input
+                      id="irpf-sm"
+                      type="number"
+                      step={0.1}
+                      className="panel w-full rounded px-3 py-2"
+                      value={irpfPercentage}
+                      onChange={(e) => setIrpfPercentage(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                <div className="mb-2 font-semibold">Totales</div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">Base imponible</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.taxableBase || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">IVA ({totals.vatPercentage}%)</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.vatAmount || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">Base + IVA</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.taxableBasePlusVat || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
+                  <span>
+                    -
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.irpfAmount || 0
+                    )}
+                  </span>
+                </div>
+                <div className="my-2 border-t border-[var(--panel-border)]" />
+                <div className="flex justify-between py-1 text-base font-semibold">
+                  <span>Total</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.totalAmount || 0
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-3">
+                <button className="btn btn-primary" onClick={handleSubmit}>
+                  Guardar
+                </button>
+              </div>
+            </div>
+          }
+          onSubmit={handleSubmit}
         />
       </Suspense>
     </section>
