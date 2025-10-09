@@ -43,6 +43,11 @@
     color: #000 !important;
   }
 
+  /* Mostrar siempre el contenido de los Disclosure al imprimir */
+  .disclosure-panel {
+    display: block !important;
+  }
+
   /* Items: bordes más distintivos y separación clara */
   .print-items .print-items-table {
     border-color: #333 !important;

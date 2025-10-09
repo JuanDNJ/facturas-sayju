@@ -47,7 +47,7 @@ export default function Disclosure({
         id={panelId}
         role="region"
         aria-labelledby={btnId}
-        className={`${open ? 'block' : 'hidden'} ${panelClassName ?? ''}`}
+        className={`disclosure-panel ${open ? 'block' : 'hidden'} ${panelClassName ?? ''}`}
       >
         {children}
       </div>
