@@ -54,15 +54,20 @@ export default function Sidebar({
         } w-64 shrink-0 transition-transform md:transition-[width] ${
           open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         } no-print`}
-        aria-hidden={!isModal}
-        aria-modal={isModal}
-        role={isModal ? "dialog" : undefined}
+        {...(isModal && {
+          "aria-modal": "true",
+          role: "dialog",
+        })}
       >
         <div className="p-4 text-lg font-semibold flex items-center justify-between ">
           <span className={collapsed ? "md:hidden" : undefined}>
-            Facturas Sayju
+            <NavLink to="/">Facturas Sayju</NavLink>
           </span>
+          <NavLink to="/">
+            <img src="logo.png" width={32} alt="Logo de empresa" />
+          </NavLink>
           <button
+            type="button"
             className="md:hidden p-2 rounded hover:bg-[var(--menu-hover)]"
             onClick={onClose}
             aria-label="Cerrar menú"

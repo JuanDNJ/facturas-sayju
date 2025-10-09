@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import useTheme from "../../theme/useTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { logoutUser } from "../../apis/auth";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 export default function Topbar({
   onToggleSidebar,
   onToggleCollapse,
@@ -44,6 +44,7 @@ export default function Topbar({
     <header className="sticky top-0 z-30 h-14 border-b px-2 sm:px-4 flex items-center justify-between panel no-print backdrop-blur supports-[backdrop-filter]:backdrop-blur">
       <div className="flex items-center gap-2">
         <button
+          type="button"
           aria-label="Abrir menú"
           className="inline-flex md:hidden p-2 rounded hover:bg-white/10"
           onClick={onToggleSidebar}
@@ -51,6 +52,7 @@ export default function Topbar({
           ☰
         </button>
         <button
+          type="button"
           aria-label="Colapsar barra lateral"
           className="hidden md:inline-flex p-2 rounded hover:bg-white/10"
           onClick={onToggleCollapse}
@@ -58,7 +60,9 @@ export default function Topbar({
         >
           {collapsed ? "➡" : "⬅"}
         </button>
-        <div className="font-medium">Panel de control</div>
+        <div className="font-medium">
+          <NavLink to="/">Panel de control</NavLink>
+        </div>
       </div>
       <div className="flex items-center gap-2 sm:gap-3 text-sm min-w-0">
         <input
@@ -87,10 +91,10 @@ export default function Topbar({
             )}
             <div className="relative" ref={menuRef}>
               <button
+                type="button"
                 className="w-8 h-8 rounded-full bg-white/20 grid place-items-center shrink-0 hover:bg-white/30"
                 aria-label="Cuenta"
                 aria-haspopup="menu"
-                aria-expanded={menuOpen}
                 onClick={() => setMenuOpen((v) => !v)}
               >
                 {photo ? (
@@ -106,10 +110,7 @@ export default function Topbar({
                 )}
               </button>
               {menuOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-1 rounded menu-solid p-2 w-44 z-10"
-                >
+                <div className="absolute right-0 mt-1 rounded menu-solid p-2 w-44 z-10">
                   <Link
                     className="block px-2 py-1 rounded hover:bg-[var(--menu-hover)]"
                     to="/settings"
@@ -127,6 +128,7 @@ export default function Topbar({
                     Completar datos
                   </Link>
                   <button
+                    type="button"
                     className="block w-full text-left px-2 py-1 rounded hover:bg-[var(--menu-hover)]"
                     onClick={async () => {
                       setMenuOpen(false);
