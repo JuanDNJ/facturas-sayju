@@ -52,19 +52,17 @@ export default function NewClient() {
             />
           )}
         </FormField>
-        <div>
-          <label htmlFor="address" className="muted mb-1 block">
-            Dirección
-          </label>
-          <textarea
-            id="address"
-            rows={2}
-            className="panel w-full rounded px-3 py-2"
-            value={draft.address}
-            onChange={(e) => setDraft({ ...draft, address: e.target.value })}
-          />
-          {errors.address && <div className="mt-1 text-xs text-red-600">{errors.address}</div>}
-        </div>
+        <FormField label="Dirección" required error={errors.address}>
+          {(props) => (
+            <textarea
+              {...props}
+              rows={2}
+              className="panel w-full rounded px-3 py-2"
+              value={draft.address}
+              onChange={(e) => setDraft({ ...draft, address: e.target.value })}
+            />
+          )}
+        </FormField>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <FormField
             label="DNI"
@@ -82,30 +80,27 @@ export default function NewClient() {
               />
             )}
           </FormField>
-          <div>
-            <label htmlFor="email" className="muted mb-1 block">
-              Email (opcional)
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="panel w-full rounded px-3 py-2"
-              value={draft.email ?? ''}
-              onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-            />
-            {errors.email && <div className="mt-1 text-xs text-red-600">{errors.email}</div>}
-          </div>
-          <div>
-            <label htmlFor="phone" className="muted mb-1 block">
-              Teléfono (opcional)
-            </label>
-            <input
-              id="phone"
-              className="panel w-full rounded px-3 py-2"
-              value={draft.phone ?? ''}
-              onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-            />
-          </div>
+          <FormField label="Email (opcional)" error={errors.email}>
+            {(props) => (
+              <input
+                {...props}
+                type="email"
+                className="panel w-full rounded px-3 py-2"
+                value={draft.email ?? ''}
+                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+              />
+            )}
+          </FormField>
+          <FormField label="Teléfono (opcional)">
+            {(props) => (
+              <input
+                {...props}
+                className="panel w-full rounded px-3 py-2"
+                value={draft.phone ?? ''}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            )}
+          </FormField>
         </div>
 
         <div className="flex gap-2 pt-2">
