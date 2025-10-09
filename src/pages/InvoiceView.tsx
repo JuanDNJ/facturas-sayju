@@ -212,23 +212,23 @@ export default function InvoiceView() {
                   className="print-item-card rounded border border-[var(--panel-border)] p-3 text-sm"
                 >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Código</div>
                       <div className="font-medium break-words">{it.code || '—'}</div>
                     </div>
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Cantidad</div>
                       <div className="text-right sm:text-left">{it.quantity}</div>
                     </div>
-                    <div className="sm:col-span-2">
+                    <div className="print-item-prop sm:col-span-2">
                       <div className="muted mb-1 text-xs">Descripción</div>
                       <div className="break-words">{it.description}</div>
                     </div>
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Precio</div>
                       <div className="text-right sm:text-left">{formatCurrency(price)}</div>
                     </div>
-                    <div className="flex items-end justify-between sm:block">
+                    <div className="print-item-prop flex items-end justify-between sm:block">
                       <div className="muted mb-1 text-xs">Importe</div>
                       <div className="font-medium">{formatCurrency(amount)}</div>
                     </div>

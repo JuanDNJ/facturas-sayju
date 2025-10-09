@@ -51,6 +51,7 @@
   .print-items .print-items-table-el th,
   .print-items .print-items-table-el td {
     border-color: #666 !important;
+    border-bottom: 1px solid #666 !important;
   }
 
   .print-items .print-item-row {
@@ -60,6 +61,12 @@
   .print-items-cards .print-item-card {
     border-color: #333 !important;
     margin-bottom: 8px !important;
+  }
+
+  .print-items-cards .print-item-card .print-item-prop {
+    border-bottom: 1px solid #666 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
   }
 
   /* Totales: ocupar todo el ancho en impresión */
