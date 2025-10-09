@@ -8,6 +8,7 @@ import { getStamps as getStampsFs } from '../apis/stamps'
 import { getCustomers as getCustomersFs, addCustomer, updateCustomer } from '../apis/customers'
 import DniHelp from '../components/DniHelp'
 import Modal from '../components/ui/Modal'
+import Disclosure from '../components/ui/Disclosure'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 // Carga diferida del formulario de factura
 const InvoiceForm = lazy(() =>
@@ -439,18 +440,20 @@ export default function NewInvoice() {
           }
           onRemoveItem={(index) => setItems((arr) => arr.filter((_, i) => i !== index))}
           customerSection={
-            <div className="panel space-y-2 rounded p-4 text-sm">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="font-semibold">Cliente</div>
-                <button
-                  type="button"
-                  className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-                  onClick={() => setClienteOpen((v) => !v)}
-                >
-                  {clienteOpen ? 'Ocultar' : 'Mostrar'}
-                </button>
-              </div>
-              <div className={`${clienteOpen ? 'block' : 'hidden'} space-y-2 sm:block`}>
+            <div className="panel rounded p-4 text-sm">
+              <Disclosure
+                open={clienteOpen}
+                onOpenChange={(v) => setClienteOpen(v)}
+                className="space-y-2"
+                buttonClassName="btn btn-secondary px-2 py-1 text-xs sm:hidden"
+                panelClassName="space-y-2 sm:block"
+                header={
+                  <div className="flex w-full items-center justify-between">
+                    <div className="font-semibold">Cliente</div>
+                    <span className="sm:hidden">{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+                  </div>
+                }
+              >
                 <div>
                   <div className="flex items-center justify-between">
                     <label className="muted mb-1 block" htmlFor="customerId">
@@ -528,7 +531,7 @@ export default function NewInvoice() {
                     <div>{customer.taxId}</div>
                   </div>
                 )}
-              </div>
+              </Disclosure>
             </div>
           }
           onSubmit={async () => {
