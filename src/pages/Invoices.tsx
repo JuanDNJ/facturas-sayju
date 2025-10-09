@@ -5,6 +5,7 @@ import { getInvoices, deleteInvoice } from '../apis/invoices'
 import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import type { Invoice } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 export default function Invoices() {
   const { user } = useAuth()
@@ -13,6 +14,7 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
   const [hasNext, setHasNext] = useState(false)
   const [pageSize, setPageSize] = useState(10)
   const [cursorStack, setCursorStack] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
@@ -106,10 +108,8 @@ export default function Invoices() {
     }))
   }, [invoices, qInvoiceId, qCustomer, sortBy, sortDir])
 
-  async function handleDelete(id: string) {
+  async function performDelete(id: string) {
     if (!user) return
-    const ok = confirm('¿Eliminar esta factura? Esta acción no se puede deshacer.')
-    if (!ok) return
     setLoading(true)
     setError(null)
     try {
@@ -219,6 +219,7 @@ export default function Invoices() {
               className="btn btn-ghost w-full px-2 py-1 text-xs sm:w-auto"
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
+              aria-label="Tamaño de página"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -245,6 +246,7 @@ export default function Invoices() {
                 }
                 setSortBy(next)
               }}
+              aria-label="Ordenar por"
             >
               <option value="date">Fecha de emisión</option>
               <option value="customer">Nombre de cliente</option>
@@ -257,6 +259,7 @@ export default function Invoices() {
               className="btn btn-danger w-full px-2 py-1 text-xs sm:w-auto"
               value={sortDir}
               onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
+              aria-label="Dirección de ordenación"
             >
               <option value="asc">Ascendente (A-Z / más antigua)</option>
               <option value="desc">Descendente (Z-A / más reciente)</option>
@@ -305,7 +308,7 @@ export default function Invoices() {
                         Editar
                       </Link>
                       <button
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => setConfirmId(row.id)}
                         className="btn btn-danger h-8 px-3"
                       >
                         Eliminar
@@ -338,7 +341,7 @@ export default function Invoices() {
                 <Link to={`/invoices/${row.id}/edit`} className="btn btn-secondary h-8 px-3">
                   Editar
                 </Link>
-                <button onClick={() => handleDelete(row.id)} className="btn btn-danger h-8 px-3">
+                <button onClick={() => setConfirmId(row.id)} className="btn btn-danger h-8 px-3">
                   Eliminar
                 </button>
               </div>
@@ -419,6 +422,23 @@ export default function Invoices() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmId !== null}
+        title="Eliminar factura"
+        description="¿Eliminar esta factura? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
+        loading={loading}
+        onCancel={() => setConfirmId(null)}
+        onConfirm={async () => {
+          if (!confirmId) return
+          const id = confirmId
+          setConfirmId(null)
+          await performDelete(id)
+        }}
+      />
     </section>
   )
 }

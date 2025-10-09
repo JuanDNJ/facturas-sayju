@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Disclosure from '../components/ui/Disclosure'
 import { Link, useParams } from 'react-router-dom'
 import type { Invoice } from '../types/invoice.types'
 import { useAuth } from '../hooks/useAuth'
@@ -149,18 +150,40 @@ export default function InvoiceView() {
 
         {/* Cliente */}
         <div className="panel mt-6 rounded p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="font-semibold">Cliente</div>
-            <button
-              type="button"
-              className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-              aria-expanded={clienteOpen ? 'true' : 'false'}
-              onClick={() => setClienteOpen((v) => !v)}
+          {/* Título fijo en desktop */}
+          <div className="mb-2 hidden font-semibold sm:block">Cliente</div>
+          {/* Móvil: Disclosure con botón */}
+          <div className="sm:hidden">
+            <Disclosure
+              open={clienteOpen}
+              onOpenChange={setClienteOpen}
+              buttonClassName="btn btn-secondary px-2 py-1 text-xs"
+              panelClassName="text-sm space-y-1"
+              header={
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="font-semibold">Cliente</div>
+                  <span>{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+                </div>
+              }
             >
-              {clienteOpen ? 'Ocultar' : 'Mostrar'}
-            </button>
+              <div className="space-y-1">
+                <div>
+                  <span className="muted">Nombre / Razón social: </span>
+                  <span>{customer.name}</span>
+                </div>
+                <div>
+                  <span className="muted">Dirección: </span>
+                  <span>{customer.address}</span>
+                </div>
+                <div>
+                  <span className="muted">DNI: </span>
+                  <span>{customer.taxId}</span>
+                </div>
+              </div>
+            </Disclosure>
           </div>
-          <div className={`${clienteOpen ? 'space-y-1' : 'hidden'} text-sm sm:block sm:space-y-1`}>
+          {/* Desktop: contenido siempre visible sin botón */}
+          <div className="hidden space-y-1 text-sm sm:block">
             <div>
               <span className="muted">Nombre / Razón social: </span>
               <span>{customer.name}</span>
@@ -177,32 +200,35 @@ export default function InvoiceView() {
         </div>
 
         {/* Items */}
-        <div className="mt-6">
+        <div className="print-items mt-6">
           {/* Vista móvil: tarjetas */}
-          <div className="space-y-3 md:hidden">
+          <div className="print-items-cards space-y-3 md:hidden">
             {items.map((it, idx) => {
               const price = toNumber(it.price)
               const amount = it.quantity * price
               return (
-                <div key={idx} className="rounded border border-[var(--panel-border)] p-3 text-sm">
+                <div
+                  key={idx}
+                  className="print-item-card rounded border border-[var(--panel-border)] p-3 text-sm"
+                >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Código</div>
                       <div className="font-medium break-words">{it.code || '—'}</div>
                     </div>
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Cantidad</div>
                       <div className="text-right sm:text-left">{it.quantity}</div>
                     </div>
-                    <div className="sm:col-span-2">
+                    <div className="print-item-prop sm:col-span-2">
                       <div className="muted mb-1 text-xs">Descripción</div>
                       <div className="break-words">{it.description}</div>
                     </div>
-                    <div>
+                    <div className="print-item-prop">
                       <div className="muted mb-1 text-xs">Precio</div>
                       <div className="text-right sm:text-left">{formatCurrency(price)}</div>
                     </div>
-                    <div className="flex items-end justify-between sm:block">
+                    <div className="print-item-prop flex items-end justify-between sm:block">
                       <div className="muted mb-1 text-xs">Importe</div>
                       <div className="font-medium">{formatCurrency(amount)}</div>
                     </div>
@@ -213,8 +239,8 @@ export default function InvoiceView() {
           </div>
 
           {/* Vista tabla en md+ */}
-          <div className="hidden overflow-x-auto rounded border border-[var(--panel-border)] md:block">
-            <table className="w-full text-sm">
+          <div className="print-items-table hidden overflow-x-auto rounded border border-[var(--panel-border)] md:block">
+            <table className="print-items-table-el w-full text-sm">
               <thead className="bg-[var(--panel)]">
                 <tr className="text-left">
                   <th className="px-3 py-2">Código</th>
@@ -229,7 +255,7 @@ export default function InvoiceView() {
                   const price = toNumber(it.price)
                   const amount = it.quantity * price
                   return (
-                    <tr key={idx} className="border-t border-[var(--panel-border)]">
+                    <tr key={idx} className="print-item-row border-t border-[var(--panel-border)]">
                       <td className="px-3 py-2 align-top">{it.code}</td>
                       <td className="px-3 py-2 align-top">{it.description}</td>
                       <td className="px-3 py-2 text-right align-top">{it.quantity}</td>
@@ -244,8 +270,8 @@ export default function InvoiceView() {
         </div>
 
         {/* Totales */}
-        <div className="mt-6 flex flex-col items-end">
-          <div className="panel w-full rounded p-4 text-sm sm:w-[420px]">
+        <div className="print-totals mt-6 flex flex-col items-end">
+          <div className="panel print-totals-box w-full rounded p-4 text-sm sm:w-[420px]">
             <div className="flex justify-between py-1">
               <span className="muted">Base imponible</span>
               <span>{formatCurrency(totals.taxableBase)}</span>

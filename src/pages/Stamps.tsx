@@ -6,6 +6,7 @@ import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import DniHelp from '../components/DniHelp'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 import {
   addStamp as addStampFs,
   getStamps as getStampsFs,
@@ -185,6 +186,10 @@ export default function Stamps() {
   const [size, setSize] = useState<'sm' | 'md' | 'lg'>('md')
   const [fontPx, setFontPx] = useState<number>(12)
   const [designerOpen, setDesignerOpen] = useState<boolean>(false)
+  // Confirmación de borrado
+  const [confirmOpen, setConfirmOpen] = useState<boolean>(false)
+  const [pendingDelete, setPendingDelete] = useState<StampModel | null>(null)
+  const [deleting, setDeleting] = useState<boolean>(false)
 
   // Imagen (opcional)
   const [useImage, setUseImage] = useState(false)
@@ -293,8 +298,11 @@ export default function Stamps() {
                         />
                       </div>
                       <div>
-                        <label className="muted text-sm">Subir imagen</label>
+                        <label className="muted text-sm" htmlFor="uploadImage">
+                          Subir imagen
+                        </label>
                         <input
+                          id="uploadImage"
                           className="panel mt-1 w-full rounded px-3 py-2 file:mr-2 file:rounded file:border-0 file:px-3 file:py-2"
                           type="file"
                           accept="image/*"
@@ -323,8 +331,11 @@ export default function Stamps() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="muted text-sm">Variante</label>
+                      <label className="muted text-sm" htmlFor="stampVariant">
+                        Variante
+                      </label>
                       <select
+                        id="stampVariant"
                         className="panel mt-1 w-full rounded px-3 py-2"
                         value={variant}
                         onChange={(e) => setVariant(e.target.value as typeof variant)}
@@ -337,8 +348,11 @@ export default function Stamps() {
                       </select>
                     </div>
                     <div>
-                      <label className="muted text-sm">Tamaño</label>
+                      <label className="muted text-sm" htmlFor="stampSize">
+                        Tamaño
+                      </label>
                       <select
+                        id="stampSize"
                         className="panel mt-1 w-full rounded px-3 py-2"
                         value={size}
                         onChange={(e) => setSize(e.target.value as typeof size)}
@@ -352,7 +366,10 @@ export default function Stamps() {
 
                   {/* Control de tamaño del texto del sello */}
                   <div>
-                    <label className="muted flex items-center justify-between gap-2 text-sm">
+                    <label
+                      htmlFor="fontPx"
+                      className="muted flex items-center justify-between gap-2 text-sm"
+                    >
                       <span>Tamaño del texto</span>
                       <span className="muted text-xs">{fontPx}px</span>
                     </label>
@@ -366,6 +383,7 @@ export default function Stamps() {
                         −
                       </button>
                       <input
+                        id="fontPx"
                         type="range"
                         min={8}
                         max={28}
@@ -605,8 +623,11 @@ export default function Stamps() {
               <option value="desc">Nombre Z–A</option>
             </select>
             {/* Sin toggle de filtros avanzados */}
-            <label className="muted text-xs">Por página</label>
+            <label className="muted text-xs" htmlFor="pageSize">
+              Por página
+            </label>
             <select
+              id="pageSize"
               className="panel rounded px-2 py-1 text-sm"
               value={pageSize}
               onChange={(e) => {
@@ -696,17 +717,9 @@ export default function Stamps() {
                           </button>
                           <button
                             className="btn btn-danger h-8 px-3"
-                            onClick={async () => {
-                              if (!user?.uid || !s.id) return
-                              if (!confirm('¿Eliminar este sello?')) return
-                              try {
-                                await removeStampFs(user.uid, s.id)
-                                if (editingId === s.id) setEditingId(null)
-                                await loadPage(true)
-                                show('Sello eliminado')
-                              } catch {
-                                show('No se pudo eliminar el sello')
-                              }
+                            onClick={() => {
+                              setPendingDelete(s)
+                              setConfirmOpen(true)
                             }}
                           >
                             Eliminar
@@ -753,17 +766,9 @@ export default function Stamps() {
                       </button>
                       <button
                         className="btn btn-danger h-8 w-full px-3 text-center sm:w-auto"
-                        onClick={async () => {
-                          if (!user?.uid || !s.id) return
-                          const ok = window.confirm('¿Eliminar este sello?')
-                          if (!ok) return
-                          try {
-                            await removeStampFs(user.uid, s.id)
-                            if (editingId === s.id) setEditingId(null)
-                            await loadPage(true)
-                          } catch (err) {
-                            console.error(err)
-                          }
+                        onClick={() => {
+                          setPendingDelete(s)
+                          setConfirmOpen(true)
                         }}
                       >
                         Eliminar
@@ -801,6 +806,41 @@ export default function Stamps() {
           </div>
         </div>
       </div>
+      {/* Confirmación para eliminar sello */}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar sello"
+        description={
+          pendingDelete
+            ? `¿Eliminar el sello "${pendingDelete.companyName || pendingDelete.name}"? Esta acción no se puede deshacer.`
+            : '¿Eliminar este sello? Esta acción no se puede deshacer.'
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
+        loading={deleting}
+        onCancel={() => {
+          if (deleting) return
+          setConfirmOpen(false)
+          setPendingDelete(null)
+        }}
+        onConfirm={async () => {
+          if (!user?.uid || !pendingDelete?.id) return
+          setDeleting(true)
+          try {
+            await removeStampFs(user.uid, pendingDelete.id)
+            if (editingId === pendingDelete.id) setEditingId(null)
+            await loadPage(true)
+            show('Sello eliminado')
+          } catch {
+            show('No se pudo eliminar el sello')
+          } finally {
+            setDeleting(false)
+            setConfirmOpen(false)
+            setPendingDelete(null)
+          }
+        }}
+      />
     </section>
   )
 }

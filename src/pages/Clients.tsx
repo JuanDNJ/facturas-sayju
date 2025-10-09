@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { getCustomers, getCustomersPage, removeCustomer } from '../apis/customers'
 import type { Customer } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 export default function Clients() {
   const { user } = useAuth()
@@ -110,6 +111,11 @@ export default function Clients() {
     return Boolean(query.trim())
   }, [query])
 
+  // Confirmación de borrado
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<Customer | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -193,20 +199,10 @@ export default function Clients() {
                     </Link>
                     <button
                       className="btn btn-danger h-8 px-3"
-                      onClick={async () => {
-                        if (!user || !c.id) return
-                        const ok = window.confirm(
-                          `¿Eliminar cliente "${c.name}"? Esta acción no se puede deshacer.`
-                        )
-                        if (!ok) return
-                        try {
-                          await removeCustomer(user.uid, c.id)
-                          setItems((prev) => prev.filter((x) => x.id !== c.id))
-                          show('Cliente eliminado', { type: 'success' })
-                        } catch (err) {
-                          console.error(err)
-                          show('Error al eliminar', { type: 'error' })
-                        }
+                      onClick={() => {
+                        if (!c.id) return
+                        setPendingDelete(c)
+                        setConfirmOpen(true)
                       }}
                     >
                       Borrar
@@ -244,18 +240,10 @@ export default function Clients() {
                 </Link>
                 <button
                   className="btn btn-danger h-8 w-full px-3 text-center sm:w-auto"
-                  onClick={async () => {
-                    if (!user || !c.id) return
-                    const ok = window.confirm(
-                      `¿Eliminar cliente "${c.name}"? Esta acción no se puede deshacer.`
-                    )
-                    if (!ok) return
-                    try {
-                      await removeCustomer(user.uid, c.id)
-                      setItems((prev) => prev.filter((x) => x.id !== c.id))
-                    } catch (err) {
-                      console.error(err)
-                    }
+                  onClick={() => {
+                    if (!c.id) return
+                    setPendingDelete(c)
+                    setConfirmOpen(true)
                   }}
                 >
                   Borrar
@@ -265,6 +253,40 @@ export default function Clients() {
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar cliente"
+        description={
+          pendingDelete
+            ? `¿Eliminar cliente "${pendingDelete.name}"? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
+        loading={deleting}
+        onCancel={() => {
+          setConfirmOpen(false)
+          setPendingDelete(null)
+        }}
+        onConfirm={async () => {
+          if (!user || !pendingDelete?.id) return
+          try {
+            setDeleting(true)
+            await removeCustomer(user.uid, pendingDelete.id)
+            setItems((prev) => prev.filter((x) => x.id !== pendingDelete.id))
+            show('Cliente eliminado', { type: 'success' })
+          } catch (err) {
+            console.error(err)
+            show('Error al eliminar', { type: 'error' })
+          } finally {
+            setDeleting(false)
+            setConfirmOpen(false)
+            setPendingDelete(null)
+          }
+        }}
+      />
 
       {/* Paginación */}
       <div className="flex flex-col items-center justify-between gap-2 sm:flex-row sm:items-center">

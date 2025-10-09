@@ -7,6 +7,8 @@ import { addInvoice } from '../apis/invoices'
 import { getStamps as getStampsFs } from '../apis/stamps'
 import { getCustomers as getCustomersFs, addCustomer, updateCustomer } from '../apis/customers'
 import DniHelp from '../components/DniHelp'
+import Modal from '../components/ui/Modal'
+import Disclosure from '../components/ui/Disclosure'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 // Carga diferida del formulario de factura
 const InvoiceForm = lazy(() =>
@@ -223,175 +225,195 @@ export default function NewInvoice() {
     return e
   }
 
+  async function handleSubmit() {
+    const e = validate()
+    setErrors(e)
+    if (Object.keys(e).length === 0) {
+      if (!user) {
+        alert('Debes iniciar sesión para guardar la factura')
+        return
+      }
+      const stamp: Stamp =
+        issuerMode === 'stamp'
+          ? (stampsList.find((s: Stamp) => s.id === selectedStampId) as Stamp)
+          : {
+              name: issuerName,
+              companyName: issuerCompany,
+              address: issuerAddress,
+              taxId: issuerTaxId,
+              imgUrl: issuerImgUrl || undefined,
+            }
+      const invoice: Invoice = {
+        invoiceId,
+        stamp,
+        invoiceDate,
+        expirationDate,
+        customer: customer || { name: '', address: '', taxId: '' },
+        items,
+        totals,
+        invoiceKind,
+        rectifiedRef: invoiceKind === 'rectificativa' ? rectifiedRef : undefined,
+        rectifiedDate: invoiceKind === 'rectificativa' ? rectifiedDate : undefined,
+        rectificationReason: invoiceKind === 'rectificativa' ? rectificationReason : undefined,
+      }
+      try {
+        await addInvoice(user.uid, invoice)
+        navigate('/invoices')
+      } catch (err) {
+        console.error(err)
+        alert('No se pudo guardar la factura')
+      }
+    }
+  }
+
   return (
     <section className="space-y-4">
       {/* Modal Cliente */}
-      {customerModalOpen && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="absolute inset-0 bg-[var(--bg)]"
-            onClick={() => setCustomerModalOpen(false)}
-          />
-          <div className="panel relative z-50 max-h-[90vh] w-[95vw] max-w-lg overflow-auto rounded p-4 shadow-lg">
-            <div className="mb-3 flex items-start justify-between">
-              <h2 className="text-lg font-semibold">
-                {editingCustomerId ? 'Editar cliente' : 'Nuevo cliente'}
-              </h2>
-              <button
-                className="btn btn-ghost"
-                onClick={() => setCustomerModalOpen(false)}
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
+      <Modal
+        open={customerModalOpen}
+        onClose={() => setCustomerModalOpen(false)}
+        title={editingCustomerId ? 'Editar cliente' : 'Nuevo cliente'}
+        size="md"
+      >
+        <div className="grid grid-cols-1 gap-3 text-sm">
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_name">
+              Nombre
+            </label>
+            <input
+              id="c_name"
+              className="panel w-full rounded px-3 py-2"
+              value={customerDraft.name}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, name: e.target.value }))}
+            />
+            {customerErrors.name && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.name}</div>
+            )}
+          </div>
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_tax">
+              DNI
+            </label>
+            <input
+              id="c_tax"
+              className="panel w-full rounded px-3 py-2"
+              placeholder="77777777A o X1234567L"
+              aria-describedby="modal-dni-help"
+              value={customerDraft.taxId}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, taxId: e.target.value }))}
+            />
+            <DniHelp id="modal-dni-help" />
+            {customerErrors.taxId && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.taxId}</div>
+            )}
+          </div>
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_address">
+              Dirección
+            </label>
+            <textarea
+              id="c_address"
+              rows={2}
+              className="panel w-full rounded px-3 py-2"
+              value={customerDraft.address}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, address: e.target.value }))}
+            />
+            {customerErrors.address && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.address}</div>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="muted mb-1 block" htmlFor="c_email">
+                Email (opcional)
+              </label>
+              <input
+                id="c_email"
+                type="email"
+                className="panel w-full rounded px-3 py-2"
+                value={customerDraft.email || ''}
+                onChange={(e) => setCustomerDraft((d) => ({ ...d, email: e.target.value }))}
+              />
+              {customerErrors.email && (
+                <div className="mt-1 text-xs text-red-600">{customerErrors.email}</div>
+              )}
             </div>
-
-            <div className="grid grid-cols-1 gap-3 text-sm">
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_name">
-                  Nombre
-                </label>
-                <input
-                  id="c_name"
-                  className="panel w-full rounded px-3 py-2"
-                  value={customerDraft.name}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, name: e.target.value }))}
-                />
-                {customerErrors.name && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.name}</div>
-                )}
-              </div>
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_tax">
-                  DNI
-                </label>
-                <input
-                  id="c_tax"
-                  className="panel w-full rounded px-3 py-2"
-                  placeholder="77777777A o X1234567L"
-                  aria-describedby="modal-dni-help"
-                  value={customerDraft.taxId}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, taxId: e.target.value }))}
-                />
-                <DniHelp id="modal-dni-help" />
-                {customerErrors.taxId && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.taxId}</div>
-                )}
-              </div>
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_address">
-                  Dirección
-                </label>
-                <textarea
-                  id="c_address"
-                  rows={2}
-                  className="panel w-full rounded px-3 py-2"
-                  value={customerDraft.address}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, address: e.target.value }))}
-                />
-                {customerErrors.address && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.address}</div>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="muted mb-1 block" htmlFor="c_email">
-                    Email (opcional)
-                  </label>
-                  <input
-                    id="c_email"
-                    type="email"
-                    className="panel w-full rounded px-3 py-2"
-                    value={customerDraft.email || ''}
-                    onChange={(e) => setCustomerDraft((d) => ({ ...d, email: e.target.value }))}
-                  />
-                  {customerErrors.email && (
-                    <div className="mt-1 text-xs text-red-600">{customerErrors.email}</div>
-                  )}
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="c_phone">
-                    Teléfono (opcional)
-                  </label>
-                  <input
-                    id="c_phone"
-                    className="panel w-full rounded px-3 py-2"
-                    value={customerDraft.phone || ''}
-                    onChange={(e) => setCustomerDraft((d) => ({ ...d, phone: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  className="btn btn-primary"
-                  onClick={async () => {
-                    if (!user?.uid) return
-                    const e: Record<string, string> = {}
-                    if (!customerDraft.name?.trim()) e.name = 'Nombre requerido'
-                    if (!customerDraft.taxId?.trim()) e.taxId = 'DNI requerido'
-                    else if (!isValidDNI(customerDraft.taxId)) {
-                      e.taxId = 'DNI no válido'
-                    }
-                    if (!customerDraft.address?.trim()) e.address = 'Dirección requerida'
-                    if (customerDraft.email && !isValidEmail(customerDraft.email))
-                      e.email = 'Email no válido'
-                    setCustomerErrors(e)
-                    if (Object.keys(e).length > 0) return
-
-                    try {
-                      if (editingCustomerId) {
-                        await updateCustomer(user.uid, editingCustomerId, {
-                          name: customerDraft.name,
-                          address: customerDraft.address,
-                          taxId: customerDraft.taxId,
-                          email: customerDraft.email,
-                          phone: customerDraft.phone,
-                        })
-                        const page = await getCustomersFs(user.uid, {
-                          pageSize: 100,
-                          orderByField: 'name',
-                          direction: 'asc',
-                        })
-                        setCustomers(page.items)
-                        setCustomerId(editingCustomerId)
-                      } else {
-                        const newId = await addCustomer(user.uid, {
-                          name: customerDraft.name,
-                          address: customerDraft.address,
-                          taxId: customerDraft.taxId,
-                          email: customerDraft.email,
-                          phone: customerDraft.phone,
-                        } as Customer)
-                        const page = await getCustomersFs(user.uid, {
-                          pageSize: 100,
-                          orderByField: 'name',
-                          direction: 'asc',
-                        })
-                        setCustomers(page.items)
-                        setCustomerId(newId)
-                      }
-                      setCustomerModalOpen(false)
-                    } catch (err) {
-                      console.error(err)
-                      alert('No se pudo guardar el cliente')
-                    }
-                  }}
-                >
-                  Guardar
-                </button>
-                <button className="btn btn-ghost" onClick={() => setCustomerModalOpen(false)}>
-                  Cancelar
-                </button>
-              </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="c_phone">
+                Teléfono (opcional)
+              </label>
+              <input
+                id="c_phone"
+                className="panel w-full rounded px-3 py-2"
+                value={customerDraft.phone || ''}
+                onChange={(e) => setCustomerDraft((d) => ({ ...d, phone: e.target.value }))}
+              />
             </div>
           </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                if (!user?.uid) return
+                const e: Record<string, string> = {}
+                if (!customerDraft.name?.trim()) e.name = 'Nombre requerido'
+                if (!customerDraft.taxId?.trim()) e.taxId = 'DNI requerido'
+                else if (!isValidDNI(customerDraft.taxId)) {
+                  e.taxId = 'DNI no válido'
+                }
+                if (!customerDraft.address?.trim()) e.address = 'Dirección requerida'
+                if (customerDraft.email && !isValidEmail(customerDraft.email))
+                  e.email = 'Email no válido'
+                setCustomerErrors(e)
+                if (Object.keys(e).length > 0) return
+
+                try {
+                  if (editingCustomerId) {
+                    await updateCustomer(user.uid, editingCustomerId, {
+                      name: customerDraft.name,
+                      address: customerDraft.address,
+                      taxId: customerDraft.taxId,
+                      email: customerDraft.email,
+                      phone: customerDraft.phone,
+                    })
+                    const page = await getCustomersFs(user.uid, {
+                      pageSize: 100,
+                      orderByField: 'name',
+                      direction: 'asc',
+                    })
+                    setCustomers(page.items)
+                    setCustomerId(editingCustomerId)
+                  } else {
+                    const newId = await addCustomer(user.uid, {
+                      name: customerDraft.name,
+                      address: customerDraft.address,
+                      taxId: customerDraft.taxId,
+                      email: customerDraft.email,
+                      phone: customerDraft.phone,
+                    } as Customer)
+                    const page = await getCustomersFs(user.uid, {
+                      pageSize: 100,
+                      orderByField: 'name',
+                      direction: 'asc',
+                    })
+                    setCustomers(page.items)
+                    setCustomerId(newId)
+                  }
+                  setCustomerModalOpen(false)
+                } catch (err) {
+                  console.error(err)
+                  alert('No se pudo guardar el cliente')
+                }
+              }}
+            >
+              Guardar
+            </button>
+            <button className="btn btn-ghost" onClick={() => setCustomerModalOpen(false)}>
+              Cancelar
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-lg font-semibold">Nueva factura</h1>
         <Link to="/invoices" className="btn btn-ghost w-full text-center sm:w-auto">
@@ -459,19 +481,20 @@ export default function NewInvoice() {
           }
           onRemoveItem={(index) => setItems((arr) => arr.filter((_, i) => i !== index))}
           customerSection={
-            <div className="panel space-y-2 rounded p-4 text-sm">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="font-semibold">Cliente</div>
-                <button
-                  type="button"
-                  className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-                  aria-expanded={clienteOpen ? 'true' : 'false'}
-                  onClick={() => setClienteOpen((v) => !v)}
-                >
-                  {clienteOpen ? 'Ocultar' : 'Mostrar'}
-                </button>
-              </div>
-              <div className={`${clienteOpen ? 'block' : 'hidden'} space-y-2 sm:block`}>
+            <div className="panel rounded p-4 text-sm">
+              <Disclosure
+                open={clienteOpen}
+                onOpenChange={(v) => setClienteOpen(v)}
+                className="space-y-2"
+                buttonClassName="btn btn-secondary px-2 py-1 text-xs sm:hidden"
+                panelClassName="space-y-2 sm:block"
+                header={
+                  <div className="flex w-full items-center justify-between">
+                    <div className="font-semibold">Cliente</div>
+                    <span className="sm:hidden">{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+                  </div>
+                }
+              >
                 <div>
                   <div className="flex items-center justify-between">
                     <label className="muted mb-1 block" htmlFor="customerId">
@@ -549,50 +572,185 @@ export default function NewInvoice() {
                     <div>{customer.taxId}</div>
                   </div>
                 )}
+              </Disclosure>
+            </div>
+          }
+          rightAside={
+            <div className="panel w-full rounded p-4 text-sm lg:w-[420px]">
+              <div className="mb-2 font-semibold">Impuestos</div>
+              {/* Móvil: contenido colapsable */}
+              <div className="sm:hidden">
+                <Disclosure
+                  open={impuestosOpen}
+                  onOpenChange={setImpuestosOpen}
+                  buttonClassName="btn btn-secondary px-2 py-1 text-xs"
+                  panelClassName="mt-2"
+                  header={<span>{impuestosOpen ? 'Ocultar' : 'Mostrar'}</span>}
+                >
+                  <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="muted mb-1 block" htmlFor="vat">
+                        IVA (%)
+                      </label>
+                      <input
+                        id="vat"
+                        type="number"
+                        step={0.1}
+                        className="panel w-full rounded px-3 py-2"
+                        value={vatPercentage}
+                        onChange={(e) => setVatPercentage(Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="muted mb-1 block" htmlFor="irpf">
+                        IRPF (%)
+                      </label>
+                      <input
+                        id="irpf"
+                        type="number"
+                        step={0.1}
+                        className="panel w-full rounded px-3 py-2"
+                        value={irpfPercentage}
+                        onChange={(e) => setIrpfPercentage(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-2 font-semibold">Totales</div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">Base imponible</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.taxableBase || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">IVA ({totals.vatPercentage}%)</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.vatAmount || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">Base + IVA</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.taxableBasePlusVat || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
+                    <span>
+                      -
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.irpfAmount || 0)}
+                    </span>
+                  </div>
+                  <div className="my-2 border-t border-[var(--panel-border)]" />
+                  <div className="flex justify-between py-1 text-base font-semibold">
+                    <span>Total</span>
+                    <span>
+                      {new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                      }).format(totals.totalAmount || 0)}
+                    </span>
+                  </div>
+                </Disclosure>
+              </div>
+
+              {/* Desktop: contenido siempre visible */}
+              <div className="hidden sm:block">
+                <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="muted mb-1 block" htmlFor="vat-sm">
+                      IVA (%)
+                    </label>
+                    <input
+                      id="vat-sm"
+                      type="number"
+                      step={0.1}
+                      className="panel w-full rounded px-3 py-2"
+                      value={vatPercentage}
+                      onChange={(e) => setVatPercentage(Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="muted mb-1 block" htmlFor="irpf-sm">
+                      IRPF (%)
+                    </label>
+                    <input
+                      id="irpf-sm"
+                      type="number"
+                      step={0.1}
+                      className="panel w-full rounded px-3 py-2"
+                      value={irpfPercentage}
+                      onChange={(e) => setIrpfPercentage(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                <div className="mb-2 font-semibold">Totales</div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">Base imponible</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.taxableBase || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">IVA ({totals.vatPercentage}%)</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.vatAmount || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">Base + IVA</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.taxableBasePlusVat || 0
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
+                  <span>
+                    -
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.irpfAmount || 0
+                    )}
+                  </span>
+                </div>
+                <div className="my-2 border-t border-[var(--panel-border)]" />
+                <div className="flex justify-between py-1 text-base font-semibold">
+                  <span>Total</span>
+                  <span>
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                      totals.totalAmount || 0
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-3">
+                <button className="btn btn-primary" onClick={handleSubmit}>
+                  Guardar
+                </button>
               </div>
             </div>
           }
-          onSubmit={async () => {
-            const e = validate()
-            setErrors(e)
-            if (Object.keys(e).length === 0) {
-              if (!user) {
-                alert('Debes iniciar sesión para guardar la factura')
-                return
-              }
-              const stamp: Stamp =
-                issuerMode === 'stamp'
-                  ? (stampsList.find((s: Stamp) => s.id === selectedStampId) as Stamp)
-                  : {
-                      name: issuerName,
-                      companyName: issuerCompany,
-                      address: issuerAddress,
-                      taxId: issuerTaxId,
-                      imgUrl: issuerImgUrl || undefined,
-                    }
-              const invoice: Invoice = {
-                invoiceId,
-                stamp,
-                invoiceDate,
-                expirationDate,
-                customer: customer || { name: '', address: '', taxId: '' },
-                items,
-                totals,
-                invoiceKind,
-                rectifiedRef: invoiceKind === 'rectificativa' ? rectifiedRef : undefined,
-                rectifiedDate: invoiceKind === 'rectificativa' ? rectifiedDate : undefined,
-                rectificationReason:
-                  invoiceKind === 'rectificativa' ? rectificationReason : undefined,
-              }
-              try {
-                await addInvoice(user.uid, invoice)
-                navigate('/invoices')
-              } catch (err) {
-                console.error(err)
-                alert('No se pudo guardar la factura')
-              }
-            }
-          }}
+          issuerSectionOpen={emisorOpen}
+          onIssuerSectionOpenChange={setEmisorOpen}
+          onSubmit={handleSubmit}
         />
       </Suspense>
     </section>
