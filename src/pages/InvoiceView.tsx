@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Disclosure from '../components/ui/Disclosure'
 import { Link, useParams } from 'react-router-dom'
 import type { Invoice } from '../types/invoice.types'
 import { useAuth } from '../hooks/useAuth'
@@ -149,31 +150,34 @@ export default function InvoiceView() {
 
         {/* Cliente */}
         <div className="panel mt-6 rounded p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="font-semibold">Cliente</div>
-            <button
-              type="button"
-              className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-              aria-expanded={clienteOpen ? 'true' : 'false'}
-              onClick={() => setClienteOpen((v) => !v)}
-            >
-              {clienteOpen ? 'Ocultar' : 'Mostrar'}
-            </button>
-          </div>
-          <div className={`${clienteOpen ? 'space-y-1' : 'hidden'} text-sm sm:block sm:space-y-1`}>
-            <div>
-              <span className="muted">Nombre / Razón social: </span>
-              <span>{customer.name}</span>
+          <div className="mb-2 hidden font-semibold sm:block">Cliente</div>
+          <Disclosure
+            open={clienteOpen}
+            onOpenChange={setClienteOpen}
+            buttonClassName="btn btn-secondary px-2 py-1 text-xs sm:hidden"
+            panelClassName="text-sm sm:block sm:space-y-1"
+            header={
+              <div className="mb-2 flex items-center justify-between sm:hidden">
+                <div className="font-semibold">Cliente</div>
+                <span>{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+              </div>
+            }
+          >
+            <div className="space-y-1">
+              <div>
+                <span className="muted">Nombre / Razón social: </span>
+                <span>{customer.name}</span>
+              </div>
+              <div>
+                <span className="muted">Dirección: </span>
+                <span>{customer.address}</span>
+              </div>
+              <div>
+                <span className="muted">DNI: </span>
+                <span>{customer.taxId}</span>
+              </div>
             </div>
-            <div>
-              <span className="muted">Dirección: </span>
-              <span>{customer.address}</span>
-            </div>
-            <div>
-              <span className="muted">DNI: </span>
-              <span>{customer.taxId}</span>
-            </div>
-          </div>
+          </Disclosure>
         </div>
 
         {/* Items */}
