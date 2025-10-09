@@ -8,7 +8,7 @@ type ModalProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl'
   closeOnOverlayClick?: boolean
   closeOnEsc?: boolean
-  initialFocusRef?: React.RefObject<HTMLElement>
+  initialFocusRef?: React.RefObject<HTMLElement | null>
   children: ReactNode
 }
 
