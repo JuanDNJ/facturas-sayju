@@ -7,6 +7,7 @@ import { addInvoice } from '../apis/invoices'
 import { getStamps as getStampsFs } from '../apis/stamps'
 import { getCustomers as getCustomersFs, addCustomer, updateCustomer } from '../apis/customers'
 import DniHelp from '../components/DniHelp'
+import Modal from '../components/ui/Modal'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 // Carga diferida del formulario de factura
 const InvoiceForm = lazy(() =>
@@ -226,172 +227,151 @@ export default function NewInvoice() {
   return (
     <section className="space-y-4">
       {/* Modal Cliente */}
-      {customerModalOpen && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="absolute inset-0 bg-[var(--bg)]"
-            onClick={() => setCustomerModalOpen(false)}
-          />
-          <div className="panel relative z-50 max-h-[90vh] w-[95vw] max-w-lg overflow-auto rounded p-4 shadow-lg">
-            <div className="mb-3 flex items-start justify-between">
-              <h2 className="text-lg font-semibold">
-                {editingCustomerId ? 'Editar cliente' : 'Nuevo cliente'}
-              </h2>
-              <button
-                className="btn btn-ghost"
-                onClick={() => setCustomerModalOpen(false)}
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
+      <Modal
+        open={customerModalOpen}
+        onClose={() => setCustomerModalOpen(false)}
+        title={editingCustomerId ? 'Editar cliente' : 'Nuevo cliente'}
+        size="md"
+      >
+        <div className="grid grid-cols-1 gap-3 text-sm">
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_name">
+              Nombre
+            </label>
+            <input
+              id="c_name"
+              className="panel w-full rounded px-3 py-2"
+              value={customerDraft.name}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, name: e.target.value }))}
+            />
+            {customerErrors.name && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.name}</div>
+            )}
+          </div>
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_tax">
+              DNI
+            </label>
+            <input
+              id="c_tax"
+              className="panel w-full rounded px-3 py-2"
+              placeholder="77777777A o X1234567L"
+              aria-describedby="modal-dni-help"
+              value={customerDraft.taxId}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, taxId: e.target.value }))}
+            />
+            <DniHelp id="modal-dni-help" />
+            {customerErrors.taxId && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.taxId}</div>
+            )}
+          </div>
+          <div>
+            <label className="muted mb-1 block" htmlFor="c_address">
+              Dirección
+            </label>
+            <textarea
+              id="c_address"
+              rows={2}
+              className="panel w-full rounded px-3 py-2"
+              value={customerDraft.address}
+              onChange={(e) => setCustomerDraft((d) => ({ ...d, address: e.target.value }))}
+            />
+            {customerErrors.address && (
+              <div className="mt-1 text-xs text-red-600">{customerErrors.address}</div>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="muted mb-1 block" htmlFor="c_email">
+                Email (opcional)
+              </label>
+              <input
+                id="c_email"
+                type="email"
+                className="panel w-full rounded px-3 py-2"
+                value={customerDraft.email || ''}
+                onChange={(e) => setCustomerDraft((d) => ({ ...d, email: e.target.value }))}
+              />
+              {customerErrors.email && (
+                <div className="mt-1 text-xs text-red-600">{customerErrors.email}</div>
+              )}
             </div>
-
-            <div className="grid grid-cols-1 gap-3 text-sm">
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_name">
-                  Nombre
-                </label>
-                <input
-                  id="c_name"
-                  className="panel w-full rounded px-3 py-2"
-                  value={customerDraft.name}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, name: e.target.value }))}
-                />
-                {customerErrors.name && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.name}</div>
-                )}
-              </div>
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_tax">
-                  DNI
-                </label>
-                <input
-                  id="c_tax"
-                  className="panel w-full rounded px-3 py-2"
-                  placeholder="77777777A o X1234567L"
-                  aria-describedby="modal-dni-help"
-                  value={customerDraft.taxId}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, taxId: e.target.value }))}
-                />
-                <DniHelp id="modal-dni-help" />
-                {customerErrors.taxId && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.taxId}</div>
-                )}
-              </div>
-              <div>
-                <label className="muted mb-1 block" htmlFor="c_address">
-                  Dirección
-                </label>
-                <textarea
-                  id="c_address"
-                  rows={2}
-                  className="panel w-full rounded px-3 py-2"
-                  value={customerDraft.address}
-                  onChange={(e) => setCustomerDraft((d) => ({ ...d, address: e.target.value }))}
-                />
-                {customerErrors.address && (
-                  <div className="mt-1 text-xs text-red-600">{customerErrors.address}</div>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="muted mb-1 block" htmlFor="c_email">
-                    Email (opcional)
-                  </label>
-                  <input
-                    id="c_email"
-                    type="email"
-                    className="panel w-full rounded px-3 py-2"
-                    value={customerDraft.email || ''}
-                    onChange={(e) => setCustomerDraft((d) => ({ ...d, email: e.target.value }))}
-                  />
-                  {customerErrors.email && (
-                    <div className="mt-1 text-xs text-red-600">{customerErrors.email}</div>
-                  )}
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="c_phone">
-                    Teléfono (opcional)
-                  </label>
-                  <input
-                    id="c_phone"
-                    className="panel w-full rounded px-3 py-2"
-                    value={customerDraft.phone || ''}
-                    onChange={(e) => setCustomerDraft((d) => ({ ...d, phone: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  className="btn btn-primary"
-                  onClick={async () => {
-                    if (!user?.uid) return
-                    const e: Record<string, string> = {}
-                    if (!customerDraft.name?.trim()) e.name = 'Nombre requerido'
-                    if (!customerDraft.taxId?.trim()) e.taxId = 'DNI requerido'
-                    else if (!isValidDNI(customerDraft.taxId)) {
-                      e.taxId = 'DNI no válido'
-                    }
-                    if (!customerDraft.address?.trim()) e.address = 'Dirección requerida'
-                    if (customerDraft.email && !isValidEmail(customerDraft.email))
-                      e.email = 'Email no válido'
-                    setCustomerErrors(e)
-                    if (Object.keys(e).length > 0) return
-
-                    try {
-                      if (editingCustomerId) {
-                        await updateCustomer(user.uid, editingCustomerId, {
-                          name: customerDraft.name,
-                          address: customerDraft.address,
-                          taxId: customerDraft.taxId,
-                          email: customerDraft.email,
-                          phone: customerDraft.phone,
-                        })
-                        const page = await getCustomersFs(user.uid, {
-                          pageSize: 100,
-                          orderByField: 'name',
-                          direction: 'asc',
-                        })
-                        setCustomers(page.items)
-                        setCustomerId(editingCustomerId)
-                      } else {
-                        const newId = await addCustomer(user.uid, {
-                          name: customerDraft.name,
-                          address: customerDraft.address,
-                          taxId: customerDraft.taxId,
-                          email: customerDraft.email,
-                          phone: customerDraft.phone,
-                        } as Customer)
-                        const page = await getCustomersFs(user.uid, {
-                          pageSize: 100,
-                          orderByField: 'name',
-                          direction: 'asc',
-                        })
-                        setCustomers(page.items)
-                        setCustomerId(newId)
-                      }
-                      setCustomerModalOpen(false)
-                    } catch (err) {
-                      console.error(err)
-                      alert('No se pudo guardar el cliente')
-                    }
-                  }}
-                >
-                  Guardar
-                </button>
-                <button className="btn btn-ghost" onClick={() => setCustomerModalOpen(false)}>
-                  Cancelar
-                </button>
-              </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="c_phone">
+                Teléfono (opcional)
+              </label>
+              <input
+                id="c_phone"
+                className="panel w-full rounded px-3 py-2"
+                value={customerDraft.phone || ''}
+                onChange={(e) => setCustomerDraft((d) => ({ ...d, phone: e.target.value }))}
+              />
             </div>
           </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                if (!user?.uid) return
+                const e: Record<string, string> = {}
+                if (!customerDraft.name?.trim()) e.name = 'Nombre requerido'
+                if (!customerDraft.taxId?.trim()) e.taxId = 'DNI requerido'
+                else if (!isValidDNI(customerDraft.taxId)) {
+                  e.taxId = 'DNI no válido'
+                }
+                if (!customerDraft.address?.trim()) e.address = 'Dirección requerida'
+                if (customerDraft.email && !isValidEmail(customerDraft.email))
+                  e.email = 'Email no válido'
+                setCustomerErrors(e)
+                if (Object.keys(e).length > 0) return
+
+                try {
+                  if (editingCustomerId) {
+                    await updateCustomer(user.uid, editingCustomerId, {
+                      name: customerDraft.name,
+                      address: customerDraft.address,
+                      taxId: customerDraft.taxId,
+                      email: customerDraft.email,
+                      phone: customerDraft.phone,
+                    })
+                    const page = await getCustomersFs(user.uid, {
+                      pageSize: 100,
+                      orderByField: 'name',
+                      direction: 'asc',
+                    })
+                    setCustomers(page.items)
+                    setCustomerId(editingCustomerId)
+                  } else {
+                    const newId = await addCustomer(user.uid, {
+                      name: customerDraft.name,
+                      address: customerDraft.address,
+                      taxId: customerDraft.taxId,
+                      email: customerDraft.email,
+                      phone: customerDraft.phone,
+                    } as Customer)
+                    const page = await getCustomersFs(user.uid, {
+                      pageSize: 100,
+                      orderByField: 'name',
+                      direction: 'asc',
+                    })
+                    setCustomers(page.items)
+                    setCustomerId(newId)
+                  }
+                  setCustomerModalOpen(false)
+                } catch (err) {
+                  console.error(err)
+                  alert('No se pudo guardar el cliente')
+                }
+              }}
+            >
+              Guardar
+            </button>
+            <button className="btn btn-ghost" onClick={() => setCustomerModalOpen(false)}>
+              Cancelar
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-lg font-semibold">Nueva factura</h1>
         <Link to="/invoices" className="btn btn-ghost w-full text-center sm:w-auto">
@@ -465,7 +445,6 @@ export default function NewInvoice() {
                 <button
                   type="button"
                   className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-                  aria-expanded={clienteOpen ? 'true' : 'false'}
                   onClick={() => setClienteOpen((v) => !v)}
                 >
                   {clienteOpen ? 'Ocultar' : 'Mostrar'}
