@@ -43,6 +43,31 @@
     color: #000 !important;
   }
 
+  /* Items: bordes más distintivos y separación clara */
+  .print-items .print-items-table {
+    border-color: #333 !important;
+  }
+
+  .print-items .print-items-table-el th,
+  .print-items .print-items-table-el td {
+    border-color: #666 !important;
+  }
+
+  .print-items .print-item-row {
+    border-top-color: #666 !important;
+  }
+
+  .print-items-cards .print-item-card {
+    border-color: #333 !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Totales: ocupar todo el ancho en impresión */
+  .print-totals .print-totals-box {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
   /* Quitar sombras y asegurar alta legibilidad */
   * {
     box-shadow: none !important;

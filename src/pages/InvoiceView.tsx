@@ -200,14 +200,17 @@ export default function InvoiceView() {
         </div>
 
         {/* Items */}
-        <div className="mt-6">
+        <div className="print-items mt-6">
           {/* Vista móvil: tarjetas */}
-          <div className="space-y-3 md:hidden">
+          <div className="print-items-cards space-y-3 md:hidden">
             {items.map((it, idx) => {
               const price = toNumber(it.price)
               const amount = it.quantity * price
               return (
-                <div key={idx} className="rounded border border-[var(--panel-border)] p-3 text-sm">
+                <div
+                  key={idx}
+                  className="print-item-card rounded border border-[var(--panel-border)] p-3 text-sm"
+                >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <div className="muted mb-1 text-xs">Código</div>
@@ -236,8 +239,8 @@ export default function InvoiceView() {
           </div>
 
           {/* Vista tabla en md+ */}
-          <div className="hidden overflow-x-auto rounded border border-[var(--panel-border)] md:block">
-            <table className="w-full text-sm">
+          <div className="print-items-table hidden overflow-x-auto rounded border border-[var(--panel-border)] md:block">
+            <table className="print-items-table-el w-full text-sm">
               <thead className="bg-[var(--panel)]">
                 <tr className="text-left">
                   <th className="px-3 py-2">Código</th>
@@ -252,7 +255,7 @@ export default function InvoiceView() {
                   const price = toNumber(it.price)
                   const amount = it.quantity * price
                   return (
-                    <tr key={idx} className="border-t border-[var(--panel-border)]">
+                    <tr key={idx} className="print-item-row border-t border-[var(--panel-border)]">
                       <td className="px-3 py-2 align-top">{it.code}</td>
                       <td className="px-3 py-2 align-top">{it.description}</td>
                       <td className="px-3 py-2 text-right align-top">{it.quantity}</td>
@@ -267,8 +270,8 @@ export default function InvoiceView() {
         </div>
 
         {/* Totales */}
-        <div className="mt-6 flex flex-col items-end">
-          <div className="panel w-full rounded p-4 text-sm sm:w-[420px]">
+        <div className="print-totals mt-6 flex flex-col items-end">
+          <div className="panel print-totals-box w-full rounded p-4 text-sm sm:w-[420px]">
             <div className="flex justify-between py-1">
               <span className="muted">Base imponible</span>
               <span>{formatCurrency(totals.taxableBase)}</span>
