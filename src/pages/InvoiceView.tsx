@@ -150,34 +150,53 @@ export default function InvoiceView() {
 
         {/* Cliente */}
         <div className="panel mt-6 rounded p-4">
+          {/* Título fijo en desktop */}
           <div className="mb-2 hidden font-semibold sm:block">Cliente</div>
-          <Disclosure
-            open={clienteOpen}
-            onOpenChange={setClienteOpen}
-            buttonClassName="btn btn-secondary px-2 py-1 text-xs sm:hidden"
-            panelClassName="text-sm sm:block sm:space-y-1"
-            header={
-              <div className="mb-2 flex items-center justify-between sm:hidden">
-                <div className="font-semibold">Cliente</div>
-                <span>{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+          {/* Móvil: Disclosure con botón */}
+          <div className="sm:hidden">
+            <Disclosure
+              open={clienteOpen}
+              onOpenChange={setClienteOpen}
+              buttonClassName="btn btn-secondary px-2 py-1 text-xs"
+              panelClassName="text-sm space-y-1"
+              header={
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="font-semibold">Cliente</div>
+                  <span>{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+                </div>
+              }
+            >
+              <div className="space-y-1">
+                <div>
+                  <span className="muted">Nombre / Razón social: </span>
+                  <span>{customer.name}</span>
+                </div>
+                <div>
+                  <span className="muted">Dirección: </span>
+                  <span>{customer.address}</span>
+                </div>
+                <div>
+                  <span className="muted">DNI: </span>
+                  <span>{customer.taxId}</span>
+                </div>
               </div>
-            }
-          >
-            <div className="space-y-1">
-              <div>
-                <span className="muted">Nombre / Razón social: </span>
-                <span>{customer.name}</span>
-              </div>
-              <div>
-                <span className="muted">Dirección: </span>
-                <span>{customer.address}</span>
-              </div>
-              <div>
-                <span className="muted">DNI: </span>
-                <span>{customer.taxId}</span>
-              </div>
+            </Disclosure>
+          </div>
+          {/* Desktop: contenido siempre visible sin botón */}
+          <div className="hidden space-y-1 text-sm sm:block">
+            <div>
+              <span className="muted">Nombre / Razón social: </span>
+              <span>{customer.name}</span>
             </div>
-          </Disclosure>
+            <div>
+              <span className="muted">Dirección: </span>
+              <span>{customer.address}</span>
+            </div>
+            <div>
+              <span className="muted">DNI: </span>
+              <span>{customer.taxId}</span>
+            </div>
+          </div>
         </div>
 
         {/* Items */}
