@@ -47,3 +47,16 @@ Crear un conjunto de componentes reutilizables que unifiquen estilos, mejoren la
 - Modal: modal de cliente en `src/pages/NewInvoice.tsx`
 - Disclosure: secciones colapsables en `InvoiceView`/`NewInvoice`
 - Table+Pagination: `Invoices` o `Clients`
+
+## Refactors y mejoras pendientes (registro)
+
+- Table primitives (Table, Thead, Tbody, Tr, Th, Td) con estilos y tamaños consistentes
+- Pagination/Pager y PageSizeSelect reutilizables; integrar en `Clients`, `Invoices`, `Stamps`
+- FilterToolbar (layout + accesibilidad) para filtros comunes
+- FileInput con vista previa y accesibilidad (asociación label/aria)
+- ConfirmDialog: hook `useConfirm` para simplificar adopción
+- ErrorBoundary básico a nivel de `App` y/o por rutas
+- Disclosure en impresión: ya forzado a abierto; documentar patrón
+- Print presets: bordes ‘strong’/‘normal’, separación por propiedad (hecho), totales full/center/left/right (próxima PR)
+- Invoice templates: scaffolding de `InvoiceLayoutContext` o config por factura
+- Accesibilidad: pasada final de labels/aria en formularios (`InvoiceForm`, `Clients`, `ClientView`)
