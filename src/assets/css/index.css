@@ -1,5 +1,5 @@
-@import "./root.css";
-@import "./print.css";
+@import './root.css';
+@import './print.css';
 
 html,
 body,
@@ -10,6 +10,13 @@ body,
 
 .panel {
   background-color: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+
+/* Variante sólida para notificaciones (sin opacidades) */
+.toast-solid {
+  background-color: var(--menu-bg);
+  /* usa color sólido del tema actual */
   border: 1px solid var(--panel-border);
 }
 
@@ -40,7 +47,12 @@ body,
   /* text-sm */
   font-weight: 500;
   /* font-medium */
-  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease;
+  -webkit-user-select: none;
   user-select: none;
   outline: none;
   height: 2.375rem;

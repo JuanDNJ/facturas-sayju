@@ -1,139 +1,115 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import type { Invoice } from "../types/invoice.types";
-import { useAuth } from "../hooks/useAuth";
-import { getInvoice } from "../apis/invoices";
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import type { Invoice } from '../types/invoice.types'
+import { useAuth } from '../hooks/useAuth'
+import { getInvoice } from '../apis/invoices'
 
-function formatCurrency(value: number, locale = "es-ES", currency = "EUR") {
-  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
-    value || 0
-  );
+function formatCurrency(value: number, locale = 'es-ES', currency = 'EUR') {
+  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value || 0)
 }
 
 function toNumber(n: string | number): number {
-  if (typeof n === "number") return n;
-  const parsed = parseFloat(n);
-  return Number.isFinite(parsed) ? parsed : 0;
+  if (typeof n === 'number') return n
+  const parsed = parseFloat(n)
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 // Maquetación presentacional de factura a partir de los tipos
 // Nota: no se muestra ningún campo id opcional
 export default function InvoiceView() {
-  const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [clienteOpen, setClienteOpen] = useState(() => {
-    const v =
-      typeof window !== "undefined"
-        ? localStorage.getItem("iv_clienteOpen")
-        : null;
-    return v === null ? true : v === "true";
-  });
+    const v = typeof window !== 'undefined' ? localStorage.getItem('iv_clienteOpen') : null
+    return v === null ? true : v === 'true'
+  })
 
   useEffect(() => {
-    let active = true;
+    let active = true
     const run = async () => {
-      if (!user || !id) return;
-      setLoading(true);
-      setError(null);
+      if (!user || !id) return
+      setLoading(true)
+      setError(null)
       try {
-        const data = await getInvoice(user.uid, id);
-        if (active) setInvoice(data);
-        if (active && !data) setError("Factura no encontrada");
+        const data = await getInvoice(user.uid, id)
+        if (active) setInvoice(data)
+        if (active && !data) setError('Factura no encontrada')
       } catch (e: unknown) {
         const msg =
-          typeof e === "object" && e && "message" in e
+          typeof e === 'object' && e && 'message' in e
             ? String((e as { message?: unknown }).message)
-            : "No se pudo cargar la factura";
-        if (active) setError(msg);
+            : 'No se pudo cargar la factura'
+        if (active) setError(msg)
       } finally {
-        if (active) setLoading(false);
+        if (active) setLoading(false)
       }
-    };
-    run();
+    }
+    run()
     return () => {
-      active = false;
-    };
-  }, [user, id]);
+      active = false
+    }
+  }, [user, id])
 
   // Colapsar "Cliente" por defecto en móvil en primer render
   useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 640) {
-      if (localStorage.getItem("iv_clienteOpen") === null)
-        setClienteOpen(false);
+    if (typeof window !== 'undefined' && window.innerWidth < 640) {
+      if (localStorage.getItem('iv_clienteOpen') === null) setClienteOpen(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    if (typeof window !== "undefined")
-      localStorage.setItem("iv_clienteOpen", String(clienteOpen));
-  }, [clienteOpen]);
+    if (typeof window !== 'undefined') localStorage.setItem('iv_clienteOpen', String(clienteOpen))
+  }, [clienteOpen])
 
   if (loading) {
     return (
       <section className="space-y-4">
-        <div className="rounded p-6 panel">Cargando factura…</div>
+        <div className="panel rounded p-6">Cargando factura…</div>
       </section>
-    );
+    )
   }
 
   if (error) {
     return (
       <section className="space-y-4">
-        <div className="rounded p-6 panel" style={{ color: "crimson" }}>
-          {error}
-        </div>
+        <div className="panel rounded p-6 text-red-600">{error}</div>
       </section>
-    );
+    )
   }
 
-  if (!invoice) return null;
+  if (!invoice) return null
 
-  const {
-    stamp,
-    invoiceId,
-    invoiceDate,
-    expirationDate,
-    customer,
-    items,
-    totals,
-  } = invoice;
+  const { stamp, invoiceId, invoiceDate, expirationDate, customer, items, totals } = invoice
 
   return (
     <section className="space-y-4">
       {/* Acciones (no imprimir) */}
-      <div className="no-print flex items-center justify-between sm:justify-end gap-2 flex-wrap">
-        <Link
-          to="/invoices"
-          className="rounded px-3 py-2 panel w-full sm:w-auto text-center"
-        >
+      <div className="no-print flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+        <Link to="/invoices" className="panel w-full rounded px-3 py-2 text-center sm:w-auto">
           Volver
         </Link>
         <button
-          className="btn btn-secondary w-full sm:w-auto text-center"
+          className="btn btn-secondary w-full text-center sm:w-auto"
           onClick={() => window.print()}
         >
           Imprimir / Guardar PDF
         </button>
       </div>
-      <div className="rounded p-6 panel">
+      <div className="panel rounded p-6">
         {/* Cabecera: Emisor (izquierda) + Fecha (arriba derecha) y segunda fila con Factura (izquierda) y Vencimiento (derecha) */}
         <div className="flex flex-col gap-4">
           {/* Fila superior: Emisor a la izquierda + Fecha arriba a la derecha */}
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             {/* Emisor (alineado a la izquierda) */}
             <div className="flex items-start gap-4 md:text-left">
               {stamp.imgUrl && (
-                <img
-                  src={stamp.imgUrl}
-                  alt="Logo"
-                  className="w-16 h-16 object-contain"
-                />
+                <img src={stamp.imgUrl} alt="Logo" className="h-16 w-16 object-contain" />
               )}
               <div className="text-sm">
-                <div className="font-semibold text-base text-[var(--text)]">
+                <div className="text-base font-semibold text-[var(--text)]">
                   {stamp.companyName || stamp.name}
                 </div>
                 <div className="muted">{stamp.address}</div>
@@ -142,18 +118,18 @@ export default function InvoiceView() {
             </div>
 
             {/* Fecha arriba a la derecha */}
-            <div className="text-right md:items-end md:ml-auto">
+            <div className="text-right md:ml-auto md:items-end">
               <div className="muted text-xs">Fecha</div>
               <div className="font-medium">
-                {typeof invoiceDate === "string"
+                {typeof invoiceDate === 'string'
                   ? invoiceDate
-                  : new Date(invoiceDate).toLocaleDateString("es-ES")}
+                  : new Date(invoiceDate).toLocaleDateString('es-ES')}
               </div>
             </div>
           </div>
 
           {/* Segunda fila: Factura a la izquierda y Vencimiento a la derecha */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="muted text-xs">Factura</div>
               <div className="font-medium">{invoiceId}</div>
@@ -161,9 +137,9 @@ export default function InvoiceView() {
             <div className="text-right sm:text-right">
               <div className="muted text-xs">Vencimiento</div>
               <div className="font-medium">
-                {typeof expirationDate === "string"
+                {typeof expirationDate === 'string'
                   ? expirationDate
-                  : new Date(expirationDate).toLocaleDateString("es-ES")}
+                  : new Date(expirationDate).toLocaleDateString('es-ES')}
               </div>
             </div>
           </div>
@@ -172,23 +148,19 @@ export default function InvoiceView() {
         {/* Nota: Se evita duplicar el identificador de factura aquí; ya aparece en la meta de cabecera */}
 
         {/* Cliente */}
-        <div className="mt-6 rounded p-4 panel">
-          <div className="flex items-center justify-between mb-2">
+        <div className="panel mt-6 rounded p-4">
+          <div className="mb-2 flex items-center justify-between">
             <div className="font-semibold">Cliente</div>
             <button
               type="button"
-              className="sm:hidden btn btn-secondary text-xs px-2 py-1"
-              aria-expanded={clienteOpen}
+              className="btn btn-secondary px-2 py-1 text-xs sm:hidden"
+              aria-expanded={clienteOpen ? 'true' : 'false'}
               onClick={() => setClienteOpen((v) => !v)}
             >
-              {clienteOpen ? "Ocultar" : "Mostrar"}
+              {clienteOpen ? 'Ocultar' : 'Mostrar'}
             </button>
           </div>
-          <div
-            className={`${
-              clienteOpen ? "space-y-1" : "hidden"
-            } sm:space-y-1 sm:block text-sm`}
-          >
+          <div className={`${clienteOpen ? 'space-y-1' : 'hidden'} text-sm sm:block sm:space-y-1`}>
             <div>
               <span className="muted">Nombre / Razón social: </span>
               <span>{customer.name}</span>
@@ -207,52 +179,41 @@ export default function InvoiceView() {
         {/* Items */}
         <div className="mt-6">
           {/* Vista móvil: tarjetas */}
-          <div className="md:hidden space-y-3">
+          <div className="space-y-3 md:hidden">
             {items.map((it, idx) => {
-              const price = toNumber(it.price);
-              const amount = it.quantity * price;
+              const price = toNumber(it.price)
+              const amount = it.quantity * price
               return (
-                <div
-                  key={idx}
-                  className="rounded border border-[var(--panel-border)] p-3 text-sm"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div key={idx} className="rounded border border-[var(--panel-border)] p-3 text-sm">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <div className="muted text-xs mb-1">Código</div>
-                      <div className="font-medium break-words">
-                        {it.code || "—"}
-                      </div>
+                      <div className="muted mb-1 text-xs">Código</div>
+                      <div className="font-medium break-words">{it.code || '—'}</div>
                     </div>
                     <div>
-                      <div className="muted text-xs mb-1">Cantidad</div>
-                      <div className="text-right sm:text-left">
-                        {it.quantity}
-                      </div>
+                      <div className="muted mb-1 text-xs">Cantidad</div>
+                      <div className="text-right sm:text-left">{it.quantity}</div>
                     </div>
                     <div className="sm:col-span-2">
-                      <div className="muted text-xs mb-1">Descripción</div>
+                      <div className="muted mb-1 text-xs">Descripción</div>
                       <div className="break-words">{it.description}</div>
                     </div>
                     <div>
-                      <div className="muted text-xs mb-1">Precio</div>
-                      <div className="text-right sm:text-left">
-                        {formatCurrency(price)}
-                      </div>
+                      <div className="muted mb-1 text-xs">Precio</div>
+                      <div className="text-right sm:text-left">{formatCurrency(price)}</div>
                     </div>
                     <div className="flex items-end justify-between sm:block">
-                      <div className="muted text-xs mb-1">Importe</div>
-                      <div className="font-medium">
-                        {formatCurrency(amount)}
-                      </div>
+                      <div className="muted mb-1 text-xs">Importe</div>
+                      <div className="font-medium">{formatCurrency(amount)}</div>
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
 
           {/* Vista tabla en md+ */}
-          <div className="hidden md:block overflow-x-auto rounded border border-[var(--panel-border)]">
+          <div className="hidden overflow-x-auto rounded border border-[var(--panel-border)] md:block">
             <table className="w-full text-sm">
               <thead className="bg-[var(--panel)]">
                 <tr className="text-left">
@@ -265,26 +226,17 @@ export default function InvoiceView() {
               </thead>
               <tbody>
                 {items.map((it, idx) => {
-                  const price = toNumber(it.price);
-                  const amount = it.quantity * price;
+                  const price = toNumber(it.price)
+                  const amount = it.quantity * price
                   return (
-                    <tr
-                      key={idx}
-                      className="border-t border-[var(--panel-border)]"
-                    >
+                    <tr key={idx} className="border-t border-[var(--panel-border)]">
                       <td className="px-3 py-2 align-top">{it.code}</td>
                       <td className="px-3 py-2 align-top">{it.description}</td>
-                      <td className="px-3 py-2 text-right align-top">
-                        {it.quantity}
-                      </td>
-                      <td className="px-3 py-2 text-right align-top">
-                        {formatCurrency(price)}
-                      </td>
-                      <td className="px-3 py-2 text-right align-top">
-                        {formatCurrency(amount)}
-                      </td>
+                      <td className="px-3 py-2 text-right align-top">{it.quantity}</td>
+                      <td className="px-3 py-2 text-right align-top">{formatCurrency(price)}</td>
+                      <td className="px-3 py-2 text-right align-top">{formatCurrency(amount)}</td>
                     </tr>
-                  );
+                  )
                 })}
               </tbody>
             </table>
@@ -293,7 +245,7 @@ export default function InvoiceView() {
 
         {/* Totales */}
         <div className="mt-6 flex flex-col items-end">
-          <div className="w-full sm:w-[420px] rounded p-4 panel text-sm">
+          <div className="panel w-full rounded p-4 text-sm sm:w-[420px]">
             <div className="flex justify-between py-1">
               <span className="muted">Base imponible</span>
               <span>{formatCurrency(totals.taxableBase)}</span>
@@ -310,7 +262,7 @@ export default function InvoiceView() {
               <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
               <span>-{formatCurrency(totals.irpfAmount)}</span>
             </div>
-            <div className="border-t border-[var(--panel-border)] my-2" />
+            <div className="my-2 border-t border-[var(--panel-border)]" />
             <div className="flex justify-between py-1 text-base font-semibold">
               <span>Total</span>
               <span>{formatCurrency(totals.totalAmount)}</span>
@@ -319,5 +271,5 @@ export default function InvoiceView() {
         </div>
       </div>
     </section>
-  );
+  )
 }

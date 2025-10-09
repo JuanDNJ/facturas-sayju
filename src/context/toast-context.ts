@@ -1,4 +1,4 @@
-import { createContext } from "react";
-import type { ToastContextValue } from "./ToastContext";
+import { createContext } from 'react'
+import type { ToastContextValue } from './ToastContext'
 
-export const ToastContext = createContext<ToastContextValue | undefined>(undefined);
+export const ToastContext = createContext<ToastContextValue | undefined>(undefined)

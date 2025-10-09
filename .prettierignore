@@ -1,0 +1,12 @@
+# Build outputs
+/dist
+/.vite
+/build
+
+# Node
+node_modules
+
+# Misc
+*.log
+*.lock
+coverage

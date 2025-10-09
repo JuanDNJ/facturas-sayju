@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* Tema base: oscuro grisáceo, menos contrastado que negro puro */
@@ -52,7 +52,7 @@
   --btn-danger-ring: rgba(239, 68, 68, 0.4);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   color-scheme: dark;
   --bg: #1e1e1e;
   /* gris más claro que el negro puro */
@@ -65,7 +65,7 @@
   /* Mantener misma paleta por defecto que :root */
 }
 
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   color-scheme: light;
   --bg: #f7f7f7;
   --panel: rgba(0, 0, 0, 0.04);
@@ -113,7 +113,7 @@
 }
 
 /* Tema “papel antiguo” */
-:root[data-theme="paper"] {
+:root[data-theme='paper'] {
   color-scheme: light;
   --bg: #f3edd7;
   /* pergamino */

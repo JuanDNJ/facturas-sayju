@@ -1,52 +1,52 @@
-import { useEffect, useRef, useState } from "react";
-import useTheme from "../../theme/useTheme";
-import { useAuth } from "../../hooks/useAuth";
-import { logoutUser } from "../../apis/auth";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from 'react'
+import useTheme from '../../theme/useTheme'
+import { useAuth } from '../../hooks/useAuth'
+import { logoutUser } from '../../apis/auth'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 export default function Topbar({
   onToggleSidebar,
   onToggleCollapse,
   collapsed,
 }: {
-  onToggleSidebar: () => void;
-  onToggleCollapse: () => void;
-  collapsed: boolean;
+  onToggleSidebar: () => void
+  onToggleCollapse: () => void
+  collapsed: boolean
 }) {
-  const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const display = user?.displayName || user?.email || "";
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const photo = user?.photoURL || null;
-  const initial = (display?.trim()?.[0] || "").toUpperCase();
+  const { theme, setTheme } = useTheme()
+  const { user } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const display = user?.displayName || user?.email || ''
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const photo = user?.photoURL || null
+  const initial = (display?.trim()?.[0] || '').toUpperCase()
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      const target = e.target as Node | null;
+      if (!menuRef.current) return
+      const target = e.target as Node | null
       if (target && !menuRef.current.contains(target)) {
-        setMenuOpen(false);
+        setMenuOpen(false)
       }
-    };
+    }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
     return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, []);
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [])
   return (
-    <header className="sticky top-0 z-30 h-14 border-b px-2 sm:px-4 flex items-center justify-between panel no-print backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+    <header className="panel no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sm:px-4">
       <div className="flex items-center gap-2">
         <button
           type="button"
           aria-label="Abrir menú"
-          className="inline-flex md:hidden p-2 rounded hover:bg-white/10"
+          className="inline-flex rounded p-2 hover:bg-white/10 md:hidden"
           onClick={onToggleSidebar}
         >
           ☰
@@ -54,29 +54,27 @@ export default function Topbar({
         <button
           type="button"
           aria-label="Colapsar barra lateral"
-          className="hidden md:inline-flex p-2 rounded hover:bg-white/10"
+          className="hidden rounded p-2 hover:bg-white/10 md:inline-flex"
           onClick={onToggleCollapse}
-          title={collapsed ? "Expandir menú (b)" : "Colapsar menú (b)"}
+          title={collapsed ? 'Expandir menú (b)' : 'Colapsar menú (b)'}
         >
-          {collapsed ? "➡" : "⬅"}
+          {collapsed ? '➡' : '⬅'}
         </button>
         <div className="font-medium">
           <NavLink to="/">Panel de control</NavLink>
         </div>
       </div>
-      <div className="flex items-center gap-2 sm:gap-3 text-sm min-w-0">
+      <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
         <input
           type="text"
           placeholder="Buscar..."
-          className="hidden sm:block rounded px-3 py-1 outline-none w-40 sm:w-56 md:w-64 panel"
+          className="panel hidden w-40 rounded px-3 py-1 outline-none sm:block sm:w-56 md:w-64"
         />
         <select
           aria-label="Seleccionar tema"
-          className="rounded px-2 py-1 panel"
+          className="panel rounded px-2 py-1"
           value={theme}
-          onChange={(e) =>
-            setTheme(e.target.value as "dark" | "light" | "paper")
-          }
+          onChange={(e) => setTheme(e.target.value as 'dark' | 'light' | 'paper')}
         >
           <option value="dark">Oscuro</option>
           <option value="light">Claro</option>
@@ -85,14 +83,14 @@ export default function Topbar({
         {user ? (
           <>
             {display && (
-              <div className="hidden sm:block truncate max-w-[140px] text-xs text-blue-500">
+              <div className="hidden max-w-[140px] truncate text-xs text-blue-500 sm:block">
                 {display}
               </div>
             )}
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
-                className="w-8 h-8 rounded-full bg-white/20 grid place-items-center shrink-0 hover:bg-white/30"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/20 hover:bg-white/30"
                 aria-label="Cuenta"
                 aria-haspopup="menu"
                 onClick={() => setMenuOpen((v) => !v)}
@@ -100,19 +98,19 @@ export default function Topbar({
                 {photo ? (
                   <img
                     src={photo}
-                    alt={display || "avatar"}
-                    className="w-8 h-8 rounded-full object-cover"
+                    alt={display || 'avatar'}
+                    className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : initial ? (
-                  <span className="font-semibold text-sm">{initial}</span>
+                  <span className="text-sm font-semibold">{initial}</span>
                 ) : (
                   <span>👤</span>
                 )}
               </button>
               {menuOpen && (
-                <div className="absolute right-0 mt-1 rounded menu-solid p-2 w-44 z-10">
+                <div className="menu-solid absolute right-0 z-10 mt-1 w-44 rounded p-2">
                   <Link
-                    className="block px-2 py-1 rounded hover:bg-[var(--menu-hover)]"
+                    className="block rounded px-2 py-1 hover:bg-[var(--menu-hover)]"
                     to="/settings"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
@@ -120,7 +118,7 @@ export default function Topbar({
                     Perfil
                   </Link>
                   <Link
-                    className="block px-2 py-1 rounded hover:bg-[var(--menu-hover)]"
+                    className="block rounded px-2 py-1 hover:bg-[var(--menu-hover)]"
                     to="/registro/datos"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
@@ -129,14 +127,14 @@ export default function Topbar({
                   </Link>
                   <button
                     type="button"
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-[var(--menu-hover)]"
+                    className="block w-full rounded px-2 py-1 text-left hover:bg-[var(--menu-hover)]"
                     onClick={async () => {
-                      setMenuOpen(false);
-                      await logoutUser();
-                      navigate("/login", {
+                      setMenuOpen(false)
+                      await logoutUser()
+                      navigate('/login', {
                         replace: true,
                         state: { from: location.pathname },
-                      });
+                      })
                     }}
                   >
                     Cerrar sesión
@@ -146,15 +144,11 @@ export default function Topbar({
             </div>
           </>
         ) : (
-          <Link
-            className="rounded px-2 py-1 panel"
-            to="/login"
-            title="Iniciar sesión"
-          >
+          <Link className="panel rounded px-2 py-1" to="/login" title="Iniciar sesión">
             Entrar
           </Link>
         )}
       </div>
     </header>
-  );
+  )
 }
