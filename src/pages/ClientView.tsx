@@ -6,6 +6,7 @@ import { getCustomer, updateCustomer, removeCustomer } from '../apis/customers'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 import DniHelp from '../components/DniHelp'
 import { useToast } from '../hooks/useToast'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 export default function ClientView() {
   const { id } = useParams<{ id: string }>()
@@ -21,6 +22,8 @@ export default function ClientView() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const { show } = useToast()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -90,26 +93,7 @@ export default function ClientView() {
             </button>
           )}
           {!editing && current?.id && (
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={async () => {
-                if (!user || !current?.id) return
-                const ok = window.confirm(
-                  `¿Eliminar cliente "${current.name}"? Esta acción no se puede deshacer.`
-                )
-                if (!ok) return
-                try {
-                  await removeCustomer(user.uid, current.id)
-                  navigate('/clientes', {
-                    replace: true,
-                    state: { toast: 'Cliente eliminado' },
-                  })
-                } catch (err) {
-                  console.error(err)
-                }
-              }}
-            >
+            <button type="button" className="btn btn-danger" onClick={() => setConfirmOpen(true)}>
               Borrar
             </button>
           )}
@@ -267,6 +251,30 @@ export default function ClientView() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar cliente"
+        description={`¿Eliminar cliente "${current?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
+        loading={deleting}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          if (!user || !current?.id) return
+          try {
+            setDeleting(true)
+            await removeCustomer(user.uid, current.id)
+            navigate('/clientes', { replace: true, state: { toast: 'Cliente eliminado' } })
+          } catch (err) {
+            console.error(err)
+          } finally {
+            setDeleting(false)
+            setConfirmOpen(false)
+          }
+        }}
+      />
 
       {/* Toasts globales renderizados por ToastProvider */}
     </section>
