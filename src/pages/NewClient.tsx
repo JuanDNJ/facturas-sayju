@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { addCustomer } from '../apis/customers'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 import DniHelp from '../components/DniHelp'
+import FormField from '../components/ui/FormField'
 
 const empty: Customer = {
   name: '',
@@ -41,18 +42,16 @@ export default function NewClient() {
       </div>
 
       <div className="panel space-y-3 rounded p-4 text-sm">
-        <div>
-          <label htmlFor="name" className="muted mb-1 block">
-            Nombre / Razón social
-          </label>
-          <input
-            id="name"
-            className="panel w-full rounded px-3 py-2"
-            value={draft.name}
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          />
-          {errors.name && <div className="mt-1 text-xs text-red-600">{errors.name}</div>}
-        </div>
+        <FormField label="Nombre / Razón social" required error={errors.name}>
+          {(props) => (
+            <input
+              {...props}
+              className="panel w-full rounded px-3 py-2"
+              value={draft.name}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            />
+          )}
+        </FormField>
         <div>
           <label htmlFor="address" className="muted mb-1 block">
             Dirección
@@ -67,21 +66,22 @@ export default function NewClient() {
           {errors.address && <div className="mt-1 text-xs text-red-600">{errors.address}</div>}
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div>
-            <label htmlFor="taxId" className="muted mb-1 block">
-              DNI
-            </label>
-            <input
-              id="taxId"
-              className="panel w-full rounded px-3 py-2"
-              placeholder="77777777A o X1234567L"
-              value={draft.taxId}
-              onChange={(e) => setDraft({ ...draft, taxId: e.target.value })}
-              aria-describedby="dni-help"
-            />
-            <DniHelp id="dni-help" />
-            {errors.taxId && <div className="mt-1 text-xs text-red-600">{errors.taxId}</div>}
-          </div>
+          <FormField
+            label="DNI"
+            required
+            help={({ id }) => <DniHelp id={id} />}
+            error={errors.taxId}
+          >
+            {(props) => (
+              <input
+                {...props}
+                className="panel w-full rounded px-3 py-2"
+                placeholder="77777777A o X1234567L"
+                value={draft.taxId}
+                onChange={(e) => setDraft({ ...draft, taxId: e.target.value })}
+              />
+            )}
+          </FormField>
           <div>
             <label htmlFor="email" className="muted mb-1 block">
               Email (opcional)
