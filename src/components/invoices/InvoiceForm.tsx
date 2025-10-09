@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import Disclosure from '../ui/Disclosure'
 import type { Invoice, Item, Stamp } from '../../types/invoice.types'
 
 function toNumber(n: string | number): number {
@@ -48,6 +49,8 @@ export function InvoiceForm(props: {
   submitting?: boolean
   customerSection?: React.ReactNode
   rightAside?: React.ReactNode // Totales/acciones u otro panel lateral
+  issuerSectionOpen?: boolean
+  onIssuerSectionOpenChange?: (open: boolean) => void
 }) {
   const {
     values,
@@ -83,6 +86,168 @@ export function InvoiceForm(props: {
       totalAmount,
     } as Invoice['totals']
   }, [values.items, values.vatPercentage, values.irpfPercentage])
+
+  // Contenido de la sección Emisor (reutilizado en móvil y desktop)
+  function IssuerContent() {
+    return (
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="issuerMode"
+              checked={values.issuerMode === 'manual'}
+              onChange={() => onValuesChange({ issuerMode: 'manual' })}
+            />
+            Manual
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="issuerMode"
+              checked={values.issuerMode === 'stamp'}
+              onChange={() => onValuesChange({ issuerMode: 'stamp' })}
+            />
+            Seleccionar sello
+          </label>
+        </div>
+
+        {values.issuerMode === 'stamp' ? (
+          <div className="space-y-2">
+            <div>
+              <label className="muted mb-1 block" htmlFor="stampId">
+                Sello
+              </label>
+              <select
+                id="stampId"
+                className="panel w-full rounded px-3 py-2"
+                value={values.selectedStampId}
+                onChange={(e) => {
+                  const val = e.target.value
+                  const s = stampsList.find((x) => x.id === val)
+                  onValuesChange({
+                    selectedStampId: val,
+                    issuer: {
+                      name: s?.name || '',
+                      companyName: s?.companyName || '',
+                      address: s?.address || '',
+                      taxId: s?.taxId || '',
+                      imgUrl: s?.imgUrl || '',
+                    },
+                  })
+                }}
+              >
+                <option value="">— Selecciona —</option>
+                {stampsList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.companyName || s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(() => {
+              const s = stampsList.find((x) => x.id === values.selectedStampId)
+              return s ? (
+                <div className="muted text-xs">
+                  <div className="font-medium text-[var(--text)]">{s.companyName || s.name}</div>
+                  {s.address && <div>{s.address}</div>}
+                  {s.taxId && <div>{s.taxId}</div>}
+                  {s.imgUrl && (
+                    <div className="mt-1">
+                      <img src={s.imgUrl} alt="Logo sello" className="h-16 w-32 object-contain" />
+                    </div>
+                  )}
+                </div>
+              ) : null
+            })()}
+          </div>
+        ) : (
+          <>
+            <div>
+              <label className="muted mb-1 block" htmlFor="issuerName">
+                Nombre comercial
+              </label>
+              <input
+                id="issuerName"
+                className="panel w-full rounded px-3 py-2"
+                value={values.issuer.name}
+                onChange={(e) =>
+                  onValuesChange({
+                    issuer: { ...values.issuer, name: e.target.value },
+                  })
+                }
+              />
+            </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="issuerCompany">
+                Razón social
+              </label>
+              <input
+                id="issuerCompany"
+                className="panel w-full rounded px-3 py-2"
+                value={values.issuer.companyName || ''}
+                onChange={(e) =>
+                  onValuesChange({
+                    issuer: {
+                      ...values.issuer,
+                      companyName: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="issuerAddress">
+                Dirección
+              </label>
+              <textarea
+                id="issuerAddress"
+                rows={2}
+                className="panel w-full rounded px-3 py-2"
+                value={values.issuer.address}
+                onChange={(e) =>
+                  onValuesChange({
+                    issuer: { ...values.issuer, address: e.target.value },
+                  })
+                }
+              />
+            </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="issuerTaxId">
+                NIF/CIF
+              </label>
+              <input
+                id="issuerTaxId"
+                className="panel w-full rounded px-3 py-2"
+                value={values.issuer.taxId}
+                onChange={(e) =>
+                  onValuesChange({
+                    issuer: { ...values.issuer, taxId: e.target.value },
+                  })
+                }
+              />
+            </div>
+            <div>
+              <label className="muted mb-1 block" htmlFor="issuerImg">
+                Logo (URL opcional)
+              </label>
+              <input
+                id="issuerImg"
+                className="panel w-full rounded px-3 py-2"
+                placeholder="https://..."
+                value={values.issuer.imgUrl || ''}
+                onChange={(e) =>
+                  onValuesChange({
+                    issuer: { ...values.issuer, imgUrl: e.target.value },
+                  })
+                }
+              />
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -197,167 +362,29 @@ export function InvoiceForm(props: {
           <div className="mb-2 flex items-center justify-between">
             <div className="font-semibold">Emisor</div>
           </div>
-          <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="issuerMode"
-                  checked={values.issuerMode === 'manual'}
-                  onChange={() => onValuesChange({ issuerMode: 'manual' })}
-                />
-                Manual
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="issuerMode"
-                  checked={values.issuerMode === 'stamp'}
-                  onChange={() => onValuesChange({ issuerMode: 'stamp' })}
-                />
-                Seleccionar sello
-              </label>
-            </div>
 
-            {values.issuerMode === 'stamp' ? (
-              <div className="space-y-2">
-                <div>
-                  <label className="muted mb-1 block" htmlFor="stampId">
-                    Sello
-                  </label>
-                  <select
-                    id="stampId"
-                    className="panel w-full rounded px-3 py-2"
-                    value={values.selectedStampId}
-                    onChange={(e) => {
-                      const val = e.target.value
-                      const s = stampsList.find((x) => x.id === val)
-                      onValuesChange({
-                        selectedStampId: val,
-                        issuer: {
-                          name: s?.name || '',
-                          companyName: s?.companyName || '',
-                          address: s?.address || '',
-                          taxId: s?.taxId || '',
-                          imgUrl: s?.imgUrl || '',
-                        },
-                      })
-                    }}
-                  >
-                    <option value="">— Selecciona —</option>
-                    {stampsList.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.companyName || s.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {(() => {
-                  const s = stampsList.find((x) => x.id === values.selectedStampId)
-                  return s ? (
-                    <div className="muted text-xs">
-                      <div className="font-medium text-[var(--text)]">
-                        {s.companyName || s.name}
-                      </div>
-                      {s.address && <div>{s.address}</div>}
-                      {s.taxId && <div>{s.taxId}</div>}
-                      {s.imgUrl && (
-                        <div className="mt-1">
-                          <img
-                            src={s.imgUrl}
-                            alt="Logo sello"
-                            className="h-16 w-32 object-contain"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ) : null
-                })()}
-              </div>
+          {/* Móvil: colapsable */}
+          <div className="sm:hidden">
+            {props.issuerSectionOpen === undefined ? (
+              <Disclosure defaultOpen header={<span>{'Ocultar'}</span>} panelClassName="mt-2">
+                <IssuerContent />
+              </Disclosure>
             ) : (
-              <>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="issuerName">
-                    Nombre comercial
-                  </label>
-                  <input
-                    id="issuerName"
-                    className="panel w-full rounded px-3 py-2"
-                    value={values.issuer.name}
-                    onChange={(e) =>
-                      onValuesChange({
-                        issuer: { ...values.issuer, name: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="issuerCompany">
-                    Razón social
-                  </label>
-                  <input
-                    id="issuerCompany"
-                    className="panel w-full rounded px-3 py-2"
-                    value={values.issuer.companyName || ''}
-                    onChange={(e) =>
-                      onValuesChange({
-                        issuer: {
-                          ...values.issuer,
-                          companyName: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="issuerAddress">
-                    Dirección
-                  </label>
-                  <textarea
-                    id="issuerAddress"
-                    rows={2}
-                    className="panel w-full rounded px-3 py-2"
-                    value={values.issuer.address}
-                    onChange={(e) =>
-                      onValuesChange({
-                        issuer: { ...values.issuer, address: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="issuerTaxId">
-                    NIF/CIF
-                  </label>
-                  <input
-                    id="issuerTaxId"
-                    className="panel w-full rounded px-3 py-2"
-                    value={values.issuer.taxId}
-                    onChange={(e) =>
-                      onValuesChange({
-                        issuer: { ...values.issuer, taxId: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="muted mb-1 block" htmlFor="issuerImg">
-                    Logo (URL opcional)
-                  </label>
-                  <input
-                    id="issuerImg"
-                    className="panel w-full rounded px-3 py-2"
-                    placeholder="https://..."
-                    value={values.issuer.imgUrl || ''}
-                    onChange={(e) =>
-                      onValuesChange({
-                        issuer: { ...values.issuer, imgUrl: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              </>
+              <Disclosure
+                open={props.issuerSectionOpen}
+                onOpenChange={props.onIssuerSectionOpenChange}
+                buttonClassName="btn btn-secondary px-2 py-1 text-xs"
+                panelClassName="mt-2"
+                header={<span>{props.issuerSectionOpen ? 'Ocultar' : 'Mostrar'}</span>}
+              >
+                <IssuerContent />
+              </Disclosure>
             )}
+          </div>
+
+          {/* Desktop: siempre visible */}
+          <div className="hidden sm:block">
+            <IssuerContent />
           </div>
         </div>
       </div>

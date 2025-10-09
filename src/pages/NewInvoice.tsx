@@ -748,6 +748,8 @@ export default function NewInvoice() {
               </div>
             </div>
           }
+          issuerSectionOpen={emisorOpen}
+          onIssuerSectionOpenChange={setEmisorOpen}
           onSubmit={handleSubmit}
         />
       </Suspense>
