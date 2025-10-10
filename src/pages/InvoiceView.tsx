@@ -173,17 +173,6 @@ export default function InvoiceView() {
             </button>
           )}
 
-          {isPaid && (
-            <button
-              type="button"
-              className="btn btn-secondary w-full text-center sm:w-auto"
-              onClick={() => handleStatusChange('pending')}
-              disabled={updatingStatus}
-            >
-              {updatingStatus ? 'Desmarcando...' : 'Marcar como Pendiente'}
-            </button>
-          )}
-
           <button
             type="button"
             className="btn btn-secondary w-full text-center sm:w-auto"
