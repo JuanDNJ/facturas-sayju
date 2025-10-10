@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Disclosure from '../components/ui/Disclosure'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 import { Link, useParams } from 'react-router-dom'
 import type { Invoice } from '../types/invoice.types'
 import { useAuth } from '../hooks/useAuth'
@@ -26,6 +27,7 @@ export default function InvoiceView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [confirmPaidOpen, setConfirmPaidOpen] = useState(false)
   const [clienteOpen, setClienteOpen] = useState(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('iv_clienteOpen') : null
     return v === null ? true : v === 'true'
@@ -79,16 +81,22 @@ export default function InvoiceView() {
   }, [totalsAlign])
 
   const handleMarkAsPaid = () => {
-    // Toast informativo sobre la importancia de marcar como cobrada
+    setConfirmPaidOpen(true)
+  }
+
+  const confirmMarkAsPaid = async () => {
+    setConfirmPaidOpen(false)
+
+    // Toast informativo centrado en la parte superior
     show(
-      '💡 Al marcar como cobrada: se registra la fecha, no podrás editarla ni eliminarla, y quedará en tu historial para control fiscal.',
+      '💡 Registrando cobro: se guardará la fecha y no podrás editarla ni eliminarla. Quedará para control fiscal.',
       {
         type: 'info',
-        durationMs: 6000, // Más tiempo para leer el mensaje importante
+        durationMs: 6000,
       }
     )
 
-    // Pequeña pausa para que el usuario lea el mensaje antes de proceder
+    // Pequeña pausa para mostrar el toast antes de proceder
     setTimeout(() => {
       handleStatusChange('paid')
     }, 500)
@@ -439,6 +447,19 @@ export default function InvoiceView() {
           </div>
         </div>
       </div>
+
+      {/* Diálogo de confirmación para marcar como cobrada */}
+      <ConfirmDialog
+        open={confirmPaidOpen}
+        title="Marcar factura como cobrada"
+        description="¿Confirmas que has recibido el pago? Esta acción es definitiva: se registrará la fecha, no podrás editarla ni eliminarla, y quedará para control fiscal."
+        confirmText="Sí, marcar como cobrada"
+        cancelText="Cancelar"
+        danger={false}
+        loading={updatingStatus}
+        onConfirm={confirmMarkAsPaid}
+        onCancel={() => setConfirmPaidOpen(false)}
+      />
     </section>
   )
 }
