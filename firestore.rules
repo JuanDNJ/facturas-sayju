@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Perfil de usuario: solo el propietario puede leer y escribir su documento
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Validaciones básicas de campos requeridos en escritura
+      function isValidProfile() {
+        return request.resource.data.keys().hasAll(['displayName', 'email', 'address', 'nifDni'])
+          && request.resource.data.displayName is string
+          && request.resource.data.email is string
+          && request.resource.data.address is string
+          && request.resource.data.nifDni is string;
+      }
+
+      allow create: if request.auth != null && request.auth.uid == userId && isValidProfile();
+      allow update: if request.auth != null && request.auth.uid == userId && isValidProfile();
+
+      // Subcolección de facturas: solo propietario
+      match /invoices/{invoiceId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      // Subcolección: clientes (customers)
+      match /customers/{customerId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Subcolección: sellos (stamps)
+      match /stamps/{stampId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Colección raíz de sugerencias
+    match /suggestions/{suggestionId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['category','message','userId'])
+        && request.resource.data.userId == request.auth.uid;
+      // Lectura opcional: restringir a propietarios si añades vistas de historial
+      allow read, update, delete: if false; // por defecto no expone lecturas
+    }
+  }
+}
