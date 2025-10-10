@@ -92,7 +92,7 @@ export default function InvoiceView() {
       '💡 Registrando cobro: se guardará la fecha y no podrás editarla ni eliminarla. Quedará para control fiscal.',
       {
         type: 'info',
-        durationMs: 8000, // Aumentado de 6s a 8s para mejor lectura
+        durationMs: 10000, // 10 segundos para lectura cómoda y completa
       }
     )
 
@@ -213,7 +213,7 @@ export default function InvoiceView() {
             Imprimir / Guardar PDF
           </button>
 
-          <div className="flex items-center justify-end gap-2 print:hidden">
+          <div className="hidden items-center justify-end gap-2 sm:flex print:hidden">
             <label htmlFor="totalsAlign" className="muted text-xs">
               Totales
             </label>
