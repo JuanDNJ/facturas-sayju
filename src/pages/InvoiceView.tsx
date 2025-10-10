@@ -27,6 +27,12 @@ export default function InvoiceView() {
     const v = typeof window !== 'undefined' ? localStorage.getItem('iv_clienteOpen') : null
     return v === null ? true : v === 'true'
   })
+  type TotalsAlign = 'left' | 'right' | 'center' | 'full'
+  const [totalsAlign, setTotalsAlign] = useState<TotalsAlign>(() => {
+    if (typeof window === 'undefined') return 'right'
+    const v = localStorage.getItem('iv_totalsAlign') as TotalsAlign | null
+    return v ?? 'right'
+  })
 
   useEffect(() => {
     let active = true
@@ -65,6 +71,10 @@ export default function InvoiceView() {
     if (typeof window !== 'undefined') localStorage.setItem('iv_clienteOpen', String(clienteOpen))
   }, [clienteOpen])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem('iv_totalsAlign', totalsAlign)
+  }, [totalsAlign])
+
   if (loading) {
     return (
       <section className="space-y-4">
@@ -98,6 +108,23 @@ export default function InvoiceView() {
         >
           Imprimir / Guardar PDF
         </button>
+        <div className="flex items-center gap-2">
+          <label htmlFor="totalsAlign" className="muted text-xs">
+            Totales
+          </label>
+          <select
+            id="totalsAlign"
+            className="panel rounded px-2 py-1 text-xs"
+            value={totalsAlign}
+            onChange={(e) => setTotalsAlign(e.target.value as TotalsAlign)}
+            aria-label="Alineación de totales (pantalla)"
+          >
+            <option value="left">Izquierda</option>
+            <option value="right">Derecha</option>
+            <option value="center">Centrado</option>
+            <option value="full">100% ancho</option>
+          </select>
+        </div>
       </div>
       <div className="panel rounded p-6">
         {/* Cabecera: Emisor (izquierda) + Fecha (arriba derecha) y segunda fila con Factura (izquierda) y Vencimiento (derecha) */}
@@ -270,8 +297,24 @@ export default function InvoiceView() {
         </div>
 
         {/* Totales */}
-        <div className="print-totals mt-6 flex flex-col items-end">
-          <div className="panel print-totals-box w-full rounded p-4 text-sm sm:w-[420px]">
+        <div
+          className={
+            `print-totals mt-6 flex flex-col ` +
+            (totalsAlign === 'left'
+              ? 'items-start'
+              : totalsAlign === 'center'
+                ? 'items-center'
+                : totalsAlign === 'full'
+                  ? 'items-stretch'
+                  : 'items-end')
+          }
+        >
+          <div
+            className={
+              `panel print-totals-box rounded p-4 text-sm ` +
+              (totalsAlign === 'full' ? 'w-full sm:w-full' : 'w-full sm:w-[420px]')
+            }
+          >
             <div className="flex justify-between py-1">
               <span className="muted">Base imponible</span>
               <span>{formatCurrency(totals.taxableBase)}</span>
