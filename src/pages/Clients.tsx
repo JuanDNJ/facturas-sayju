@@ -6,6 +6,7 @@ import { getCustomers, getCustomersPage, removeCustomer } from '../apis/customer
 import type { Customer } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import CustomSelect from '../components/ui/CustomSelect'
 
 export default function Clients() {
   const { user } = useAuth()
@@ -29,6 +30,7 @@ export default function Clients() {
   const [hasNext, setHasNext] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState<number | undefined>(undefined)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -120,46 +122,66 @@ export default function Clients() {
     <section className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold">Clientes</h1>
-        <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, email, DNI, teléfono..."
-            className="panel w-full rounded px-3 py-2 sm:w-64"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <select
-            className="panel w-full rounded px-3 py-2 sm:w-auto"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setCurrentPage(1)
-            }}
-            aria-label="Tamaño de página"
-          >
-            <option value={5}>5 por página</option>
-            <option value={10}>10 por página</option>
-            <option value={20}>20 por página</option>
-          </select>
-          <select
-            className="panel w-full rounded px-3 py-2 sm:w-auto"
-            value={orderDirection}
-            onChange={(e) => {
-              setOrderDirection(e.target.value as 'asc' | 'desc')
-              setCurrentPage(1)
-            }}
-            aria-label="Orden por nombre"
-          >
-            <option value="asc">Nombre A–Z</option>
-            <option value="desc">Nombre Z–A</option>
-          </select>
-          <Link
-            to="/clientes/nuevo"
-            className="btn btn-primary btn-sm w-full text-center sm:w-auto"
-          >
-            Nuevo cliente
-          </Link>
-        </div>
+        <Link
+          to="/clientes/nuevo"
+          className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center md:w-auto"
+        >
+          <span>➕</span>
+          <span>Nuevo cliente</span>
+        </Link>
+      </div>
+
+      {/* Botón de filtros para móvil */}
+      <div className="md:hidden">
+        <button
+          className="btn btn-secondary flex w-full items-center justify-center gap-2"
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          <span>{filtersOpen ? '🔼' : '🔽'}</span>
+          <span>{filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros'}</span>
+        </button>
+      </div>
+
+      {/* Panel de filtros */}
+      <div
+        className={`${
+          filtersOpen ? 'flex' : 'hidden'
+        } panel flex-col gap-3 rounded p-3 md:flex md:flex-row md:flex-wrap md:items-center`}
+      >
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email, DNI, teléfono..."
+          className="panel w-full rounded px-3 py-2 md:w-64"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <CustomSelect
+          className="w-full md:w-auto"
+          value={pageSize.toString()}
+          onChange={(value) => {
+            setPageSize(Number(value))
+            setCurrentPage(1)
+          }}
+          aria-label="Tamaño de página"
+          options={[
+            { value: '5', label: '5 por página' },
+            { value: '10', label: '10 por página' },
+            { value: '20', label: '20 por página' },
+          ]}
+        />
+        <CustomSelect
+          className="w-full md:w-auto"
+          value={orderDirection}
+          onChange={(value) => {
+            setOrderDirection(value as 'asc' | 'desc')
+            setCurrentPage(1)
+          }}
+          aria-label="Orden por nombre"
+          options={[
+            { value: 'asc', label: 'Nombre A–Z' },
+            { value: 'desc', label: 'Nombre Z–A' },
+          ]}
+        />
       </div>
 
       {/* Tabla (md+) */}
@@ -191,21 +213,30 @@ export default function Clients() {
                 <td className="px-4 py-3">{c.taxId}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="inline-flex gap-2">
-                    <Link to={`/clientes/${c.id}`} className="btn btn-ghost h-8 px-3">
-                      Ver
+                    <Link
+                      to={`/clientes/${c.id}`}
+                      className="btn btn-outline-view flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>👁️</span>
+                      <span>Ver</span>
                     </Link>
-                    <Link to={`/clientes/${c.id}?edit=1`} className="btn btn-secondary h-8 px-3">
-                      Editar
+                    <Link
+                      to={`/clientes/${c.id}?edit=1`}
+                      className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>✏️</span>
+                      <span>Editar</span>
                     </Link>
                     <button
-                      className="btn btn-danger h-8 px-3"
+                      className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
                       onClick={() => {
                         if (!c.id) return
                         setPendingDelete(c)
                         setConfirmOpen(true)
                       }}
                     >
-                      Borrar
+                      <span>🗑️</span>
+                      <span>Borrar</span>
                     </button>
                   </div>
                 </td>
@@ -228,25 +259,28 @@ export default function Clients() {
               <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
                 <Link
                   to={`/clientes/${c.id}`}
-                  className="btn btn-ghost h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-outline-view flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
-                  Ver
+                  <span>👁️</span>
+                  <span>Ver</span>
                 </Link>
                 <Link
                   to={`/clientes/${c.id}?edit=1`}
-                  className="btn btn-secondary h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-outline-edit flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
-                  Editar
+                  <span>✏️</span>
+                  <span>Editar</span>
                 </Link>
                 <button
-                  className="btn btn-danger h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-outline-delete flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                   onClick={() => {
                     if (!c.id) return
                     setPendingDelete(c)
                     setConfirmOpen(true)
                   }}
                 >
-                  Borrar
+                  <span>🗑️</span>
+                  <span>Borrar</span>
                 </button>
               </div>
             </div>

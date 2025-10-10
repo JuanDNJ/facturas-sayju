@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import Disclosure from '../ui/Disclosure'
+import CustomSelect from '../ui/CustomSelect'
 import type { Invoice, Item, Stamp } from '../../types/invoice.types'
 
 function toNumber(n: string | number): number {
@@ -118,12 +119,10 @@ export function InvoiceForm(props: {
               <label className="muted mb-1 block" htmlFor="stampId">
                 Sello
               </label>
-              <select
+              <CustomSelect
                 id="stampId"
-                className="panel w-full rounded px-3 py-2"
                 value={values.selectedStampId}
-                onChange={(e) => {
-                  const val = e.target.value
+                onChange={(val) => {
                   const s = stampsList.find((x) => x.id === val)
                   onValuesChange({
                     selectedStampId: val,
@@ -136,14 +135,12 @@ export function InvoiceForm(props: {
                     },
                   })
                 }}
-              >
-                <option value="">— Selecciona —</option>
-                {stampsList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.companyName || s.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="— Selecciona —"
+                options={stampsList.map((s) => ({
+                  value: s.id || '',
+                  label: s.companyName || s.name,
+                }))}
+              />
             </div>
             {(() => {
               const s = stampsList.find((x) => x.id === values.selectedStampId)
@@ -258,19 +255,19 @@ export function InvoiceForm(props: {
             <label className="muted mb-1 block" htmlFor="invoiceKind">
               Tipo
             </label>
-            <select
+            <CustomSelect
               id="invoiceKind"
-              className="panel w-full rounded px-3 py-2"
               value={values.invoiceKind}
-              onChange={(e) =>
+              onChange={(value) =>
                 onValuesChange({
-                  invoiceKind: e.target.value as typeof values.invoiceKind,
+                  invoiceKind: value as typeof values.invoiceKind,
                 })
               }
-            >
-              <option value="normal">Normal</option>
-              <option value="rectificativa">Rectificativa</option>
-            </select>
+              options={[
+                { value: 'normal', label: 'Normal' },
+                { value: 'rectificativa', label: 'Rectificativa' },
+              ]}
+            />
           </div>
           <div>
             <label className="muted mb-1 block" htmlFor="invoiceId">

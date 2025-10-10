@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import DniHelp from '../components/DniHelp'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import CustomSelect from '../components/ui/CustomSelect'
 import {
   addStamp as addStampFs,
   getStamps as getStampsFs,
@@ -41,6 +42,7 @@ export default function Stamps() {
     () => (localStorage.getItem('st_orderDirection') as 'asc' | 'desc') || 'asc'
   )
   // Filtros avanzados eliminados (solo queda búsqueda y orden)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   async function loadPage(reset = false) {
     if (!user?.uid) return
@@ -334,33 +336,35 @@ export default function Stamps() {
                       <label className="muted text-sm" htmlFor="stampVariant">
                         Variante
                       </label>
-                      <select
+                      <CustomSelect
                         id="stampVariant"
-                        className="panel mt-1 w-full rounded px-3 py-2"
+                        className="mt-1"
                         value={variant}
-                        onChange={(e) => setVariant(e.target.value as typeof variant)}
-                      >
-                        <option value="personalizado">Personalizado</option>
-                        <option value="pagado">Pagado</option>
-                        <option value="anulado">Anulado</option>
-                        <option value="vencido">Vencido</option>
-                        <option value="borrador">Borrador</option>
-                      </select>
+                        onChange={(value) => setVariant(value as typeof variant)}
+                        options={[
+                          { value: 'personalizado', label: 'Personalizado' },
+                          { value: 'pagado', label: 'Pagado' },
+                          { value: 'anulado', label: 'Anulado' },
+                          { value: 'vencido', label: 'Vencido' },
+                          { value: 'borrador', label: 'Borrador' },
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="muted text-sm" htmlFor="stampSize">
                         Tamaño
                       </label>
-                      <select
+                      <CustomSelect
                         id="stampSize"
-                        className="panel mt-1 w-full rounded px-3 py-2"
+                        className="mt-1"
                         value={size}
-                        onChange={(e) => setSize(e.target.value as typeof size)}
-                      >
-                        <option value="sm">Pequeño</option>
-                        <option value="md">Medio</option>
-                        <option value="lg">Grande</option>
-                      </select>
+                        onChange={(value) => setSize(value as typeof size)}
+                        options={[
+                          { value: 'sm', label: 'Pequeño' },
+                          { value: 'md', label: 'Medio' },
+                          { value: 'lg', label: 'Grande' },
+                        ]}
+                      />
                     </div>
                   </div>
 
@@ -601,68 +605,89 @@ export default function Stamps() {
       <div className="panel rounded p-4">
         <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-2xl font-semibold">Mis sellos</h1>
-          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
-            <input
-              type="text"
-              placeholder="Buscar por nombre, email, DNI, teléfono..."
-              className="panel w-full rounded px-3 py-2 sm:w-64"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <select
-              className="panel w-full rounded px-2 py-1 text-sm sm:w-auto"
-              value={orderDirection}
-              onChange={(e) => {
-                setOrderDirection(e.target.value as 'asc' | 'desc')
-                setPageIndex(0)
-                void loadPage(true)
-              }}
-              aria-label="Orden por nombre"
-            >
-              <option value="asc">Nombre A–Z</option>
-              <option value="desc">Nombre Z–A</option>
-            </select>
-            {/* Sin toggle de filtros avanzados */}
+          <button
+            className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 md:w-auto"
+            onClick={() => {
+              setDesignerOpen(true)
+              setEditingId(null)
+              setStampDraft({
+                name: 'SAYJU',
+                companyName: 'Sayju S.A.',
+                address: 'C/ Ejemplo 123, Madrid',
+                taxId: 'B-12345678',
+                imgUrl: undefined,
+              })
+              setUseImage(false)
+              setImageUrl('')
+              setFileUrl(null)
+              setErrors({})
+            }}
+          >
+            <span>➕</span>
+            <span>Nuevo sello</span>
+          </button>
+        </div>
+
+        {/* Botón de filtros para móvil */}
+        <div className="mb-3 md:hidden">
+          <button
+            className="btn btn-secondary flex w-full items-center justify-center gap-2"
+            onClick={() => setFiltersOpen((v) => !v)}
+          >
+            <span>{filtersOpen ? '🔼' : '🔽'}</span>
+            <span>{filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros'}</span>
+          </button>
+        </div>
+
+        {/* Panel de filtros */}
+        <div
+          className={`${
+            filtersOpen ? 'flex' : 'hidden'
+          } mb-3 flex-col gap-3 md:flex md:flex-row md:flex-wrap md:items-center`}
+        >
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email, DNI, teléfono..."
+            className="panel w-full rounded px-3 py-2 md:w-64"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <CustomSelect
+            className="w-full text-sm md:w-auto"
+            value={orderDirection}
+            onChange={(value) => {
+              setOrderDirection(value as 'asc' | 'desc')
+              setPageIndex(0)
+              void loadPage(true)
+            }}
+            aria-label="Orden por nombre"
+            options={[
+              { value: 'asc', label: 'Nombre A–Z' },
+              { value: 'desc', label: 'Nombre Z–A' },
+            ]}
+          />
+          <div className="flex items-center gap-2">
             <label className="muted text-xs" htmlFor="pageSize">
               Por página
             </label>
-            <select
+            <CustomSelect
               id="pageSize"
-              className="panel rounded px-2 py-1 text-sm"
-              value={pageSize}
-              onChange={(e) => {
-                const size = Number(e.target.value)
+              className="text-sm"
+              value={pageSize.toString()}
+              onChange={(value) => {
+                const size = Number(value)
                 setPageSize(size)
                 setPageIndex(0)
                 resetWithSize(size)
               }}
-            >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
-              <option value={24}>24</option>
-            </select>
-            <button
-              className="btn btn-primary btn-sm w-full sm:w-auto"
-              onClick={() => {
-                setDesignerOpen(true)
-                setEditingId(null)
-                setStampDraft({
-                  name: 'SAYJU',
-                  companyName: 'Sayju S.A.',
-                  address: 'C/ Ejemplo 123, Madrid',
-                  taxId: 'B-12345678',
-                  imgUrl: undefined,
-                })
-                setUseImage(false)
-                setImageUrl('')
-                setFileUrl(null)
-                setErrors({})
-              }}
-            >
-              Nuevo sello
-            </button>
-            {loading && <span className="muted text-xs">Cargando…</span>}
+              options={[
+                { value: '6', label: '6' },
+                { value: '12', label: '12' },
+                { value: '24', label: '24' },
+              ]}
+            />
           </div>
+          {loading && <span className="muted text-xs">Cargando…</span>}
         </div>
 
         {/* Filtros avanzados eliminados */}
@@ -697,7 +722,7 @@ export default function Stamps() {
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex gap-2">
                           <button
-                            className="btn btn-secondary h-8 px-3"
+                            className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
                             onClick={() => {
                               setStampDraft({
                                 name: s.name,
@@ -713,16 +738,18 @@ export default function Stamps() {
                               setDesignerOpen(true)
                             }}
                           >
-                            Editar
+                            <span>✏️</span>
+                            <span>Editar</span>
                           </button>
                           <button
-                            className="btn btn-danger h-8 px-3"
+                            className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
                             onClick={() => {
                               setPendingDelete(s)
                               setConfirmOpen(true)
                             }}
                           >
-                            Eliminar
+                            <span>🗑️</span>
+                            <span>Eliminar</span>
                           </button>
                         </div>
                       </td>
@@ -746,7 +773,7 @@ export default function Stamps() {
                     </div>
                     <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
                       <button
-                        className="btn btn-secondary h-8 w-full px-3 text-center sm:w-auto"
+                        className="btn btn-outline-edit flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                         onClick={() => {
                           setStampDraft({
                             name: s.name,
@@ -762,16 +789,18 @@ export default function Stamps() {
                           setDesignerOpen(true)
                         }}
                       >
-                        Editar
+                        <span>✏️</span>
+                        <span>Editar</span>
                       </button>
                       <button
-                        className="btn btn-danger h-8 w-full px-3 text-center sm:w-auto"
+                        className="btn btn-outline-delete flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                         onClick={() => {
                           setPendingDelete(s)
                           setConfirmOpen(true)
                         }}
                       >
-                        Eliminar
+                        <span>🗑️</span>
+                        <span>Eliminar</span>
                       </button>
                     </div>
                   </div>

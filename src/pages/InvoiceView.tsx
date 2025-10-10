@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Disclosure from '../components/ui/Disclosure'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import CustomSelect from '../components/ui/CustomSelect'
 import { Link, useParams } from 'react-router-dom'
 import type { Invoice } from '../types/invoice.types'
 import { useAuth } from '../hooks/useAuth'
@@ -207,28 +208,30 @@ export default function InvoiceView() {
 
           <button
             type="button"
-            className="btn btn-secondary w-full text-center sm:w-auto"
+            className="btn btn-secondary flex w-full items-center justify-center gap-2 text-center sm:w-auto"
             onClick={() => window.print()}
           >
-            Imprimir / Guardar PDF
+            <span>🖨️</span>
+            <span>Imprimir / Guardar PDF</span>
           </button>
 
           <div className="hidden items-center justify-end gap-2 sm:flex print:hidden">
             <label htmlFor="totalsAlign" className="muted text-xs">
               Totales
             </label>
-            <select
+            <CustomSelect
               id="totalsAlign"
-              className="panel rounded px-2 py-1 text-xs"
+              className="text-xs"
               value={totalsAlign}
-              onChange={(e) => setTotalsAlign(e.target.value as TotalsAlign)}
+              onChange={(value) => setTotalsAlign(value as TotalsAlign)}
               aria-label="Alineación de totales (pantalla)"
-            >
-              <option value="left">Izquierda</option>
-              <option value="right">Derecha</option>
-              <option value="center">Centrado</option>
-              <option value="full">100% ancho</option>
-            </select>
+              options={[
+                { value: 'left', label: 'Izquierda' },
+                { value: 'right', label: 'Derecha' },
+                { value: 'center', label: 'Centrado' },
+                { value: 'full', label: '100% ancho' },
+              ]}
+            />
           </div>
         </div>
       </div>

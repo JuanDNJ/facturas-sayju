@@ -9,6 +9,7 @@ import { getCustomers as getCustomersFs, addCustomer, updateCustomer } from '../
 import DniHelp from '../components/DniHelp'
 import Modal from '../components/ui/Modal'
 import Disclosure from '../components/ui/Disclosure'
+import CustomSelect from '../components/ui/CustomSelect'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 // Carga diferida del formulario de factura
 const InvoiceForm = lazy(() =>
@@ -547,18 +548,16 @@ export default function NewInvoice() {
                     onChange={(e) => setCustomerQuery(e.target.value)}
                     aria-label="Buscar cliente por nombre o DNI"
                   />
-                  <select
+                  <CustomSelect
                     id="customerId"
-                    className="panel w-full rounded px-3 py-2"
                     value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
-                  >
-                    {filteredCustomers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setCustomerId}
+                    placeholder="Seleccionar cliente..."
+                    options={filteredCustomers.map((c) => ({
+                      value: c.id || '',
+                      label: c.name,
+                    }))}
+                  />
                   {filteredCustomers.length === 0 && (
                     <div className="muted mt-1 text-xs">No hay resultados para el filtro.</div>
                   )}
