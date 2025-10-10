@@ -6,6 +6,7 @@ import { getCustomers, getCustomersPage, removeCustomer } from '../apis/customer
 import type { Customer } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import CustomSelect from '../components/ui/CustomSelect'
 
 export default function Clients() {
   const { user } = useAuth()
@@ -154,31 +155,33 @@ export default function Clients() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <select
-          className="panel w-full rounded px-3 py-2 md:w-auto"
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value))
+        <CustomSelect
+          className="w-full md:w-auto"
+          value={pageSize.toString()}
+          onChange={(value) => {
+            setPageSize(Number(value))
             setCurrentPage(1)
           }}
           aria-label="Tamaño de página"
-        >
-          <option value={5}>5 por página</option>
-          <option value={10}>10 por página</option>
-          <option value={20}>20 por página</option>
-        </select>
-        <select
-          className="panel w-full rounded px-3 py-2 md:w-auto"
+          options={[
+            { value: '5', label: '5 por página' },
+            { value: '10', label: '10 por página' },
+            { value: '20', label: '20 por página' },
+          ]}
+        />
+        <CustomSelect
+          className="w-full md:w-auto"
           value={orderDirection}
-          onChange={(e) => {
-            setOrderDirection(e.target.value as 'asc' | 'desc')
+          onChange={(value) => {
+            setOrderDirection(value as 'asc' | 'desc')
             setCurrentPage(1)
           }}
           aria-label="Orden por nombre"
-        >
-          <option value="asc">Nombre A–Z</option>
-          <option value="desc">Nombre Z–A</option>
-        </select>
+          options={[
+            { value: 'asc', label: 'Nombre A–Z' },
+            { value: 'desc', label: 'Nombre Z–A' },
+          ]}
+        />
       </div>
 
       {/* Tabla (md+) */}

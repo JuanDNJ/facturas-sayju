@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { addSuggestion } from '../apis/suggestions'
 import { useAuth } from '../hooks/useAuth'
+import CustomSelect from '../components/ui/CustomSelect'
 
 export default function Suggestions() {
   const { user } = useAuth()
@@ -54,17 +55,17 @@ export default function Suggestions() {
           <label className="muted mb-1 block" htmlFor="category">
             Categoría
           </label>
-          <select
+          <CustomSelect
             id="category"
-            className="panel w-full rounded px-3 py-2"
             value={category}
-            onChange={(e) => setCategory(e.target.value as typeof category)}
-          >
-            <option value="mejora">Mejora</option>
-            <option value="necesidad">Necesidad</option>
-            <option value="error">Error</option>
-            <option value="otro">Otra</option>
-          </select>
+            onChange={(value) => setCategory(value as typeof category)}
+            options={[
+              { value: 'mejora', label: 'Mejora' },
+              { value: 'necesidad', label: 'Necesidad' },
+              { value: 'error', label: 'Error' },
+              { value: 'otro', label: 'Otra' },
+            ]}
+          />
         </div>
         <div>
           <label className="muted mb-1 block" htmlFor="title">

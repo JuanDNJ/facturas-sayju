@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import DniHelp from '../components/DniHelp'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import CustomSelect from '../components/ui/CustomSelect'
 import {
   addStamp as addStampFs,
   getStamps as getStampsFs,
@@ -335,33 +336,35 @@ export default function Stamps() {
                       <label className="muted text-sm" htmlFor="stampVariant">
                         Variante
                       </label>
-                      <select
+                      <CustomSelect
                         id="stampVariant"
-                        className="panel mt-1 w-full rounded px-3 py-2"
+                        className="mt-1"
                         value={variant}
-                        onChange={(e) => setVariant(e.target.value as typeof variant)}
-                      >
-                        <option value="personalizado">Personalizado</option>
-                        <option value="pagado">Pagado</option>
-                        <option value="anulado">Anulado</option>
-                        <option value="vencido">Vencido</option>
-                        <option value="borrador">Borrador</option>
-                      </select>
+                        onChange={(value) => setVariant(value as typeof variant)}
+                        options={[
+                          { value: 'personalizado', label: 'Personalizado' },
+                          { value: 'pagado', label: 'Pagado' },
+                          { value: 'anulado', label: 'Anulado' },
+                          { value: 'vencido', label: 'Vencido' },
+                          { value: 'borrador', label: 'Borrador' },
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="muted text-sm" htmlFor="stampSize">
                         Tamaño
                       </label>
-                      <select
+                      <CustomSelect
                         id="stampSize"
-                        className="panel mt-1 w-full rounded px-3 py-2"
+                        className="mt-1"
                         value={size}
-                        onChange={(e) => setSize(e.target.value as typeof size)}
-                      >
-                        <option value="sm">Pequeño</option>
-                        <option value="md">Medio</option>
-                        <option value="lg">Grande</option>
-                      </select>
+                        onChange={(value) => setSize(value as typeof size)}
+                        options={[
+                          { value: 'sm', label: 'Pequeño' },
+                          { value: 'md', label: 'Medio' },
+                          { value: 'lg', label: 'Grande' },
+                        ]}
+                      />
                     </div>
                   </div>
 
@@ -649,38 +652,40 @@ export default function Stamps() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <select
-            className="panel w-full rounded px-2 py-1 text-sm md:w-auto"
+          <CustomSelect
+            className="w-full text-sm md:w-auto"
             value={orderDirection}
-            onChange={(e) => {
-              setOrderDirection(e.target.value as 'asc' | 'desc')
+            onChange={(value) => {
+              setOrderDirection(value as 'asc' | 'desc')
               setPageIndex(0)
               void loadPage(true)
             }}
             aria-label="Orden por nombre"
-          >
-            <option value="asc">Nombre A–Z</option>
-            <option value="desc">Nombre Z–A</option>
-          </select>
+            options={[
+              { value: 'asc', label: 'Nombre A–Z' },
+              { value: 'desc', label: 'Nombre Z–A' },
+            ]}
+          />
           <div className="flex items-center gap-2">
             <label className="muted text-xs" htmlFor="pageSize">
               Por página
             </label>
-            <select
+            <CustomSelect
               id="pageSize"
-              className="panel rounded px-2 py-1 text-sm"
-              value={pageSize}
-              onChange={(e) => {
-                const size = Number(e.target.value)
+              className="text-sm"
+              value={pageSize.toString()}
+              onChange={(value) => {
+                const size = Number(value)
                 setPageSize(size)
                 setPageIndex(0)
                 resetWithSize(size)
               }}
-            >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
-              <option value={24}>24</option>
-            </select>
+              options={[
+                { value: '6', label: '6' },
+                { value: '12', label: '12' },
+                { value: '24', label: '24' },
+              ]}
+            />
           </div>
           {loading && <span className="muted text-xs">Cargando…</span>}
         </div>
