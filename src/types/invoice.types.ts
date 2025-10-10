@@ -38,6 +38,15 @@ export interface Totals {
   totalAmount: number
 }
 
+// Estados de pago de facturas
+export type InvoiceStatus = 'pending' | 'paid' | 'overdue'
+
+export interface InvoiceStatusInfo {
+  status: InvoiceStatus
+  paidDate?: Date | string // Fecha cuando se marcó como cobrada
+  notes?: string // Notas sobre el pago/estado
+}
+
 export interface Invoice {
   id?: string
   invoiceId: string
