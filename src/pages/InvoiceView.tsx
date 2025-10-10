@@ -92,14 +92,14 @@ export default function InvoiceView() {
       '💡 Registrando cobro: se guardará la fecha y no podrás editarla ni eliminarla. Quedará para control fiscal.',
       {
         type: 'info',
-        durationMs: 6000,
+        durationMs: 8000, // Aumentado de 6s a 8s para mejor lectura
       }
     )
 
-    // Pequeña pausa para mostrar el toast antes de proceder
+    // Pausa para mostrar el toast y permitir lectura antes de proceder
     setTimeout(() => {
       handleStatusChange('paid')
-    }, 500)
+    }, 1000) // Aumentado de 500ms a 1s para mejor UX
   }
 
   const handleStatusChange = async (newStatus: Invoice['status']) => {
@@ -123,7 +123,7 @@ export default function InvoiceView() {
       if (newStatus === 'paid') {
         show('✅ Factura cobrada registrada. Ya no podrás editarla ni eliminarla.', {
           type: 'success',
-          durationMs: 4000,
+          durationMs: 6000, // Aumentado de 4s a 6s para confirmación más clara
         })
       } else {
         show(`Factura marcada como ${newStatus === 'pending' ? 'pendiente' : newStatus}`, {
