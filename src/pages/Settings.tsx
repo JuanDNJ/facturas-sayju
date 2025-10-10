@@ -117,6 +117,7 @@ export default function Settings() {
             <label className="muted text-sm">o sube una imagen</label>
             <input
               className="panel mt-1 w-full rounded px-3 py-2"
+              placeholder="Seleccionar archivo..."
               type="file"
               accept="image/*"
               onChange={(e) => {

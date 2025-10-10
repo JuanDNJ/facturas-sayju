@@ -91,7 +91,7 @@ export default function ClientView() {
           {!editing && (
             <button
               type="button"
-              className="btn btn-secondary flex items-center gap-2"
+              className="btn btn-outline-edit flex items-center gap-2"
               onClick={() => setEditing(true)}
             >
               <span>✏️</span>
@@ -101,7 +101,7 @@ export default function ClientView() {
           {!editing && current?.id && (
             <button
               type="button"
-              className="btn btn-danger flex items-center gap-2"
+              className="btn btn-outline-delete flex items-center gap-2"
               onClick={() => setConfirmOpen(true)}
             >
               <span>🗑️</span>

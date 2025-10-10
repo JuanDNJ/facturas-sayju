@@ -642,7 +642,7 @@ export default function Stamps() {
               <option value={24}>24</option>
             </select>
             <button
-              className="btn btn-primary btn-sm flex w-full items-center justify-center gap-2 sm:w-auto"
+              className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 sm:w-auto"
               onClick={() => {
                 setDesignerOpen(true)
                 setEditingId(null)
@@ -698,7 +698,7 @@ export default function Stamps() {
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex gap-2">
                           <button
-                            className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                            className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
                             onClick={() => {
                               setStampDraft({
                                 name: s.name,
@@ -718,7 +718,7 @@ export default function Stamps() {
                             <span>Editar</span>
                           </button>
                           <button
-                            className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                            className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
                             onClick={() => {
                               setPendingDelete(s)
                               setConfirmOpen(true)
@@ -749,7 +749,7 @@ export default function Stamps() {
                     </div>
                     <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
                       <button
-                        className="btn btn-secondary flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                        className="btn btn-outline-edit flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                         onClick={() => {
                           setStampDraft({
                             name: s.name,
@@ -769,7 +769,7 @@ export default function Stamps() {
                         <span>Editar</span>
                       </button>
                       <button
-                        className="btn btn-danger flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                        className="btn btn-outline-delete flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                         onClick={() => {
                           setPendingDelete(s)
                           setConfirmOpen(true)

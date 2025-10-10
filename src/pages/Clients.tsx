@@ -155,7 +155,7 @@ export default function Clients() {
           </select>
           <Link
             to="/clientes/nuevo"
-            className="btn btn-primary btn-sm flex w-full items-center justify-center gap-2 text-center sm:w-auto"
+            className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center sm:w-auto"
           >
             <span>➕</span>
             <span>Nuevo cliente</span>
@@ -194,20 +194,20 @@ export default function Clients() {
                   <div className="inline-flex gap-2">
                     <Link
                       to={`/clientes/${c.id}`}
-                      className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                      className="btn btn-outline-view flex h-8 items-center gap-1 px-3"
                     >
                       <span>👁️</span>
                       <span>Ver</span>
                     </Link>
                     <Link
                       to={`/clientes/${c.id}?edit=1`}
-                      className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                      className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
                     >
                       <span>✏️</span>
                       <span>Editar</span>
                     </Link>
                     <button
-                      className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                      className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
                       onClick={() => {
                         if (!c.id) return
                         setPendingDelete(c)
@@ -238,20 +238,20 @@ export default function Clients() {
               <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
                 <Link
                   to={`/clientes/${c.id}`}
-                  className="btn btn-ghost flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="btn btn-outline-view flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
                   <span>👁️</span>
                   <span>Ver</span>
                 </Link>
                 <Link
                   to={`/clientes/${c.id}?edit=1`}
-                  className="btn btn-secondary flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="btn btn-outline-edit flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
                   <span>✏️</span>
                   <span>Editar</span>
                 </Link>
                 <button
-                  className="btn btn-danger flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="btn btn-outline-delete flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                   onClick={() => {
                     if (!c.id) return
                     setPendingDelete(c)
