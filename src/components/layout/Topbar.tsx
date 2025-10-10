@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import useTheme from '../../theme/useTheme'
 import { useAuth } from '../../hooks/useAuth'
 import { logoutUser } from '../../apis/auth'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import ThemeSelector from '../ui/ThemeSelector'
 export default function Topbar({
   onToggleSidebar,
   onToggleCollapse,
@@ -12,7 +12,6 @@ export default function Topbar({
   onToggleCollapse: () => void
   collapsed: boolean
 }) {
-  const { theme, setTheme } = useTheme()
   const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
@@ -70,16 +69,7 @@ export default function Topbar({
           placeholder="Buscar..."
           className="panel hidden w-40 rounded px-3 py-1 outline-none sm:block sm:w-56 md:w-64"
         />
-        <select
-          aria-label="Seleccionar tema"
-          className="panel rounded px-2 py-1"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value as 'dark' | 'light' | 'paper')}
-        >
-          <option value="dark">Oscuro</option>
-          <option value="light">Claro</option>
-          <option value="paper">Papel</option>
-        </select>
+        <ThemeSelector />
         {user ? (
           <>
             {display && (
