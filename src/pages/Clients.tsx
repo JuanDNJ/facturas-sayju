@@ -29,6 +29,7 @@ export default function Clients() {
   const [hasNext, setHasNext] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState<number | undefined>(undefined)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -120,47 +121,64 @@ export default function Clients() {
     <section className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold">Clientes</h1>
-        <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, email, DNI, teléfono..."
-            className="panel w-full rounded px-3 py-2 sm:w-64"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <select
-            className="panel w-full rounded px-3 py-2 sm:w-auto"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setCurrentPage(1)
-            }}
-            aria-label="Tamaño de página"
-          >
-            <option value={5}>5 por página</option>
-            <option value={10}>10 por página</option>
-            <option value={20}>20 por página</option>
-          </select>
-          <select
-            className="panel w-full rounded px-3 py-2 sm:w-auto"
-            value={orderDirection}
-            onChange={(e) => {
-              setOrderDirection(e.target.value as 'asc' | 'desc')
-              setCurrentPage(1)
-            }}
-            aria-label="Orden por nombre"
-          >
-            <option value="asc">Nombre A–Z</option>
-            <option value="desc">Nombre Z–A</option>
-          </select>
-          <Link
-            to="/clientes/nuevo"
-            className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center sm:w-auto"
-          >
-            <span>➕</span>
-            <span>Nuevo cliente</span>
-          </Link>
-        </div>
+        <Link
+          to="/clientes/nuevo"
+          className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center md:w-auto"
+        >
+          <span>➕</span>
+          <span>Nuevo cliente</span>
+        </Link>
+      </div>
+
+      {/* Botón de filtros para móvil */}
+      <div className="md:hidden">
+        <button
+          className="btn btn-secondary flex w-full items-center justify-center gap-2"
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          <span>{filtersOpen ? '🔼' : '🔽'}</span>
+          <span>{filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros'}</span>
+        </button>
+      </div>
+
+      {/* Panel de filtros */}
+      <div
+        className={`${
+          filtersOpen ? 'flex' : 'hidden'
+        } panel flex-col gap-3 rounded p-3 md:flex md:flex-row md:flex-wrap md:items-center`}
+      >
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email, DNI, teléfono..."
+          className="panel w-full rounded px-3 py-2 md:w-64"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          className="panel w-full rounded px-3 py-2 md:w-auto"
+          value={pageSize}
+          onChange={(e) => {
+            setPageSize(Number(e.target.value))
+            setCurrentPage(1)
+          }}
+          aria-label="Tamaño de página"
+        >
+          <option value={5}>5 por página</option>
+          <option value={10}>10 por página</option>
+          <option value={20}>20 por página</option>
+        </select>
+        <select
+          className="panel w-full rounded px-3 py-2 md:w-auto"
+          value={orderDirection}
+          onChange={(e) => {
+            setOrderDirection(e.target.value as 'asc' | 'desc')
+            setCurrentPage(1)
+          }}
+          aria-label="Orden por nombre"
+        >
+          <option value="asc">Nombre A–Z</option>
+          <option value="desc">Nombre Z–A</option>
+        </select>
       </div>
 
       {/* Tabla (md+) */}
