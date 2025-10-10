@@ -147,12 +147,17 @@ export default function Settings() {
         {success && <div className="text-sm text-green-600">{success}</div>}
 
         <div className="flex gap-2">
-          <button className="btn btn-primary" type="submit" disabled={loading || !user}>
-            {loading ? 'Guardando...' : 'Guardar cambios'}
+          <button
+            className="btn btn-primary flex items-center gap-2"
+            type="submit"
+            disabled={loading || !user}
+          >
+            <span>💾</span>
+            <span>{loading ? 'Guardando...' : 'Guardar cambios'}</span>
           </button>
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-ghost flex items-center gap-2"
             disabled={loading}
             onClick={() => {
               setPhotoURL('')
@@ -164,7 +169,8 @@ export default function Settings() {
               }
             }}
           >
-            Quitar avatar
+            <span>🗑️</span>
+            <span>Quitar avatar</span>
           </button>
         </div>
       </form>

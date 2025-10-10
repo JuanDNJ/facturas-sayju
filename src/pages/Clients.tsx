@@ -155,9 +155,10 @@ export default function Clients() {
           </select>
           <Link
             to="/clientes/nuevo"
-            className="btn btn-primary btn-sm w-full text-center sm:w-auto"
+            className="btn btn-primary btn-sm flex w-full items-center justify-center gap-2 text-center sm:w-auto"
           >
-            Nuevo cliente
+            <span>➕</span>
+            <span>Nuevo cliente</span>
           </Link>
         </div>
       </div>
@@ -191,21 +192,30 @@ export default function Clients() {
                 <td className="px-4 py-3">{c.taxId}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="inline-flex gap-2">
-                    <Link to={`/clientes/${c.id}`} className="btn btn-ghost h-8 px-3">
-                      Ver
+                    <Link
+                      to={`/clientes/${c.id}`}
+                      className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>👁️</span>
+                      <span>Ver</span>
                     </Link>
-                    <Link to={`/clientes/${c.id}?edit=1`} className="btn btn-secondary h-8 px-3">
-                      Editar
+                    <Link
+                      to={`/clientes/${c.id}?edit=1`}
+                      className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>✏️</span>
+                      <span>Editar</span>
                     </Link>
                     <button
-                      className="btn btn-danger h-8 px-3"
+                      className="btn btn-danger flex h-8 items-center gap-1 px-3"
                       onClick={() => {
                         if (!c.id) return
                         setPendingDelete(c)
                         setConfirmOpen(true)
                       }}
                     >
-                      Borrar
+                      <span>🗑️</span>
+                      <span>Borrar</span>
                     </button>
                   </div>
                 </td>
@@ -228,25 +238,28 @@ export default function Clients() {
               <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
                 <Link
                   to={`/clientes/${c.id}`}
-                  className="btn btn-ghost h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-ghost flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
-                  Ver
+                  <span>👁️</span>
+                  <span>Ver</span>
                 </Link>
                 <Link
                   to={`/clientes/${c.id}?edit=1`}
-                  className="btn btn-secondary h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-secondary flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                 >
-                  Editar
+                  <span>✏️</span>
+                  <span>Editar</span>
                 </Link>
                 <button
-                  className="btn btn-danger h-8 w-full px-3 text-center sm:w-auto"
+                  className="btn btn-danger flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
                   onClick={() => {
                     if (!c.id) return
                     setPendingDelete(c)
                     setConfirmOpen(true)
                   }}
                 >
-                  Borrar
+                  <span>🗑️</span>
+                  <span>Borrar</span>
                 </button>
               </div>
             </div>

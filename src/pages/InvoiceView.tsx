@@ -207,10 +207,11 @@ export default function InvoiceView() {
 
           <button
             type="button"
-            className="btn btn-secondary w-full text-center sm:w-auto"
+            className="btn btn-secondary flex w-full items-center justify-center gap-2 text-center sm:w-auto"
             onClick={() => window.print()}
           >
-            Imprimir / Guardar PDF
+            <span>🖨️</span>
+            <span>Imprimir / Guardar PDF</span>
           </button>
 
           <div className="hidden items-center justify-end gap-2 sm:flex print:hidden">

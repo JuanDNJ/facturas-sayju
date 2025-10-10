@@ -84,17 +84,28 @@ export default function ClientView() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Cliente</h1>
         <div className="flex items-center gap-2">
-          <Link className="btn btn-ghost" to="/clientes">
-            Volver
+          <Link className="btn btn-ghost flex items-center gap-2" to="/clientes">
+            <span>⬅️</span>
+            <span>Volver</span>
           </Link>
           {!editing && (
-            <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
-              Editar
+            <button
+              type="button"
+              className="btn btn-secondary flex items-center gap-2"
+              onClick={() => setEditing(true)}
+            >
+              <span>✏️</span>
+              <span>Editar</span>
             </button>
           )}
           {!editing && current?.id && (
-            <button type="button" className="btn btn-danger" onClick={() => setConfirmOpen(true)}>
-              Borrar
+            <button
+              type="button"
+              className="btn btn-danger flex items-center gap-2"
+              onClick={() => setConfirmOpen(true)}
+            >
+              <span>🗑️</span>
+              <span>Borrar</span>
             </button>
           )}
         </div>
@@ -140,18 +151,19 @@ export default function ClientView() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="btn btn-ghost flex items-center gap-2"
                 onClick={() => {
                   setDraft(current!)
                   setErrors({})
                   setEditing(false)
                 }}
               >
-                Cancelar
+                <span>❌</span>
+                <span>Cancelar</span>
               </button>
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-primary flex items-center gap-2"
                 disabled={saving}
                 onClick={async () => {
                   if (!user || !current?.id) return
@@ -174,7 +186,8 @@ export default function ClientView() {
                   }
                 }}
               >
-                Guardar
+                <span>💾</span>
+                <span>Guardar</span>
               </button>
             </div>
           </div>

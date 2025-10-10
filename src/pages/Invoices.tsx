@@ -141,15 +141,23 @@ export default function Invoices() {
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Facturas</h1>
-        <Link to="/invoices/new" className="btn btn-primary w-full text-center sm:w-auto">
-          Nueva factura
+        <Link
+          to="/invoices/new"
+          className="btn btn-primary flex w-full items-center justify-center gap-2 text-center sm:w-auto"
+        >
+          <span>➕</span>
+          <span>Nueva factura</span>
         </Link>
       </div>
 
       {/* Filtros */}
       <div className="sm:hidden">
-        <button className="btn btn-secondary w-full" onClick={() => setFiltersOpen((v) => !v)}>
-          {filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros'}
+        <button
+          className="btn btn-secondary flex w-full items-center justify-center gap-2"
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          <span>{filtersOpen ? '🔼' : '🔽'}</span>
+          <span>{filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros'}</span>
         </button>
       </div>
       <div
@@ -313,23 +321,29 @@ export default function Invoices() {
                   </td>
                   <td className="px-3 py-2 text-right">
                     <div className="flex justify-end gap-2">
-                      <Link to={`/invoices/${row.id}`} className="btn btn-ghost h-8 px-3">
-                        Ver
+                      <Link
+                        to={`/invoices/${row.id}`}
+                        className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                      >
+                        <span>👁️</span>
+                        <span>Ver</span>
                       </Link>
                       {!row.isPaid && (
                         <Link
                           to={`/invoices/${row.id}/edit`}
-                          className="btn btn-secondary h-8 px-3"
+                          className="btn btn-secondary flex h-8 items-center gap-1 px-3"
                         >
-                          Editar
+                          <span>✏️</span>
+                          <span>Editar</span>
                         </Link>
                       )}
                       {!row.isPaid && (
                         <button
                           onClick={() => setConfirmId(row.id)}
-                          className="btn btn-danger h-8 px-3"
+                          className="btn btn-danger flex h-8 items-center gap-1 px-3"
                         >
-                          Eliminar
+                          <span>🗑️</span>
+                          <span>Eliminar</span>
                         </button>
                       )}
                     </div>
@@ -363,17 +377,29 @@ export default function Invoices() {
                 </div>
               </div>
               <div className="mt-2 flex justify-end gap-2">
-                <Link to={`/invoices/${row.id}`} className="btn btn-ghost h-8 px-3">
-                  Ver
+                <Link
+                  to={`/invoices/${row.id}`}
+                  className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                >
+                  <span>👁️</span>
+                  <span>Ver</span>
                 </Link>
                 {!row.isPaid && (
-                  <Link to={`/invoices/${row.id}/edit`} className="btn btn-secondary h-8 px-3">
-                    Editar
+                  <Link
+                    to={`/invoices/${row.id}/edit`}
+                    className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                  >
+                    <span>✏️</span>
+                    <span>Editar</span>
                   </Link>
                 )}
                 {!row.isPaid && (
-                  <button onClick={() => setConfirmId(row.id)} className="btn btn-danger h-8 px-3">
-                    Eliminar
+                  <button
+                    onClick={() => setConfirmId(row.id)}
+                    className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                  >
+                    <span>🗑️</span>
+                    <span>Eliminar</span>
                   </button>
                 )}
               </div>
