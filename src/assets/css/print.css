@@ -74,10 +74,17 @@
     margin-bottom: 6px !important;
   }
 
-  /* Totales: ocupar todo el ancho en impresión */
-  .print-totals .print-totals-box {
+  /* Totales en impresión: respetar alineación elegida */
+  /* 'full' => items-stretch en el contenedor */
+  .print-totals.items-stretch .print-totals-box {
     width: 100% !important;
     max-width: none !important;
+  }
+
+  /* Para left/center/right usar 50vw como ancho en impresión */
+  .print-totals:not(.items-stretch) .print-totals-box {
+    width: 50vw !important;
+    max-width: 50vw !important;
   }
 
   /* Quitar sombras y asegurar alta legibilidad */

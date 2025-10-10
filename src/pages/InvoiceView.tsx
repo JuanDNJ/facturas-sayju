@@ -27,6 +27,12 @@ export default function InvoiceView() {
     const v = typeof window !== 'undefined' ? localStorage.getItem('iv_clienteOpen') : null
     return v === null ? true : v === 'true'
   })
+  type TotalsAlign = 'left' | 'right' | 'center' | 'full'
+  const [totalsAlign, setTotalsAlign] = useState<TotalsAlign>(() => {
+    if (typeof window === 'undefined') return 'full'
+    const v = localStorage.getItem('iv_totalsAlign') as TotalsAlign | null
+    return v ?? 'full'
+  })
 
   useEffect(() => {
     let active = true
@@ -64,6 +70,10 @@ export default function InvoiceView() {
   useEffect(() => {
     if (typeof window !== 'undefined') localStorage.setItem('iv_clienteOpen', String(clienteOpen))
   }, [clienteOpen])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem('iv_totalsAlign', totalsAlign)
+  }, [totalsAlign])
 
   if (loading) {
     return (
@@ -270,31 +280,66 @@ export default function InvoiceView() {
         </div>
 
         {/* Totales */}
-        <div className="print-totals mt-6 flex flex-col items-end">
-          <div className="panel print-totals-box w-full rounded p-4 text-sm sm:w-[420px]">
-            <div className="flex justify-between py-1">
-              <span className="muted">Base imponible</span>
-              <span>{formatCurrency(totals.taxableBase)}</span>
-            </div>
-            <div className="flex justify-between py-1">
-              <span className="muted">IVA ({totals.vatPercentage}%)</span>
-              <span>{formatCurrency(totals.vatAmount)}</span>
-            </div>
-            <div className="flex justify-between py-1">
-              <span className="muted">Base + IVA</span>
-              <span>{formatCurrency(totals.taxableBasePlusVat)}</span>
-            </div>
-            <div className="flex justify-between py-1">
-              <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
-              <span>-{formatCurrency(totals.irpfAmount)}</span>
-            </div>
-            <div className="my-2 border-t border-[var(--panel-border)]" />
-            <div className="flex justify-between py-1 text-base font-semibold">
-              <span>Total</span>
-              <span>{formatCurrency(totals.totalAmount)}</span>
+        <section className="mt-8">
+          <header className="flex w-full items-center justify-end gap-2">
+            <label htmlFor="totalsAlign" className="muted text-xs">
+              Totales
+            </label>
+            <select
+              id="totalsAlign"
+              className="panel rounded px-2 py-1 text-xs"
+              value={totalsAlign}
+              onChange={(e) => setTotalsAlign(e.target.value as TotalsAlign)}
+              aria-label="Alineación de totales (pantalla)"
+            >
+              <option value="left">Izquierda</option>
+              <option value="right">Derecha</option>
+              <option value="center">Centrado</option>
+              <option value="full">100% ancho</option>
+            </select>
+          </header>
+          <div
+            className={
+              `print-totals mt-6 flex flex-col` +
+              (totalsAlign === 'left'
+                ? 'items-start'
+                : totalsAlign === 'center'
+                  ? 'items-center'
+                  : totalsAlign === 'full'
+                    ? 'items-stretch'
+                    : 'items-end')
+            }
+          >
+            <div
+              className={
+                `panel print-totals-box rounded p-4 text-sm ` +
+                (totalsAlign === 'full' ? 'w-full sm:w-full' : 'w-full sm:w-[50vw]')
+              }
+            >
+              <div className="flex justify-between py-1">
+                <span className="muted">Base imponible</span>
+                <span>{formatCurrency(totals.taxableBase)}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="muted">IVA ({totals.vatPercentage}%)</span>
+                <span>{formatCurrency(totals.vatAmount)}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="muted">Base + IVA</span>
+                <span>{formatCurrency(totals.taxableBasePlusVat)}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="muted">IRPF ({totals.irpfPercentage}%)</span>
+                <span>-{formatCurrency(totals.irpfAmount)}</span>
+              </div>
+              <div className="my-2 border-t border-[var(--panel-border)]" />
+              <div className="flex justify-between py-1 text-base font-semibold">
+                <span>Total</span>
+                <span>{formatCurrency(totals.totalAmount)}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </section>
   )
