@@ -78,6 +78,22 @@ export default function InvoiceView() {
     if (typeof window !== 'undefined') localStorage.setItem('iv_totalsAlign', totalsAlign)
   }, [totalsAlign])
 
+  const handleMarkAsPaid = () => {
+    // Toast informativo sobre la importancia de marcar como cobrada
+    show(
+      '💡 Al marcar como cobrada: se registra la fecha, no podrás editarla ni eliminarla, y quedará en tu historial para control fiscal.',
+      {
+        type: 'info',
+        durationMs: 6000, // Más tiempo para leer el mensaje importante
+      }
+    )
+
+    // Pequeña pausa para que el usuario lea el mensaje antes de proceder
+    setTimeout(() => {
+      handleStatusChange('paid')
+    }, 500)
+  }
+
   const handleStatusChange = async (newStatus: Invoice['status']) => {
     if (!user || !id || !invoice) return
 
@@ -96,11 +112,19 @@ export default function InvoiceView() {
           : prev
       )
 
-      const statusText = newStatus === 'paid' ? 'cobrada' : 'pendiente'
-      show(`Factura marcada como ${statusText}`, { type: 'success' })
+      if (newStatus === 'paid') {
+        show('✅ Factura cobrada registrada. Ya no podrás editarla ni eliminarla.', {
+          type: 'success',
+          durationMs: 4000,
+        })
+      } else {
+        show(`Factura marcada como ${newStatus === 'pending' ? 'pendiente' : newStatus}`, {
+          type: 'success',
+        })
+      }
     } catch (error) {
       console.error('Error updating status:', error)
-      show('Error al actualizar el estado de la factura', { type: 'error' })
+      show('❌ Error al actualizar el estado de la factura', { type: 'error' })
     } finally {
       setUpdatingStatus(false)
     }
@@ -166,7 +190,7 @@ export default function InvoiceView() {
             <button
               type="button"
               className="btn btn-primary w-full text-center sm:w-auto"
-              onClick={() => handleStatusChange('paid')}
+              onClick={handleMarkAsPaid}
               disabled={updatingStatus}
             >
               {updatingStatus ? 'Marcando...' : 'Marcar como Cobrada'}
