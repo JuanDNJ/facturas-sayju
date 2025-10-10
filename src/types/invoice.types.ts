@@ -56,6 +56,10 @@ export interface Invoice {
   customer: Customer
   items: Item[]
   totals: Totals
+  // Estado de pago
+  status?: InvoiceStatus // Por defecto 'pending'
+  paidDate?: Date | string // Fecha cuando se marcó como cobrada
+  paymentNotes?: string // Notas sobre el pago
   // Nuevos campos para facturas rectificativas
   invoiceKind?: 'normal' | 'rectificativa'
   rectifiedRef?: string // Nº factura rectificada

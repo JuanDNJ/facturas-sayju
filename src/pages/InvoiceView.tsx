@@ -3,7 +3,8 @@ import Disclosure from '../components/ui/Disclosure'
 import { Link, useParams } from 'react-router-dom'
 import type { Invoice } from '../types/invoice.types'
 import { useAuth } from '../hooks/useAuth'
-import { getInvoice } from '../apis/invoices'
+import { getInvoice, updateInvoiceStatus } from '../apis/invoices'
+import { useToast } from '../hooks/useToast'
 
 function formatCurrency(value: number, locale = 'es-ES', currency = 'EUR') {
   return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value || 0)
@@ -20,9 +21,11 @@ function toNumber(n: string | number): number {
 export default function InvoiceView() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
+  const { show } = useToast()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
   const [clienteOpen, setClienteOpen] = useState(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('iv_clienteOpen') : null
     return v === null ? true : v === 'true'
@@ -75,6 +78,34 @@ export default function InvoiceView() {
     if (typeof window !== 'undefined') localStorage.setItem('iv_totalsAlign', totalsAlign)
   }, [totalsAlign])
 
+  const handleStatusChange = async (newStatus: Invoice['status']) => {
+    if (!user || !id || !invoice) return
+
+    setUpdatingStatus(true)
+    try {
+      await updateInvoiceStatus(user.uid, id, newStatus)
+
+      // Actualizar localmente
+      setInvoice((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: newStatus,
+              paidDate: newStatus === 'paid' ? new Date() : undefined,
+            }
+          : prev
+      )
+
+      const statusText = newStatus === 'paid' ? 'cobrada' : 'pendiente'
+      show(`Factura marcada como ${statusText}`, { type: 'success' })
+    } catch (error) {
+      console.error('Error updating status:', error)
+      show('Error al actualizar el estado de la factura', { type: 'error' })
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
   if (loading) {
     return (
       <section className="space-y-4">
@@ -93,38 +124,91 @@ export default function InvoiceView() {
 
   if (!invoice) return null
 
-  const { stamp, invoiceId, invoiceDate, expirationDate, customer, items, totals } = invoice
+  const {
+    stamp,
+    invoiceId,
+    invoiceDate,
+    expirationDate,
+    customer,
+    items,
+    totals,
+    status = 'pending',
+  } = invoice
+  const isPaid = status === 'paid'
 
   return (
     <section className="space-y-4">
-      {/* Acciones (no imprimir) */}
-      <div className="no-print flex flex-wrap items-center justify-between gap-2 sm:justify-end">
-        <Link to="/invoices" className="panel w-full rounded px-3 py-2 text-center sm:w-auto">
-          Volver
-        </Link>
-        <button
-          type="button"
-          className="btn btn-secondary w-full text-center sm:w-auto"
-          onClick={() => window.print()}
-        >
-          Imprimir / Guardar PDF
-        </button>
-        <div className="flex items-center justify-end gap-2 print:hidden">
-          <label htmlFor="totalsAlign" className="muted text-xs">
-            Totales
-          </label>
-          <select
-            id="totalsAlign"
-            className="panel rounded px-2 py-1 text-xs"
-            value={totalsAlign}
-            onChange={(e) => setTotalsAlign(e.target.value as TotalsAlign)}
-            aria-label="Alineación de totales (pantalla)"
+      {/* Estado y Acciones (no imprimir) */}
+      <div className="no-print space-y-3">
+        {/* Badge de estado */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            }`}
           >
-            <option value="left">Izquierda</option>
-            <option value="right">Derecha</option>
-            <option value="center">Centrado</option>
-            <option value="full">100% ancho</option>
-          </select>
+            {isPaid ? '✓ Cobrada' : '⏳ Pendiente'}
+          </span>
+          {isPaid && invoice.paidDate && (
+            <span className="muted text-xs">
+              Cobrada el {new Date(invoice.paidDate).toLocaleDateString('es-ES')}
+            </span>
+          )}
+        </div>
+
+        {/* Acciones */}
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+          <Link to="/invoices" className="panel w-full rounded px-3 py-2 text-center sm:w-auto">
+            Volver
+          </Link>
+
+          {!isPaid && (
+            <button
+              type="button"
+              className="btn btn-primary w-full text-center sm:w-auto"
+              onClick={() => handleStatusChange('paid')}
+              disabled={updatingStatus}
+            >
+              {updatingStatus ? 'Marcando...' : 'Marcar como Cobrada'}
+            </button>
+          )}
+
+          {isPaid && (
+            <button
+              type="button"
+              className="btn btn-secondary w-full text-center sm:w-auto"
+              onClick={() => handleStatusChange('pending')}
+              disabled={updatingStatus}
+            >
+              {updatingStatus ? 'Desmarcando...' : 'Marcar como Pendiente'}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-secondary w-full text-center sm:w-auto"
+            onClick={() => window.print()}
+          >
+            Imprimir / Guardar PDF
+          </button>
+
+          <div className="flex items-center justify-end gap-2 print:hidden">
+            <label htmlFor="totalsAlign" className="muted text-xs">
+              Totales
+            </label>
+            <select
+              id="totalsAlign"
+              className="panel rounded px-2 py-1 text-xs"
+              value={totalsAlign}
+              onChange={(e) => setTotalsAlign(e.target.value as TotalsAlign)}
+              aria-label="Alineación de totales (pantalla)"
+            >
+              <option value="left">Izquierda</option>
+              <option value="right">Derecha</option>
+              <option value="center">Centrado</option>
+              <option value="full">100% ancho</option>
+            </select>
+          </div>
         </div>
       </div>
 

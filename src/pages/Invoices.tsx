@@ -105,6 +105,8 @@ export default function Invoices() {
               currency: 'EUR',
             }).format(inv.totals.totalAmount)
           : '—',
+      status: inv.status || 'pending',
+      isPaid: (inv.status || 'pending') === 'paid',
     }))
   }, [invoices, qInvoiceId, qCustomer, sortBy, sortDir])
 
@@ -289,6 +291,7 @@ export default function Invoices() {
                 <th className="px-3 py-2">Cliente</th>
                 <th className="px-3 py-2">Fecha</th>
                 <th className="px-3 py-2 text-right">Total</th>
+                <th className="px-3 py-2">Estado</th>
                 <th className="px-3 py-2 text-right">Acciones</th>
               </tr>
             </thead>
@@ -299,20 +302,36 @@ export default function Invoices() {
                   <td className="px-3 py-2">{row.customer}</td>
                   <td className="px-3 py-2">{row.date}</td>
                   <td className="px-3 py-2 text-right">{row.total}</td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {row.isPaid ? '✓ Cobrada' : '⏳ Pendiente'}
+                    </span>
+                  </td>
                   <td className="px-3 py-2 text-right">
                     <div className="flex justify-end gap-2">
                       <Link to={`/invoices/${row.id}`} className="btn btn-ghost h-8 px-3">
                         Ver
                       </Link>
-                      <Link to={`/invoices/${row.id}/edit`} className="btn btn-secondary h-8 px-3">
-                        Editar
-                      </Link>
-                      <button
-                        onClick={() => setConfirmId(row.id)}
-                        className="btn btn-danger h-8 px-3"
-                      >
-                        Eliminar
-                      </button>
+                      {!row.isPaid && (
+                        <Link
+                          to={`/invoices/${row.id}/edit`}
+                          className="btn btn-secondary h-8 px-3"
+                        >
+                          Editar
+                        </Link>
+                      )}
+                      {!row.isPaid && (
+                        <button
+                          onClick={() => setConfirmId(row.id)}
+                          className="btn btn-danger h-8 px-3"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -326,7 +345,16 @@ export default function Invoices() {
             <div key={row.id} className="px-3 py-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="font-medium">{row.invoiceId}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{row.invoiceId}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {row.isPaid ? '✓' : '⏳'}
+                    </span>
+                  </div>
                   <div className="muted max-w-[70vw] truncate text-xs">{row.customer}</div>
                 </div>
                 <div className="text-right">
@@ -338,12 +366,16 @@ export default function Invoices() {
                 <Link to={`/invoices/${row.id}`} className="btn btn-ghost h-8 px-3">
                   Ver
                 </Link>
-                <Link to={`/invoices/${row.id}/edit`} className="btn btn-secondary h-8 px-3">
-                  Editar
-                </Link>
-                <button onClick={() => setConfirmId(row.id)} className="btn btn-danger h-8 px-3">
-                  Eliminar
-                </button>
+                {!row.isPaid && (
+                  <Link to={`/invoices/${row.id}/edit`} className="btn btn-secondary h-8 px-3">
+                    Editar
+                  </Link>
+                )}
+                {!row.isPaid && (
+                  <button onClick={() => setConfirmId(row.id)} className="btn btn-danger h-8 px-3">
+                    Eliminar
+                  </button>
+                )}
               </div>
             </div>
           ))}
