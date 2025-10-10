@@ -29,9 +29,9 @@ export default function InvoiceView() {
   })
   type TotalsAlign = 'left' | 'right' | 'center' | 'full'
   const [totalsAlign, setTotalsAlign] = useState<TotalsAlign>(() => {
-    if (typeof window === 'undefined') return 'right'
+    if (typeof window === 'undefined') return 'full'
     const v = localStorage.getItem('iv_totalsAlign') as TotalsAlign | null
-    return v ?? 'right'
+    return v ?? 'full'
   })
 
   useEffect(() => {
@@ -312,7 +312,7 @@ export default function InvoiceView() {
           <div
             className={
               `panel print-totals-box rounded p-4 text-sm ` +
-              (totalsAlign === 'full' ? 'w-full sm:w-full' : 'w-full sm:w-[420px]')
+              (totalsAlign === 'full' ? 'w-full sm:w-full' : 'w-full sm:w-[50vw]')
             }
           >
             <div className="flex justify-between py-1">
