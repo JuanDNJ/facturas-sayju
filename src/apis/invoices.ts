@@ -60,6 +60,11 @@ function mapInvoice(doc: QueryDocumentSnapshot<DocumentData>): Invoice {
       irpfAmount: 0,
       totalAmount: 0,
     },
+    // Estado de pago
+    status: (d.status as Invoice['status']) || 'pending',
+    paidDate: toDateStrict(d.paidDate),
+    paymentNotes: (d.paymentNotes as string) || undefined,
+    // Facturas rectificativas
     invoiceKind: (d.invoiceKind as Invoice['invoiceKind']) || 'normal',
     rectifiedRef: (d.rectifiedRef as string) || undefined,
     rectifiedDate: toDateStrict(d.rectifiedDate),
@@ -263,6 +268,14 @@ export async function updateInvoice(
   if (invoice.rectificationReason !== undefined)
     patch.rectificationReason = invoice.rectificationReason ?? null
 
+  // Estado de pago
+  if (invoice.status !== undefined) patch.status = invoice.status
+  if (invoice.paidDate !== undefined) {
+    const d = parseDateInput(invoice.paidDate)
+    patch.paidDate = d ? Timestamp.fromDate(d) : null
+  }
+  if (invoice.paymentNotes !== undefined) patch.paymentNotes = invoice.paymentNotes ?? null
+
   patch.updatedAt = serverTimestamp()
   // Dev-only: validar que no enviamos undefined en el patch
   if (import.meta.env.DEV) {
@@ -273,5 +286,33 @@ export async function updateInvoice(
       console.debug('[updateInvoice] Patch listo:', patch)
     }
   }
+  await updateDoc(ref, patch)
+}
+
+/**
+ * Actualiza solo el estado de pago de una factura
+ */
+export async function updateInvoiceStatus(
+  uid: string,
+  invoiceId: string,
+  status: Invoice['status'],
+  notes?: string
+): Promise<void> {
+  const ref = doc(db, 'users', uid, 'invoices', invoiceId)
+  const patch: Record<string, unknown> = {
+    status,
+    updatedAt: serverTimestamp(),
+  }
+
+  if (status === 'paid') {
+    patch.paidDate = serverTimestamp()
+  } else {
+    patch.paidDate = null
+  }
+
+  if (notes !== undefined) {
+    patch.paymentNotes = notes || null
+  }
+
   await updateDoc(ref, patch)
 }

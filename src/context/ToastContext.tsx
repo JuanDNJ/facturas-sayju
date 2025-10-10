@@ -56,7 +56,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {/* Contenedor visual */}
-      <div className="fixed right-4 bottom-4 z-[1000] flex flex-col gap-2">
+      <div className="fixed top-4 left-1/2 z-[1000] flex -translate-x-1/2 flex-col gap-2">
         {toasts.map((t) =>
           t.type === 'error' ? (
             <div

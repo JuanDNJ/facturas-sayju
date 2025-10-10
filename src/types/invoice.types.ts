@@ -38,6 +38,15 @@ export interface Totals {
   totalAmount: number
 }
 
+// Estados de pago de facturas
+export type InvoiceStatus = 'pending' | 'paid' | 'overdue'
+
+export interface InvoiceStatusInfo {
+  status: InvoiceStatus
+  paidDate?: Date | string // Fecha cuando se marcó como cobrada
+  notes?: string // Notas sobre el pago/estado
+}
+
 export interface Invoice {
   id?: string
   invoiceId: string
@@ -47,6 +56,10 @@ export interface Invoice {
   customer: Customer
   items: Item[]
   totals: Totals
+  // Estado de pago
+  status?: InvoiceStatus // Por defecto 'pending'
+  paidDate?: Date | string // Fecha cuando se marcó como cobrada
+  paymentNotes?: string // Notas sobre el pago
   // Nuevos campos para facturas rectificativas
   invoiceKind?: 'normal' | 'rectificativa'
   rectifiedRef?: string // Nº factura rectificada
