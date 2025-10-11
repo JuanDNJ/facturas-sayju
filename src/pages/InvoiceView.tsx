@@ -1,9 +1,5 @@
-import { useEffect, useState } from 'react'
-import Disclosure from '../components/ui/Disclosure'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
-import CustomSelect from '../components/ui/CustomSelect'
-import { Link, useParams, useNavigate } from 'react-router-dom'
-import type { Invoice } from '../types/invoice.types'
-import { useAuth } from '../hooks/useAuth'
-import { getInvoice, updateInvoiceStatus } from '../apis/invoices'
-import { useToast } from '../hooks/useToast'
+export default function InvoiceView() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { show } = useToast()
