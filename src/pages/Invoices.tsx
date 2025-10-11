@@ -10,17 +10,27 @@ import ConfirmDialog from '../components/ui/ConfirmDialog'
 export default function Invoices() {
   const { user } = useAuth()
   const { show } = useToast()
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [confirmId, setConfirmId] = useState<string | null>(null)
-  const [hasNext, setHasNext] = useState(false)
-  const [pageSize, setPageSize] = useState(10)
-  const [cursorStack, setCursorStack] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
 
-  // filtros
+  // Estados para facturas pendientes
+  const [pendingInvoices, setPendingInvoices] = useState<Invoice[]>([])
+  const [pendingLoading, setPendingLoading] = useState(false)
+  const [pendingError, setPendingError] = useState<string | null>(null)
+  const [pendingHasNext, setPendingHasNext] = useState(false)
+  const [pendingCursorStack, setPendingCursorStack] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
+  const [pendingCurrentPage, setPendingCurrentPage] = useState(1)
+
+  // Estados para facturas cobradas
+  const [paidInvoices, setPaidInvoices] = useState<Invoice[]>([])
+  const [paidLoading, setPaidLoading] = useState(false)
+  const [paidError, setPaidError] = useState<string | null>(null)
+  const [paidHasNext, setPaidHasNext] = useState(false)
+  const [paidCursorStack, setPaidCursorStack] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
+  const [paidCurrentPage, setPaidCurrentPage] = useState(1)
+
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [pageSize, setPageSize] = useState(10)
+
+  // filtros compartidos (aplican a ambas tablas)
   const [qInvoiceId, setQInvoiceId] = useState('')
   const [qCustomer, setQCustomer] = useState('')
   const [qFrom, setQFrom] = useState<string>('') // YYYY-MM-DD
@@ -31,12 +41,13 @@ export default function Invoices() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [dateClearedNotice, setDateClearedNotice] = useState(false)
 
+  // Cargar facturas pendientes
   useEffect(() => {
     let active = true
     const run = async () => {
       if (!user) return
-      setLoading(true)
-      setError(null)
+      setPendingLoading(true)
+      setPendingError(null)
       try {
         const page = await getInvoices(user.uid, {
           pageSize,
@@ -44,21 +55,22 @@ export default function Invoices() {
           toDate: qTo || undefined,
           orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
           orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+          statusFilter: 'pending',
         })
         if (active) {
-          setInvoices(page.items)
-          setHasNext(Boolean(page.nextCursor))
-          setCursorStack(page.nextCursor ? [page.nextCursor] : [])
-          setCurrentPage(1)
+          setPendingInvoices(page.items)
+          setPendingHasNext(Boolean(page.nextCursor))
+          setPendingCursorStack(page.nextCursor ? [page.nextCursor] : [])
+          setPendingCurrentPage(1)
         }
       } catch (e: unknown) {
         const msg =
           typeof e === 'object' && e && 'message' in e
             ? String((e as { message?: unknown }).message)
-            : 'No se pudieron cargar las facturas'
-        if (active) setError(msg)
+            : 'No se pudieron cargar las facturas pendientes'
+        if (active) setPendingError(msg)
       } finally {
-        if (active) setLoading(false)
+        if (active) setPendingLoading(false)
       }
     }
     run()
@@ -67,7 +79,45 @@ export default function Invoices() {
     }
   }, [user, pageSize, qFrom, qTo, sortBy, sortDir])
 
-  const rows = useMemo(() => {
+  // Cargar facturas cobradas
+  useEffect(() => {
+    let active = true
+    const run = async () => {
+      if (!user) return
+      setPaidLoading(true)
+      setPaidError(null)
+      try {
+        const page = await getInvoices(user.uid, {
+          pageSize,
+          fromDate: qFrom || undefined,
+          toDate: qTo || undefined,
+          orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
+          orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+          statusFilter: 'paid',
+        })
+        if (active) {
+          setPaidInvoices(page.items)
+          setPaidHasNext(Boolean(page.nextCursor))
+          setPaidCursorStack(page.nextCursor ? [page.nextCursor] : [])
+          setPaidCurrentPage(1)
+        }
+      } catch (e: unknown) {
+        const msg =
+          typeof e === 'object' && e && 'message' in e
+            ? String((e as { message?: unknown }).message)
+            : 'No se pudieron cargar las facturas cobradas'
+        if (active) setPaidError(msg)
+      } finally {
+        if (active) setPaidLoading(false)
+      }
+    }
+    run()
+    return () => {
+      active = false
+    }
+  }, [user, pageSize, qFrom, qTo, sortBy, sortDir])
+
+  const filterInvoices = (invoices: Invoice[]) => {
     const text = (s: unknown) => (typeof s === 'string' ? s : '')
     const qId = qInvoiceId.trim().toLowerCase()
     const qCust = qCustomer.trim().toLowerCase()
@@ -108,37 +158,279 @@ export default function Invoices() {
       status: inv.status || 'pending',
       isPaid: (inv.status || 'pending') === 'paid',
     }))
-  }, [invoices, qInvoiceId, qCustomer, sortBy, sortDir])
+  }
+
+  const pendingRows = useMemo(() => filterInvoices(pendingInvoices), [pendingInvoices, qInvoiceId, qCustomer, sortBy, sortDir])
+  const paidRows = useMemo(() => filterInvoices(paidInvoices), [paidInvoices, qInvoiceId, qCustomer, sortBy, sortDir])
 
   async function performDelete(id: string) {
     if (!user) return
-    setLoading(true)
-    setError(null)
+    setPendingLoading(true)
+    setPaidLoading(true)
+    setPendingError(null)
+    setPaidError(null)
     try {
       await deleteInvoice(user.uid, id)
       show('Factura eliminada', { type: 'success' })
-      // recargar primera página con filtros vigentes
-      const page = await getInvoices(user.uid, {
-        pageSize,
-        fromDate: qFrom || undefined,
-        toDate: qTo || undefined,
-        orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-        orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-      })
-      setInvoices(page.items)
-      setHasNext(Boolean(page.nextCursor))
-      setCursorStack(page.nextCursor ? [page.nextCursor] : [])
-      setCurrentPage(1)
+      // Recargar ambas tablas
+      const [pendingPage, paidPage] = await Promise.all([
+        getInvoices(user.uid, {
+          pageSize,
+          fromDate: qFrom || undefined,
+          toDate: qTo || undefined,
+          orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
+          orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+          statusFilter: 'pending',
+        }),
+        getInvoices(user.uid, {
+          pageSize,
+          fromDate: qFrom || undefined,
+          toDate: qTo || undefined,
+          orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
+          orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+          statusFilter: 'paid',
+        })
+      ])
+      setPendingInvoices(pendingPage.items)
+      setPendingHasNext(Boolean(pendingPage.nextCursor))
+      setPendingCursorStack(pendingPage.nextCursor ? [pendingPage.nextCursor] : [])
+      setPendingCurrentPage(1)
+      setPaidInvoices(paidPage.items)
+      setPaidHasNext(Boolean(paidPage.nextCursor))
+      setPaidCursorStack(paidPage.nextCursor ? [paidPage.nextCursor] : [])
+      setPaidCurrentPage(1)
     } catch (e) {
       console.error(e)
       show('No se pudo eliminar', { type: 'error' })
-      setError('No se pudo eliminar la factura')
+      setPendingError('No se pudo eliminar la factura')
+      setPaidError('No se pudo eliminar la factura')
     } finally {
-      setLoading(false)
+      setPendingLoading(false)
+      setPaidLoading(false)
     }
   }
+
+  const renderInvoiceTable = (
+    title: string,
+    rows: any[],
+    loading: boolean,
+    error: string | null,
+    hasNext: boolean,
+    currentPage: number,
+    cursorStack: QueryDocumentSnapshot<DocumentData>[],
+    setInvoices: (invoices: Invoice[]) => void,
+    setHasNext: (hasNext: boolean) => void,
+    setCursorStack: (stack: QueryDocumentSnapshot<DocumentData>[]) => void,
+    setCurrentPage: (page: number) => void,
+    setLoading: (loading: boolean) => void,
+    setError: (error: string | null) => void,
+    statusFilter: 'pending' | 'paid'
+  ) => (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <div className="panel overflow-x-auto rounded">
+        {loading && <div className="p-4 text-sm">Cargando facturas…</div>}
+        {error && <div className="p-4 text-sm text-red-600">{error}</div>}
+        {!loading && !error && rows.length === 0 && (
+          <div className="p-4 text-sm">No hay facturas en esta sección.</div>
+        )}
+        {/* Tabla solo en >= md */}
+        <div className="hidden md:block">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="px-3 py-2">Factura</th>
+                <th className="px-3 py-2">Cliente</th>
+                <th className="px-3 py-2">Fecha</th>
+                <th className="px-3 py-2 text-right">Total</th>
+                <th className="px-3 py-2">Estado</th>
+                <th className="px-3 py-2 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id} className="border-t border-[var(--panel-border)]">
+                  <td className="px-3 py-2">{row.invoiceId}</td>
+                  <td className="px-3 py-2">{row.customer}</td>
+                  <td className="px-3 py-2">{row.date}</td>
+                  <td className="px-3 py-2 text-right">{row.total}</td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {row.isPaid ? '✓ Cobrada' : '⏳ Pendiente'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        to={`/invoices/${row.id}`}
+                        className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                      >
+                        <span>👁️</span>
+                        <span>Ver</span>
+                      </Link>
+                      {statusFilter === 'pending' && (
+                        <>
+                          <Link
+                            to={`/invoices/${row.id}/edit`}
+                            className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                          >
+                            <span>✏️</span>
+                            <span>Editar</span>
+                          </Link>
+                          <button
+                            onClick={() => setConfirmId(row.id)}
+                            className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                          >
+                            <span>🗑️</span>
+                            <span>Eliminar</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Lista tipo tarjeta en móvil (< md) */}
+        <div className="divide-y border-t border-[var(--panel-border)] md:hidden">
+          {rows.map((row) => (
+            <div key={row.id} className="px-3 py-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{row.invoiceId}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}
+                    >
+                      {row.isPaid ? '✓' : '⏳'}
+                    </span>
+                  </div>
+                  <div className="muted max-w-[70vw] truncate text-xs">{row.customer}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm">{row.date}</div>
+                  <div className="font-semibold">{row.total}</div>
+                </div>
+              </div>
+              <div className="mt-2 flex justify-end gap-2">
+                <Link
+                  to={`/invoices/${row.id}`}
+                  className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                >
+                  <span>👁️</span>
+                  <span>Ver</span>
+                </Link>
+                {statusFilter === 'pending' && (
+                  <>
+                    <Link
+                      to={`/invoices/${row.id}/edit`}
+                      className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>✏️</span>
+                      <span>Editar</span>
+                    </Link>
+                    <button
+                      onClick={() => setConfirmId(row.id)}
+                      className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                    >
+                      <span>🗑️</span>
+                      <span>Eliminar</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Controles de paginación */}
+        <div className="flex flex-col gap-2 border-t border-[var(--panel-border)] p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="muted text-xs">Página {currentPage}</div>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <button
+              className="btn btn-secondary h-9 w-full sm:w-auto"
+              onClick={async () => {
+                if (!user) return
+                if (currentPage <= 1) return
+                setLoading(true)
+                setError(null)
+                try {
+                  const prevCursorIdx = currentPage - 3 // -1 para ir a la primera
+                  const prevCursor = prevCursorIdx >= 0 ? cursorStack[prevCursorIdx] : undefined
+                  const page = await getInvoices(user.uid, {
+                    pageSize,
+                    cursor: prevCursor ?? undefined,
+                    fromDate: qFrom || undefined,
+                    toDate: qTo || undefined,
+                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
+                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+                    statusFilter,
+                  })
+                  setInvoices(page.items)
+                  setHasNext(Boolean(page.nextCursor))
+                  setCursorStack((s) => {
+                    const nextLen = Math.max(0, currentPage - 1)
+                    const trimmed = s.slice(0, nextLen - 1)
+                    return page.nextCursor ? [...trimmed, page.nextCursor] : trimmed
+                  })
+                  setCurrentPage((p) => Math.max(1, p - 1))
+                } catch {
+                  setError('No se pudo cargar la página anterior')
+                } finally {
+                  setLoading(false)
+                }
+              }}
+              disabled={currentPage <= 1 || loading}
+            >
+              Anterior
+            </button>
+            <button
+              className="btn btn-secondary h-9 w-full sm:w-auto"
+              onClick={async () => {
+                if (!user) return
+                const lastCursor = cursorStack[cursorStack.length - 1]
+                if (!lastCursor) return
+                setLoading(true)
+                setError(null)
+                try {
+                  const page = await getInvoices(user.uid, {
+                    pageSize,
+                    cursor: lastCursor,
+                    fromDate: qFrom || undefined,
+                    toDate: qTo || undefined,
+                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
+                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
+                    statusFilter,
+                  })
+                  setInvoices(page.items)
+                  setHasNext(Boolean(page.nextCursor))
+                  setCursorStack((s) => (page.nextCursor ? [...s, page.nextCursor] : [...s]))
+                  setCurrentPage((p) => p + 1)
+                } catch {
+                  setError('No se pudo cargar la siguiente página')
+                } finally {
+                  setLoading(false)
+                }
+              }}
+              disabled={!hasNext || loading}
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Facturas</h1>
         <Link
@@ -284,202 +576,41 @@ export default function Invoices() {
         )}
       </div>
 
-      <div className="panel overflow-x-auto rounded">
-        {loading && <div className="p-4 text-sm">Cargando facturas…</div>}
-        {error && <div className="p-4 text-sm text-red-600">{error}</div>}
-        {!loading && !error && rows.length === 0 && (
-          <div className="p-4 text-sm">No hay facturas todavía.</div>
-        )}
-        {/* Tabla solo en >= md */}
-        <div className="hidden md:block">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left">
-                <th className="px-3 py-2">Factura</th>
-                <th className="px-3 py-2">Cliente</th>
-                <th className="px-3 py-2">Fecha</th>
-                <th className="px-3 py-2 text-right">Total</th>
-                <th className="px-3 py-2">Estado</th>
-                <th className="px-3 py-2 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="border-t border-[var(--panel-border)]">
-                  <td className="px-3 py-2">{row.invoiceId}</td>
-                  <td className="px-3 py-2">{row.customer}</td>
-                  <td className="px-3 py-2">{row.date}</td>
-                  <td className="px-3 py-2 text-right">{row.total}</td>
-                  <td className="px-3 py-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {row.isPaid ? '✓ Cobrada' : '⏳ Pendiente'}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link
-                        to={`/invoices/${row.id}`}
-                        className="btn btn-ghost flex h-8 items-center gap-1 px-3"
-                      >
-                        <span>👁️</span>
-                        <span>Ver</span>
-                      </Link>
-                      {!row.isPaid && (
-                        <Link
-                          to={`/invoices/${row.id}/edit`}
-                          className="btn btn-secondary flex h-8 items-center gap-1 px-3"
-                        >
-                          <span>✏️</span>
-                          <span>Editar</span>
-                        </Link>
-                      )}
-                      {!row.isPaid && (
-                        <button
-                          onClick={() => setConfirmId(row.id)}
-                          className="btn btn-danger flex h-8 items-center gap-1 px-3"
-                        >
-                          <span>🗑️</span>
-                          <span>Eliminar</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Lista tipo tarjeta en móvil (< md) */}
-        <div className="divide-y border-t border-[var(--panel-border)] md:hidden">
-          {rows.map((row) => (
-            <div key={row.id} className="px-3 py-2">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{row.invoiceId}</span>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {row.isPaid ? '✓' : '⏳'}
-                    </span>
-                  </div>
-                  <div className="muted max-w-[70vw] truncate text-xs">{row.customer}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm">{row.date}</div>
-                  <div className="font-semibold">{row.total}</div>
-                </div>
-              </div>
-              <div className="mt-2 flex justify-end gap-2">
-                <Link
-                  to={`/invoices/${row.id}`}
-                  className="btn btn-ghost flex h-8 items-center gap-1 px-3"
-                >
-                  <span>👁️</span>
-                  <span>Ver</span>
-                </Link>
-                {!row.isPaid && (
-                  <Link
-                    to={`/invoices/${row.id}/edit`}
-                    className="btn btn-secondary flex h-8 items-center gap-1 px-3"
-                  >
-                    <span>✏️</span>
-                    <span>Editar</span>
-                  </Link>
-                )}
-                {!row.isPaid && (
-                  <button
-                    onClick={() => setConfirmId(row.id)}
-                    className="btn btn-danger flex h-8 items-center gap-1 px-3"
-                  >
-                    <span>🗑️</span>
-                    <span>Eliminar</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        {/* Controles de paginación */}
-        <div className="flex flex-col gap-2 border-t border-[var(--panel-border)] p-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="muted text-xs">Página {currentPage}</div>
-          <div className="flex w-full gap-2 sm:w-auto">
-            <button
-              className="btn btn-secondary h-9 w-full sm:w-auto"
-              onClick={async () => {
-                if (!user) return
-                if (currentPage <= 1) return
-                setLoading(true)
-                setError(null)
-                try {
-                  const prevCursorIdx = currentPage - 3 // -1 para ir a la primera
-                  const prevCursor = prevCursorIdx >= 0 ? cursorStack[prevCursorIdx] : undefined
-                  const page = await getInvoices(user.uid, {
-                    pageSize,
-                    cursor: prevCursor ?? undefined,
-                    fromDate: qFrom || undefined,
-                    toDate: qTo || undefined,
-                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-                  })
-                  setInvoices(page.items)
-                  setHasNext(Boolean(page.nextCursor))
-                  setCursorStack((s) => {
-                    const nextLen = Math.max(0, currentPage - 1)
-                    const trimmed = s.slice(0, nextLen - 1)
-                    return page.nextCursor ? [...trimmed, page.nextCursor] : trimmed
-                  })
-                  setCurrentPage((p) => Math.max(1, p - 1))
-                } catch {
-                  setError('No se pudo cargar la página anterior')
-                } finally {
-                  setLoading(false)
-                }
-              }}
-              disabled={currentPage <= 1 || loading}
-            >
-              Anterior
-            </button>
-            <button
-              className="btn btn-secondary h-9 w-full sm:w-auto"
-              onClick={async () => {
-                if (!user) return
-                const lastCursor = cursorStack[cursorStack.length - 1]
-                if (!lastCursor) return
-                setLoading(true)
-                setError(null)
-                try {
-                  const page = await getInvoices(user.uid, {
-                    pageSize,
-                    cursor: lastCursor,
-                    fromDate: qFrom || undefined,
-                    toDate: qTo || undefined,
-                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-                  })
-                  setInvoices(page.items)
-                  setHasNext(Boolean(page.nextCursor))
-                  setCursorStack((s) => (page.nextCursor ? [...s, page.nextCursor] : [...s]))
-                  setCurrentPage((p) => p + 1)
-                } catch {
-                  setError('No se pudo cargar la siguiente página')
-                } finally {
-                  setLoading(false)
-                }
-              }}
-              disabled={!hasNext || loading}
-            >
-              Siguiente
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Tabla de facturas pendientes */}
+      {renderInvoiceTable(
+        'Facturas Pendientes',
+        pendingRows,
+        pendingLoading,
+        pendingError,
+        pendingHasNext,
+        pendingCurrentPage,
+        pendingCursorStack,
+        setPendingInvoices,
+        setPendingHasNext,
+        setPendingCursorStack,
+        setPendingCurrentPage,
+        setPendingLoading,
+        setPendingError,
+        'pending'
+      )}
+
+      {/* Tabla de facturas cobradas */}
+      {renderInvoiceTable(
+        'Facturas Cobradas',
+        paidRows,
+        paidLoading,
+        paidError,
+        paidHasNext,
+        paidCurrentPage,
+        paidCursorStack,
+        setPaidInvoices,
+        setPaidHasNext,
+        setPaidCursorStack,
+        setPaidCurrentPage,
+        setPaidLoading,
+        setPaidError,
+        'paid'
+      )}
 
       <ConfirmDialog
         open={confirmId !== null}
@@ -488,7 +619,7 @@ export default function Invoices() {
         confirmText="Eliminar"
         cancelText="Cancelar"
         danger
-        loading={loading}
+        loading={pendingLoading || paidLoading}
         onCancel={() => setConfirmId(null)}
         onConfirm={async () => {
           if (!confirmId) return
