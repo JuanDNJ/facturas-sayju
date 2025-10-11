@@ -143,7 +143,7 @@ export default function Invoices() {
         <h1 className="text-2xl font-semibold">Facturas</h1>
         <Link
           to="/invoices/new"
-          className="btn btn-primary flex w-full items-center justify-center gap-2 text-center sm:w-auto"
+          className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center md:w-auto"
         >
           <span>➕</span>
           <span>Nueva factura</span>
@@ -323,7 +323,7 @@ export default function Invoices() {
                     <div className="flex justify-end gap-2">
                       <Link
                         to={`/invoices/${row.id}`}
-                        className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                        className="btn btn-outline-view flex h-8 items-center gap-1 px-3"
                       >
                         <span>👁️</span>
                         <span>Ver</span>
@@ -331,7 +331,7 @@ export default function Invoices() {
                       {!row.isPaid && (
                         <Link
                           to={`/invoices/${row.id}/edit`}
-                          className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                          className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
                         >
                           <span>✏️</span>
                           <span>Editar</span>
@@ -340,7 +340,7 @@ export default function Invoices() {
                       {!row.isPaid && (
                         <button
                           onClick={() => setConfirmId(row.id)}
-                          className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                          className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
                         >
                           <span>🗑️</span>
                           <span>Eliminar</span>
