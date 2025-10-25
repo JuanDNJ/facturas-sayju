@@ -40,13 +40,13 @@ functions/         # Firebase Functions (TypeScript)
 
 ## Puesta en marcha
 
-1) Instalar dependencias
+1. Instalar dependencias
 
 ```bash
 npm i
 ```
 
-2) Variables de entorno
+2. Variables de entorno
 
 Copia `/.env.example` a `/.env` y rellena tus credenciales de Firebase Web App:
 
@@ -60,13 +60,13 @@ VITE_APP_ID="..."
 VITE_MEASUREMENT_ID="..." # opcional
 ```
 
-3) Desarrollo
+3. Desarrollo
 
 ```bash
 npm run dev
 ```
 
-4) Build y preview de producción
+4. Build y preview de producción
 
 ```bash
 npm run build
@@ -84,12 +84,12 @@ npm run preview
 
 ## Firebase
 
-1) Autenticación
+1. Autenticación
 
 - Habilita el proveedor Email/Password en tu proyecto de Firebase.
 - Crea una Web App y copia la configuración al `.env` (variables `VITE_...`).
 
-2) Firestore y Storage (reglas)
+2. Firestore y Storage (reglas)
 
 Las reglas incluidas implementan un modelo “owner-only” bajo `users/{uid}` y colecciones relacionadas.
 
@@ -100,7 +100,7 @@ firebase deploy --only firestore:rules
 firebase deploy --only storage
 ```
 
-3) Functions (opcional)
+3. Functions (opcional)
 
 - Entra a `functions/` y ejecuta `npm i` la primera vez.
 - El proyecto incluye un ejemplo `getServerTimestamp` y `setGlobalOptions` para limitar instancias.
@@ -152,4 +152,3 @@ Nota sobre índices/ordenación: Firestore restringe el `orderBy` cuando hay fil
 ---
 
 Si necesitas un pipeline de CI o más automatizaciones (tests de utilidades, optimización de imágenes, despliegue selectivo de funciones), abre un issue y lo planificamos.
-
