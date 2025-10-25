@@ -32,7 +32,7 @@ function mapInvoice(doc: QueryDocumentSnapshot<DocumentData>): Invoice {
     return undefined
   }
 
-  const invoiceDate = toDateStrict(d.invoiceDate) || toDateStrict(d.createdAt) || new Date()
+  const invoiceDate = toDateStrict(d.invoiceDate) || new Date()
   const expirationDate = toDateStrict(d.expirationDate)
 
   return {

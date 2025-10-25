@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getInvoices, deleteInvoice } from '../apis/invoices'
-import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
+import { type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
 import type { Invoice } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
@@ -95,9 +95,9 @@ export default function Invoices() {
       invoiceId: inv.invoiceId,
       customer: inv.customer?.name || '—',
       date:
-        typeof inv.invoiceDate === 'string'
-          ? inv.invoiceDate
-          : inv.invoiceDate.toLocaleDateString('es-ES'),
+        inv.invoiceDate instanceof Date
+          ? Intl.DateTimeFormat('es-ES').format(inv.invoiceDate)
+          : inv.invoiceDate,
       total:
         typeof inv.totals?.totalAmount === 'number'
           ? new Intl.NumberFormat('es-ES', {
