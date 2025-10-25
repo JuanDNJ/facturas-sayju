@@ -169,7 +169,7 @@ export default function Dashboard() {
         </aside>
         {alertSystem && (
           <>
-            <section className="text-under-construction h-full flex-wrap gap-2 border border-red-400 p-3">
+            <section className="text-under-construction h-full flex-wrap gap-2 border border-red-400 bg-amber-50 p-3">
               <section className="flex flex-row">
                 <article className="flex items-center justify-center gap-2 p-3">
                   <span aria-hidden className="max-w-14 min-w-12">
@@ -224,7 +224,7 @@ export default function Dashboard() {
                 </article>
               </section>
             </section>
-            <section className="border-under-construction flex h-full flex-col justify-between gap-3 rounded border p-3 sm:flex-1 sm:flex-row">
+            <section className="border-under-construction flex h-full flex-col justify-between gap-3 rounded border bg-amber-50 p-3 sm:flex-1 sm:flex-row">
               <article className="mb-2 flex flex-col items-center gap-1 sm:items-start">
                 <span className="text-dark p-2 text-sm font-medium md:text-xl">
                   ¿Tienes ideas, necesidades o detectaste un error?
