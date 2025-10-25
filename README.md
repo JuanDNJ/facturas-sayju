@@ -1,83 +1,155 @@
-# Facturas Sayju – Dashboard mínimo
+# Facturas Sayju — Dashboard de facturación
 
-Proyecto React + TypeScript + Vite con Tailwind, autenticación con Firebase y routing con protección de rutas.
+Aplicación web de facturación con React + TypeScript + Vite y Firebase (Auth, Firestore, Storage, Functions). Permite gestionar clientes, sellos (datos fiscales/plantillas), facturas y recoger sugerencias de usuarios. Incluye guard de autenticación, tema claro/oscuro y vistas optimizadas con carga diferida.
 
-## Estructura principal
+## Características
 
-- `src/components/layout/`
-  - `Sidebar.tsx`: navegación lateral.
-  - `Topbar.tsx`: barra superior con buscador/avatar.
-  - `Layout.tsx`: contenedor general con `<Sidebar/>`, `<Topbar/>` y `<Outlet/>`.
-- `src/pages/`
-  - `Dashboard.tsx`
-  - `Invoices.tsx`
-  - `Settings.tsx`
-- `src/App.tsx`: define las rutas con `react-router-dom`.
+- Autenticación con Firebase (registro, login, logout, reset de contraseña)
+- CRUD de clientes, sellos y facturas (con totales, IVA/IRPF, estados de pago)
+- Subida de avatar y logos a Firebase Storage
+- Panel con métricas del mes y secciones rápidas
+- Impresión de facturas con CSS `@media print`
+- Sugerencias de usuario (colección `suggestions`)
+- Theming con `data-theme` persistido en `localStorage`
+- Carga diferida (React.lazy) y prefetch en el menú lateral
 
-## Cómo ejecutar
+## Stack
 
-Requisitos: Node 18+.
+- React 19, TypeScript 5, Vite 7, TailwindCSS 4
+- Firebase Web SDK (Auth, Firestore, Storage)
+- Firebase Hosting + Functions (Node/TS)
+
+## Estructura del proyecto
+
+```
+src/
+  apis/            # Integraciones con Firebase (auth, firestore, storage)
+  components/      # UI (layout, ui, routing)
+  context/         # Contextos (auth, toast)
+  pages/           # Páginas (Dashboard, Invoices, Clients, Stamps, Settings, ...)
+  theme/           # Soporte de tema (light/dark)
+  utils/           # Utilidades (totales, validadores)
+public/            # Estáticos (favicons, imágenes)
+functions/         # Firebase Functions (TypeScript)
+```
+
+## Requisitos
+
+- Node.js 18 o superior
+- Firebase CLI (opcional para deploy): `npm i -g firebase-tools`
+
+## Puesta en marcha
+
+1) Instalar dependencias
 
 ```bash
 npm i
+```
+
+2) Variables de entorno
+
+Copia `/.env.example` a `/.env` y rellena tus credenciales de Firebase Web App:
+
+```
+VITE_API_KEY="..."
+VITE_AUTH_DOMAIN="..."
+VITE_PROJECT_ID="..."
+VITE_STORAGE_BUCKET="..."
+VITE_MESSAGING_SENDER_ID="..."
+VITE_APP_ID="..."
+VITE_MEASUREMENT_ID="..." # opcional
+```
+
+3) Desarrollo
+
+```bash
 npm run dev
 ```
 
-Build de producción:
+4) Build y preview de producción
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Rutas
+## Scripts útiles
 
-- `/` → Dashboard
-- `/invoices` → Facturas
-- `/settings` → Ajustes
-
-Rutas públicas: `/login`, `/registro`.
-Rutas protegidas: resto del dashboard bajo guard.
-
-## Estilos
-
-Tailwind 4 vía `@tailwindcss/vite` ya configurado en `vite.config.ts`. Estilos base en `src/assets/css/root.css`.
+- `npm run dev`: arranca Vite con hot reload
+- `npm run build`: compila TypeScript y genera `dist/`
+- `npm run preview`: sirve la build de producción
+- `npm run lint` / `npm run lint:fix`: ESLint con configuración moderna
+- `npm run format` / `npm run format:check`: Prettier (incluye plugin Tailwind)
+- `npm run deploy`: build + `firebase deploy`
 
 ## Firebase
 
-Autenticación: registro, login, logout y recuperación de contraseña.
-Perfiles de usuario en Firestore: `users/{uid}` con `createAt` y `updateAt` vía `serverTimestamp`.
+1) Autenticación
 
-### Reglas de seguridad de Firestore
+- Habilita el proveedor Email/Password en tu proyecto de Firebase.
+- Crea una Web App y copia la configuración al `.env` (variables `VITE_...`).
 
-Se incluye `firestore.rules` con el siguiente modelo:
+2) Firestore y Storage (reglas)
 
-- Solo el propietario (mismo `uid`) puede leer y escribir su documento `users/{uid}`.
-- Validación básica de campos obligatorios en escritura: `displayName`, `email`, `address`, `nifDni`.
+Las reglas incluidas implementan un modelo “owner-only” bajo `users/{uid}` y colecciones relacionadas.
 
-Para desplegar las reglas (requiere Firebase CLI inicializado en el proyecto):
+Despliegue (requiere Firebase CLI inicializado):
 
 ```bash
-# Opcional: iniciar Firebase en el proyecto si aún no lo está
-firebase init firestore
-
-# Desplegar reglas
 firebase deploy --only firestore:rules
-```
-
-Nota: asegúrate de tener configuradas las variables de entorno `VITE_...` de Firebase en `.env`.
-
-### Reglas de seguridad de Storage y subida de avatar
-
-Se incluye `storage.rules` para permitir que cada usuario cargue su avatar en `users/{uid}/avatar/*` (máx. 5MB, tipo `image/*`) y lo lea.
-
-Despliegue de reglas de Storage:
-
-```bash
 firebase deploy --only storage
 ```
 
-La vista Perfil en `/settings` permite:
+3) Functions (opcional)
 
-- Pegar una URL pública en el campo "URL de avatar"
-- O seleccionar un archivo (PNG/JPG/WEBP/GIF/SVG) para subir a Storage automáticamente; se actualiza `photoURL` en Firebase Auth y la previsualización.
+- Entra a `functions/` y ejecuta `npm i` la primera vez.
+- El proyecto incluye un ejemplo `getServerTimestamp` y `setGlobalOptions` para limitar instancias.
+- Deploy:
+
+```bash
+npm --prefix functions run build
+firebase deploy --only functions
+```
+
+## Rutas principales
+
+- `/` Dashboard (privada)
+- `/invoices`, `/invoices/new`, `/invoices/:id`, `/invoices/:id/edit`
+- `/clientes`, `/clientes/nuevo`, `/clientes/:id`
+- `/sellos`, `/settings`, `/sugerencias`
+- Públicas: `/login`, `/registro`
+
+## Datos en Firestore (modelo)
+
+- `users/{uid}`: perfil del usuario (datos básicos y timestamps)
+- `users/{uid}/customers`: clientes
+- `users/{uid}/stamps`: sellos (identidad fiscal/plantilla)
+- `users/{uid}/invoices`: facturas (items, totales, estado de pago, rectificativas)
+- `suggestions`: sugerencias (solo `create` autenticado)
+
+Nota sobre índices/ordenación: Firestore restringe el `orderBy` cuando hay filtros por rango. El listado de facturas alterna entre `invoiceDate` e `invoiceId` para cumplirlo. Si añades filtros adicionales, puede que sean necesarios índices compuestos.
+
+## Estilos y tema
+
+- Tailwind 4 configurado vía plugin `@tailwindcss/vite`.
+- Estilos base bajo `src/assets/css/` y tema controlado con `data-theme`.
+
+## Impresión de facturas
+
+- La impresión se realiza desde la vista de factura utilizando `window.print()` y estilos `@media print`. La página `InvoicePrint` está deprecada.
+
+## Contribuir
+
+- Plantilla de PR en `.github/pull_request_template.md`.
+- Antes de abrir PR: `npm run lint && npm run build`.
+
+## Consejos y resolución de problemas
+
+- Codificación: usa UTF‑8 para evitar glifos extraños en acentos/emoji.
+- Imágenes: las imágenes en `public/png/` son pesadas; considera convertir a WebP/AVIF y cargar bajo demanda.
+- Variables `.env`: asegúrate de que los nombres comienzan por `VITE_` para que Vite los exponga al cliente.
+
+---
+
+Si necesitas un pipeline de CI o más automatizaciones (tests de utilidades, optimización de imágenes, despliegue selectivo de funciones), abre un issue y lo planificamos.
+
