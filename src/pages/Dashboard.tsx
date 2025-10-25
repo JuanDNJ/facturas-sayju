@@ -71,8 +71,8 @@ export default function Dashboard() {
     <section>
       <div className="text-under-construction mb-4 gap-2 rounded p-3">
         <section className="flex flex-row">
-          <article className='flex justify-center items-center gap-2 p-3'>
-            <span aria-hidden className='max-w-14 md:max-w-32'>
+          <article className="flex items-center justify-center gap-2 p-3">
+            <span aria-hidden className="max-w-14 min-w-12 sm:max-w-28 lg:max-w-30 xl:max-w-32">
               <svg
                 fill="currentColor"
                 height="100%"
@@ -116,8 +116,8 @@ export default function Dashboard() {
               </svg>
             </span>
           </article>
-          <article className='flex-1 flex items-center justify-center gap-2 p-3'>
-            <span className="text-xs md:text-4xl text-primary font-weight-black">
+          <article className="flex flex-1 items-center justify-center gap-2 p-3">
+            <span className="text-primary font-weight-black text-xs sm:text-xl lg:text-3xl xl:text-4xl">
               Esta página está en construcción. Las métricas son ficticias y están sujetas a
               cambios.
             </span>
