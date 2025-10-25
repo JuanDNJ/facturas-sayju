@@ -8,7 +8,7 @@ type IconProps = {
 const Icon: FC<IconProps> = (props) => {
   const { children, className } = props
 
-  return <span className={`${className}`}>{children}</span>
+  return <span className={`min-w-4 ${className}`}>{children}</span>
 }
 
 export default Icon
