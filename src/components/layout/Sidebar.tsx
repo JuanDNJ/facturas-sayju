@@ -75,7 +75,7 @@ export default function Sidebar({
         aria-hidden
       />
       <aside
-        className={`sidebar-solid fixed z-40 h-full md:sticky md:top-0 md:h-screen ${
+        className={`sidebar-solid fixed z-40 h-full w-full md:sticky md:top-0 md:h-screen ${
           collapsed ? 'md:w-16' : 'md:w-64'
         } w-64 shrink-0 transition-transform md:transition-[width] ${
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -115,8 +115,39 @@ export default function Sidebar({
               if (isModal) onClose()
             }}
           >
-            <span>📊</span>
-            {!collapsed && <span>Dashboard</span>}
+            <span className="w-10">
+              <svg
+                fill="#000000"
+                width="100%"
+                height="100%"
+                viewBox="0 0 24 24"
+                id="dashboard"
+                data-name="Flat Line"
+                xmlns="http://www.w3.org/2000/svg"
+                className="icon flat-line"
+              >
+                <path
+                  id="secondary"
+                  d="M9,12H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H9a1,1,0,0,1,1,1v7A1,1,0,0,1,9,12Zm12,8V13a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1v7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,20Z"
+                  style={{
+                    fill: 'rgb(44, 169, 188)',
+                    strokeWidth: 2,
+                  }}
+                ></path>
+                <path
+                  id="primary"
+                  d="M21,7V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,7ZM10,20V17a1,1,0,0,0-1-1H4a1,1,0,0,0-1,1v3a1,1,0,0,0,1,1H9A1,1,0,0,0,10,20ZM9,12H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H9a1,1,0,0,1,1,1v7A1,1,0,0,1,9,12Zm12,8V13a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1v7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,20Z"
+                  style={{
+                    fill: 'none',
+                    stroke: 'rgb(0, 0, 0)',
+                    strokeLinecap: 'round',
+                    strokeLinejoin: 'round',
+                    strokeWidth: 2,
+                  }}
+                ></path>
+              </svg>
+            </span>
+            {!collapsed && <span className="text-lg">Dashboard</span>}
           </NavLink>
           <NavLink
             to="/clientes"
