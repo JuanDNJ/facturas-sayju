@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { getInvoices, deleteInvoice } from '../apis/invoices'
-import { type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
+import { deleteInvoice } from '../apis/invoices'
 import type { Invoice } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
@@ -11,21 +10,14 @@ import ViewEyeIcon from '../components/icons/ViewEyeIcon'
 import EditIcon from '../components/icons/EditIcon'
 import TrashIcon from '../components/icons/TrashIcon'
 import AddInvoiceIcon from '../components/icons/AddInvoiceIcon'
+import { useInvoicesPagination } from '../hooks/useInvoicesPagination'
 
 export default function Invoices() {
   const { user } = useAuth()
   const { show } = useToast()
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [confirmId, setConfirmId] = useState<string | null>(null)
-  const [hasNext, setHasNext] = useState(false)
-  const [pageSize, setPageSize] = useState(10)
-  const [cursorStack, setCursorStack] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
 
-  // filtros
+  // filtros de búsqueda local (cliente / nº factura)
   const [qInvoiceId, setQInvoiceId] = useState('')
   const [qCustomer, setQCustomer] = useState('')
   const [qFrom, setQFrom] = useState<string>('') // YYYY-MM-DD
@@ -36,42 +28,30 @@ export default function Invoices() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [dateClearedNotice, setDateClearedNotice] = useState(false)
 
-  useEffect(() => {
-    let active = true
-    const run = async () => {
-      if (!user) return
-      setLoading(true)
-      setError(null)
-      try {
-        const page = await getInvoices(user.uid, {
-          pageSize,
-          fromDate: qFrom || undefined,
-          toDate: qTo || undefined,
-          orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-          orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-        })
-        if (active) {
-          setInvoices(page.items)
-          setHasNext(Boolean(page.nextCursor))
-          setCursorStack(page.nextCursor ? [page.nextCursor] : [])
-          setCurrentPage(1)
-        }
-      } catch (e: unknown) {
-        const msg =
-          typeof e === 'object' && e && 'message' in e
-            ? String((e as { message?: unknown }).message)
-            : 'No se pudieron cargar las facturas'
-        if (active) setError(msg)
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-    run()
-    return () => {
-      active = false
-    }
-  }, [user, pageSize, qFrom, qTo, sortBy, sortDir])
+  const serverOrderByField: 'invoiceDate' | 'invoiceId' = sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
+  const serverOrderDirection: 'asc' | 'desc' | undefined = sortBy === 'customer' ? undefined : sortDir
 
+  const {
+    items: invoices,
+    loading,
+    error,
+    currentPage,
+    hasNext,
+    pageSize,
+    setPageSize,
+    nextPage,
+    prevPage,
+    reloadFirstPage,
+  } = useInvoicesPagination({
+    uid: user?.uid,
+    pageSize: 10,
+    fromDate: qFrom || undefined,
+    toDate: qTo || undefined,
+    orderDirection: serverOrderDirection,
+    orderByField: serverOrderByField,
+  })
+
+  // Filtrado y orden local para 'customer'
   const rows = useMemo(() => {
     const text = (s: unknown) => (typeof s === 'string' ? s : '')
     const qId = qInvoiceId.trim().toLowerCase()
@@ -102,7 +82,7 @@ export default function Invoices() {
       date:
         inv.invoiceDate instanceof Date
           ? Intl.DateTimeFormat('es-ES').format(inv.invoiceDate)
-          : inv.invoiceDate,
+          : (inv.invoiceDate as unknown as string),
       total:
         typeof inv.totals?.totalAmount === 'number'
           ? new Intl.NumberFormat('es-ES', {
@@ -117,31 +97,16 @@ export default function Invoices() {
 
   async function performDelete(id: string) {
     if (!user) return
-    setLoading(true)
-    setError(null)
     try {
       await deleteInvoice(user.uid, id)
       show('Factura eliminada', { type: 'success' })
-      // recargar primera página con filtros vigentes
-      const page = await getInvoices(user.uid, {
-        pageSize,
-        fromDate: qFrom || undefined,
-        toDate: qTo || undefined,
-        orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-        orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-      })
-      setInvoices(page.items)
-      setHasNext(Boolean(page.nextCursor))
-      setCursorStack(page.nextCursor ? [page.nextCursor] : [])
-      setCurrentPage(1)
+      await reloadFirstPage()
     } catch (e) {
       console.error(e)
       show('No se pudo eliminar', { type: 'error' })
-      setError('No se pudo eliminar la factura')
-    } finally {
-      setLoading(false)
     }
   }
+
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -170,9 +135,7 @@ export default function Invoices() {
         </button>
       </div>
       <div
-        className={`${
-          filtersOpen ? 'grid' : 'hidden'
-        } panel grid-cols-1 gap-3 rounded p-3 text-sm sm:grid sm:grid-cols-2 lg:grid-cols-4`}
+        className={`${filtersOpen ? 'grid' : 'hidden'} panel grid-cols-1 gap-3 rounded p-3 text-sm sm:grid sm:grid-cols-2 lg:grid-cols-4`}
       >
         <div>
           <label className="muted mb-1 block" htmlFor="f_id">
@@ -205,9 +168,7 @@ export default function Invoices() {
           <input
             id="f_from"
             type="date"
-            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${
-              sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''
-            }`}
+            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''}`}
             value={qFrom}
             onChange={(e) => setQFrom(e.target.value)}
             disabled={sortBy === 'id'}
@@ -221,9 +182,7 @@ export default function Invoices() {
           <input
             id="f_to"
             type="date"
-            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${
-              sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''
-            }`}
+            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''}`}
             value={qTo}
             onChange={(e) => setQTo(e.target.value)}
             disabled={sortBy === 'id'}
@@ -255,12 +214,10 @@ export default function Invoices() {
               value={sortBy}
               onChange={(e) => {
                 const next = e.target.value as 'date' | 'customer' | 'id'
-                // Si el usuario selecciona orden por número, limpiamos fechas para permitir ordenación por invoiceId en servidor
                 if (next === 'id' && (qFrom || qTo)) {
                   setQFrom('')
                   setQTo('')
                   setDateClearedNotice(true)
-                  // ocultar aviso después de unos segundos
                   window.setTimeout(() => setDateClearedNotice(false), 3500)
                 }
                 setSortBy(next)
@@ -287,8 +244,7 @@ export default function Invoices() {
         </div>
         {sortBy === 'id' && dateClearedNotice && (
           <div className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-1 text-xs sm:col-span-2 lg:col-span-4">
-            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han
-            desactivado.
+            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han desactivado.
           </div>
         )}
       </div>
@@ -321,9 +277,7 @@ export default function Invoices() {
                   <td className="px-3 py-2 text-right">{row.total}</td>
                   <td className="px-3 py-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
                     >
                       {row.isPaid ? '✓ Cobrada' : '⏳ Pendiente'}
                     </span>
@@ -374,9 +328,7 @@ export default function Invoices() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{row.invoiceId}</span>
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${row.isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
                     >
                       {row.isPaid ? '✓' : '⏳'}
                     </span>
@@ -427,67 +379,14 @@ export default function Invoices() {
           <div className="flex w-full gap-2 sm:w-auto">
             <button
               className="btn btn-secondary h-9 w-full sm:w-auto"
-              onClick={async () => {
-                if (!user) return
-                if (currentPage <= 1) return
-                setLoading(true)
-                setError(null)
-                try {
-                  const prevCursorIdx = currentPage - 3 // -1 para ir a la primera
-                  const prevCursor = prevCursorIdx >= 0 ? cursorStack[prevCursorIdx] : undefined
-                  const page = await getInvoices(user.uid, {
-                    pageSize,
-                    cursor: prevCursor ?? undefined,
-                    fromDate: qFrom || undefined,
-                    toDate: qTo || undefined,
-                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-                  })
-                  setInvoices(page.items)
-                  setHasNext(Boolean(page.nextCursor))
-                  setCursorStack((s) => {
-                    const nextLen = Math.max(0, currentPage - 1)
-                    const trimmed = s.slice(0, nextLen - 1)
-                    return page.nextCursor ? [...trimmed, page.nextCursor] : trimmed
-                  })
-                  setCurrentPage((p) => Math.max(1, p - 1))
-                } catch {
-                  setError('No se pudo cargar la página anterior')
-                } finally {
-                  setLoading(false)
-                }
-              }}
+              onClick={prevPage}
               disabled={currentPage <= 1 || loading}
             >
               Anterior
             </button>
             <button
               className="btn btn-secondary h-9 w-full sm:w-auto"
-              onClick={async () => {
-                if (!user) return
-                const lastCursor = cursorStack[cursorStack.length - 1]
-                if (!lastCursor) return
-                setLoading(true)
-                setError(null)
-                try {
-                  const page = await getInvoices(user.uid, {
-                    pageSize,
-                    cursor: lastCursor,
-                    fromDate: qFrom || undefined,
-                    toDate: qTo || undefined,
-                    orderDirection: sortBy === 'date' || sortBy === 'id' ? sortDir : undefined,
-                    orderByField: sortBy === 'id' ? 'invoiceId' : 'invoiceDate',
-                  })
-                  setInvoices(page.items)
-                  setHasNext(Boolean(page.nextCursor))
-                  setCursorStack((s) => (page.nextCursor ? [...s, page.nextCursor] : [...s]))
-                  setCurrentPage((p) => p + 1)
-                } catch {
-                  setError('No se pudo cargar la siguiente página')
-                } finally {
-                  setLoading(false)
-                }
-              }}
+              onClick={nextPage}
               disabled={!hasNext || loading}
             >
               Siguiente
@@ -499,19 +398,25 @@ export default function Invoices() {
       <ConfirmDialog
         open={confirmId !== null}
         title="Eliminar factura"
-        description="¿Eliminar esta factura? Esta acción no se puede deshacer."
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-        danger
-        loading={loading}
+        description="Esta acción no se puede deshacer. ¿Seguro que quieres eliminar la factura?"
         onCancel={() => setConfirmId(null)}
-        onConfirm={async () => {
-          if (!confirmId) return
-          const id = confirmId
+        onConfirm={() => {
+          if (confirmId) performDelete(confirmId)
           setConfirmId(null)
-          await performDelete(id)
         }}
       />
     </section>
   )
+}
+
+// Estado para el diálogo de confirmación
+function useConfirmState() {
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  return { confirmId, setConfirmId }
+}
+
+// Inyectar estado de confirmación dentro del componente
+function ConfirmableInvoices() {
+  const { confirmId, setConfirmId } = useConfirmState()
+  return <Invoices />
 }
