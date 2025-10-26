@@ -94,14 +94,14 @@ export default function Topbar({
         {user ? (
           <>
             {display && (
-              <div className="hidden max-w-[140px] truncate text-xs text-blue-500 sm:block">
+              <strong className="hidden max-w-[140px] truncate text-sm text-[currentColor] sm:block">
                 {display}
-              </div>
+              </strong>
             )}
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/20 hover:bg-white/30"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/20 hover:bg-white/30"
                 aria-label="Cuenta"
                 aria-haspopup="menu"
                 onClick={() => setMenuOpen((v) => !v)}
@@ -110,7 +110,7 @@ export default function Topbar({
                   <img
                     src={photo}
                     alt={display || 'avatar'}
-                    className="h-8 w-8 rounded-full object-cover"
+                    className="h-10 w-10 rounded-full object-cover"
                   />
                 ) : initial ? (
                   <span className="text-sm font-semibold">{initial}</span>
