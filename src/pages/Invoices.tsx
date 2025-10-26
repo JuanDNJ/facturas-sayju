@@ -6,6 +6,11 @@ import { type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestor
 import type { Invoice } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import Icon from '../components/atomic/atoms/Icon'
+import ViewEyeIcon from '../components/icons/ViewEyeIcon'
+import EditIcon from '../components/icons/EditIcon'
+import TrashIcon from '../components/icons/TrashIcon'
+import AddInvoiceIcon from '../components/icons/AddInvoiceIcon'
 
 export default function Invoices() {
   const { user } = useAuth()
@@ -141,13 +146,17 @@ export default function Invoices() {
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Facturas</h1>
-        <Link
-          to="/invoices/new"
-          className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center md:w-auto"
-        >
-          <span>➕</span>
-          <span>Nueva factura</span>
-        </Link>
+        <aside>
+          <Link
+            to="/invoices/new"
+            className="flex w-full items-center justify-center gap-2 text-center md:w-auto"
+          >
+            <Icon className="w-8 text-blue-400">
+              <AddInvoiceIcon />
+            </Icon>
+            <strong>Nueva factura</strong>
+          </Link>
+        </aside>
       </div>
 
       {/* Filtros */}
@@ -323,27 +332,30 @@ export default function Invoices() {
                     <div className="flex justify-end gap-2">
                       <Link
                         to={`/invoices/${row.id}`}
-                        className="btn btn-outline-view flex h-8 items-center gap-1 px-3"
+                        className="flex h-8 items-center gap-1 px-3 text-green-400"
                       >
-                        <span>👁️</span>
-                        <span>Ver</span>
+                        <Icon className="w-10">
+                          <ViewEyeIcon />
+                        </Icon>
                       </Link>
                       {!row.isPaid && (
                         <Link
                           to={`/invoices/${row.id}/edit`}
-                          className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
+                          className="btn btn-outline-edit flex h-8 items-center gap-1 px-3 text-blue-400"
                         >
-                          <span>✏️</span>
-                          <span>Editar</span>
+                          <Icon className="w-10">
+                            <EditIcon />
+                          </Icon>
                         </Link>
                       )}
                       {!row.isPaid && (
                         <button
                           onClick={() => setConfirmId(row.id)}
-                          className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
+                          className="btn btn-outline-delete flex h-8 items-center gap-1 px-3 text-red-400"
                         >
-                          <span>🗑️</span>
-                          <span>Eliminar</span>
+                          <Icon className="w-10">
+                            <TrashIcon />
+                          </Icon>
                         </button>
                       )}
                     </div>
@@ -379,27 +391,30 @@ export default function Invoices() {
               <div className="mt-2 flex justify-end gap-2">
                 <Link
                   to={`/invoices/${row.id}`}
-                  className="btn btn-ghost flex h-8 items-center gap-1 px-3"
+                  className="flex h-8 items-center gap-1 px-3 text-green-400"
                 >
-                  <span>👁️</span>
-                  <span>Ver</span>
+                  <Icon className="w-8 sm:w-10">
+                    <ViewEyeIcon />
+                  </Icon>
                 </Link>
                 {!row.isPaid && (
                   <Link
                     to={`/invoices/${row.id}/edit`}
-                    className="btn btn-secondary flex h-8 items-center gap-1 px-3"
+                    className="flex h-8 items-center gap-1 px-3 text-blue-400"
                   >
-                    <span>✏️</span>
-                    <span>Editar</span>
+                    <Icon className="w-8 sm:w-10">
+                      <EditIcon />
+                    </Icon>
                   </Link>
                 )}
                 {!row.isPaid && (
                   <button
                     onClick={() => setConfirmId(row.id)}
-                    className="btn btn-danger flex h-8 items-center gap-1 px-3"
+                    className="flex h-8 items-center gap-1 px-3 text-red-400"
                   >
-                    <span>🗑️</span>
-                    <span>Eliminar</span>
+                    <Icon className="w-8 sm:w-10">
+                      <TrashIcon />
+                    </Icon>
                   </button>
                 )}
               </div>

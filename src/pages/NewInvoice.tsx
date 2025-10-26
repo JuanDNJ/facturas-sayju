@@ -11,6 +11,8 @@ import Modal from '../components/ui/Modal'
 import Disclosure from '../components/ui/Disclosure'
 import CustomSelect from '../components/ui/CustomSelect'
 import { isValidDNI, isValidEmail } from '../utils/validators'
+import BackwardIcon from '../components/icons/BackwardIcon'
+import Icon from '../components/atomic/atoms/Icon'
 // Carga diferida del formulario de factura
 const InvoiceForm = lazy(() =>
   import('../components/invoices/InvoiceForm').then((m) => ({ default: m.InvoiceForm }))
@@ -417,9 +419,11 @@ export default function NewInvoice() {
       </Modal>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-lg font-semibold">Nueva factura</h1>
-        <Link to="/invoices" className="btn btn-ghost w-full text-center sm:w-auto">
-          Volver
-        </Link>
+        <Icon className="w-6 sm:w-8">
+          <Link to="/invoices">
+            <BackwardIcon />
+          </Link>
+        </Icon>
       </div>
 
       <Suspense

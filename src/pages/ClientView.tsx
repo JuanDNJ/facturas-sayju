@@ -7,6 +7,10 @@ import { isValidDNI, isValidEmail } from '../utils/validators'
 import DniHelp from '../components/DniHelp'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import Icon from '../components/atomic/atoms/Icon'
+import EditIcon from '../components/icons/EditIcon'
+import TrashIcon from '../components/icons/TrashIcon'
+import BackwardIcon from '../components/icons/BackwardIcon'
 
 export default function ClientView() {
   const { id } = useParams<{ id: string }>()
@@ -83,29 +87,32 @@ export default function ClientView() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Cliente</h1>
-        <div className="flex items-center gap-2">
-          <Link className="btn btn-ghost flex items-center gap-2" to="/clientes">
-            <span>⬅️</span>
-            <span>Volver</span>
+        <div className="flex items-center gap-6">
+          <Link className="flex items-center gap-2" to="/clientes">
+            <Icon className="w-6">
+              <BackwardIcon />
+            </Icon>
           </Link>
           {!editing && (
             <button
               type="button"
-              className="btn btn-outline-edit flex items-center gap-2"
+              className="flex items-center gap-2 text-green-400"
               onClick={() => setEditing(true)}
             >
-              <span>✏️</span>
-              <span>Editar</span>
+              <Icon className="w-6">
+                <EditIcon />
+              </Icon>
             </button>
           )}
           {!editing && current?.id && (
             <button
               type="button"
-              className="btn btn-outline-delete flex items-center gap-2"
+              className="flex items-center gap-2 text-red-400"
               onClick={() => setConfirmOpen(true)}
             >
-              <span>🗑️</span>
-              <span>Borrar</span>
+              <Icon className="w-6">
+                <TrashIcon />
+              </Icon>
             </button>
           )}
         </div>

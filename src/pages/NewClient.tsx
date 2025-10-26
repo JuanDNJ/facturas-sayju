@@ -6,6 +6,8 @@ import { addCustomer } from '../apis/customers'
 import { isValidDNI, isValidEmail } from '../utils/validators'
 import DniHelp from '../components/DniHelp'
 import FormField from '../components/ui/FormField'
+import Icon from '../components/atomic/atoms/Icon'
+import BackwardIcon from '../components/icons/BackwardIcon'
 
 const empty: Customer = {
   name: '',
@@ -36,9 +38,11 @@ export default function NewClient() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Nuevo cliente</h1>
-        <Link to="/clientes" className="btn btn-ghost">
-          Volver
-        </Link>
+        <Icon className="w-6 sm:w-8">
+          <Link to="/invoices">
+            <BackwardIcon />
+          </Link>
+        </Icon>
       </div>
 
       <div className="panel space-y-3 rounded p-4 text-sm">

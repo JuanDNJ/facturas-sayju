@@ -4,6 +4,11 @@ import { useAuth } from '../hooks/useAuth'
 import { getInvoices } from '../apis/invoices'
 import SuggestionsIcon from '../components/icons/SuggestionsIcon'
 import Icon from '../components/atomic/atoms/Icon'
+import ClientsIcon from '../components/icons/ClienstIcon'
+import InvoicesIcon from '../components/icons/InvoicesIcon'
+import CompanySealIcons from '../components/icons/CompanySealIcons'
+import SettingsIcon from '../components/icons/SettingsIcon'
+import SummaryBookIcon from '../components/icons/SummaryBookIcon'
 
 interface MonthlyMetrics {
   totalInvoices: number
@@ -289,7 +294,12 @@ export default function Dashboard() {
 
       {/* RESUMEN DEL MES */}
       <article>
-        <h1 className="mb-4 text-2xl font-semibold">Resumen del mes</h1>
+        <h1 className="mb-4 flex items-center justify-between gap-4 text-2xl font-semibold sm:justify-start">
+          <span>Resumen del mes</span>
+          <Icon className="w-8">
+            <SummaryBookIcon />
+          </Icon>
+        </h1>
         {loading ? (
           <div className="panel rounded p-4 text-center">
             <div className="text-sm">Cargando métricas...</div>
@@ -339,11 +349,11 @@ export default function Dashboard() {
         <h2 className="mt-8 mb-4 text-xl font-semibold">Secciones rápidas</h2>
         <div className="grid gap-4 md:grid-cols-12">
           {/* Facturas - bloque principal */}
-          <div className="panel relative flex min-h-[160px] flex-col justify-between rounded p-4 md:col-span-7">
+          <div className="panel relative flex min-h-[160px] flex-col justify-between overflow-hidden rounded p-4 md:col-span-7">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="text-2xl">
-                🧾
-              </span>
+              <Icon className="w-10">
+                <InvoicesIcon />
+              </Icon>
               <div>
                 <div className="text-lg font-semibold">Facturas</div>
                 <p className="muted text-sm">Crea, gestiona y revisa el estado de tus facturas.</p>
@@ -355,20 +365,14 @@ export default function Dashboard() {
               </Link>
               <span className="muted text-xs">Borradores, enviadas, pendientes</span>
             </div>
-            <div
-              className="pointer-events-none absolute right-3 bottom-2 text-6xl opacity-10 select-none"
-              aria-hidden
-            >
-              🧾
-            </div>
           </div>
 
           {/* Clientes */}
-          <div className="panel relative flex min-h-[160px] flex-col justify-between rounded p-4 md:col-span-5">
+          <div className="panel relative flex min-h-[160px] flex-col justify-between overflow-hidden rounded p-4 md:col-span-5">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="text-2xl">
-                👥
-              </span>
+              <Icon className="w-10">
+                <ClientsIcon />
+              </Icon>
               <div>
                 <div className="text-lg font-semibold">Clientes</div>
                 <p className="muted text-sm">Gestiona tu cartera de clientes y sus datos.</p>
@@ -380,19 +384,13 @@ export default function Dashboard() {
               </Link>
               <span className="muted text-xs">Altas, edición, historial</span>
             </div>
-            <div
-              className="pointer-events-none absolute right-3 bottom-2 text-6xl opacity-10 select-none"
-              aria-hidden
-            >
-              👥
-            </div>
           </div>
 
           {/* Sugerencias */}
           <div className="panel relative flex min-h-[140px] flex-col justify-between rounded p-4 md:col-span-5">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="text-2xl">
-                💬
+              <span className="w-10">
+                <SuggestionsIcon />
               </span>
               <div>
                 <div className="text-lg font-semibold">Sugerencias</div>
@@ -405,20 +403,14 @@ export default function Dashboard() {
               </Link>
               <span className="muted text-xs">Gracias por tu feedback</span>
             </div>
-            <div
-              className="pointer-events-none absolute right-3 bottom-2 text-6xl opacity-10 select-none"
-              aria-hidden
-            >
-              💬
-            </div>
           </div>
 
           {/* Sellos */}
           <div className="panel relative flex min-h-[140px] flex-col justify-between rounded p-4 md:col-span-4">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="text-2xl">
-                🏷️
-              </span>
+              <Icon className="w-10">
+                <CompanySealIcons />
+              </Icon>
               <div>
                 <div className="text-lg font-semibold">Sellos</div>
                 <p className="muted text-sm">Crea y reutiliza textos frecuentes en facturas.</p>
@@ -429,20 +421,14 @@ export default function Dashboard() {
                 Ir a sellos
               </Link>
             </div>
-            <div
-              className="pointer-events-none absolute right-3 bottom-2 text-6xl opacity-10 select-none"
-              aria-hidden
-            >
-              🏷️
-            </div>
           </div>
 
           {/* Ajustes */}
           <div className="panel relative flex min-h-[140px] flex-col justify-between rounded p-4 md:col-span-3">
             <div className="flex items-start gap-3">
-              <span aria-hidden className="text-2xl">
-                ⚙️
-              </span>
+              <Icon className="w-10">
+                <SettingsIcon />
+              </Icon>
               <div>
                 <div className="text-lg font-semibold">Ajustes</div>
                 <p className="muted text-sm">Configura tu perfil y preferencias.</p>
@@ -452,12 +438,6 @@ export default function Dashboard() {
               <Link to="/settings" className="btn btn-secondary text-sm">
                 Ir a ajustes
               </Link>
-            </div>
-            <div
-              className="pointer-events-none absolute right-3 bottom-2 text-6xl opacity-10 select-none"
-              aria-hidden
-            >
-              ⚙️
             </div>
           </div>
         </div>

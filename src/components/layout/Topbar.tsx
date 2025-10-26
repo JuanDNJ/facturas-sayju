@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { logoutUser } from '../../apis/auth'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ThemeSelector from '../ui/ThemeSelector'
+import MenuCollapseIcon from '../icons/MenuCollapseIcon'
+import Icon from '../atomic/atoms/Icon'
+import MenuHamburgerIcon from '../icons/MenuHamburgerIcon'
 export default function Topbar({
   onToggleSidebar,
   onToggleCollapse,
@@ -48,20 +51,37 @@ export default function Topbar({
           className="inline-flex rounded p-2 hover:bg-white/10 md:hidden"
           onClick={onToggleSidebar}
         >
-          ☰
+          <Icon className="w-6">
+            <MenuHamburgerIcon />
+          </Icon>
         </button>
         <button
           type="button"
           aria-label="Colapsar barra lateral"
-          className="hidden rounded p-2 hover:bg-white/10 md:inline-flex"
+          className="hidden rounded p-2 italic hover:bg-white/10 md:inline-flex"
           onClick={onToggleCollapse}
           title={collapsed ? 'Expandir menú (b)' : 'Colapsar menú (b)'}
         >
-          {collapsed ? '➡' : '⬅'}
+          {collapsed ? (
+            <>
+              <Icon className="w-6 rotate-180 text-[#2CA9BC]">
+                <MenuCollapseIcon />
+              </Icon>
+              <strong className="text-2xl text-[currentColor]" title="Panel de control">
+                PC
+              </strong>
+            </>
+          ) : (
+            <>
+              <Icon className="text-under-construction w-6">
+                <MenuCollapseIcon />
+              </Icon>
+              <strong className="text-2xl text-[currentColor]" title="Panel de control">
+                PC
+              </strong>
+            </>
+          )}
         </button>
-        <div className="font-medium">
-          <NavLink to="/">Panel de control</NavLink>
-        </div>
       </div>
       <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
         <input

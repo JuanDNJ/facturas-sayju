@@ -7,6 +7,11 @@ import type { Customer } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import CustomSelect from '../components/ui/CustomSelect'
+import Icon from '../components/atomic/atoms/Icon'
+import ViewEyeIcon from '../components/icons/ViewEyeIcon'
+import EditIcon from '../components/icons/EditIcon'
+import TrashIcon from '../components/icons/TrashIcon'
+import AddInvoiceIcon from '../components/icons/AddInvoiceIcon'
 
 export default function Clients() {
   const { user } = useAuth()
@@ -124,10 +129,12 @@ export default function Clients() {
         <h1 className="text-2xl font-semibold">Clientes</h1>
         <Link
           to="/clientes/nuevo"
-          className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 text-center md:w-auto"
+          className="flex w-full items-center justify-center gap-2 text-center md:w-auto"
         >
-          <span>➕</span>
-          <span>Nuevo cliente</span>
+          <Icon className="w-8 text-blue-300">
+            <AddInvoiceIcon />
+          </Icon>
+          <strong>Nuevo cliente</strong>
         </Link>
       </div>
 
@@ -215,28 +222,31 @@ export default function Clients() {
                   <div className="inline-flex gap-2">
                     <Link
                       to={`/clientes/${c.id}`}
-                      className="btn btn-outline-view flex h-8 items-center gap-1 px-3"
+                      className="flex h-8 items-center gap-1 px-3 text-green-400"
                     >
-                      <span>👁️</span>
-                      <span>Ver</span>
+                      <Icon className="w-6">
+                        <ViewEyeIcon />
+                      </Icon>
                     </Link>
                     <Link
                       to={`/clientes/${c.id}?edit=1`}
-                      className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
+                      className="flex h-8 items-center gap-1 px-3 text-blue-400"
                     >
-                      <span>✏️</span>
-                      <span>Editar</span>
+                      <Icon className="w-6">
+                        <EditIcon />
+                      </Icon>
                     </Link>
                     <button
-                      className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
+                      className="flex h-8 items-center gap-1 px-3 text-red-400"
                       onClick={() => {
                         if (!c.id) return
                         setPendingDelete(c)
                         setConfirmOpen(true)
                       }}
                     >
-                      <span>🗑️</span>
-                      <span>Borrar</span>
+                      <Icon className="w-6">
+                        <TrashIcon />
+                      </Icon>
                     </button>
                   </div>
                 </td>
@@ -250,37 +260,40 @@ export default function Clients() {
       <div className="grid grid-cols-1 gap-3 md:hidden">
         {data.map((c) => (
           <div key={c.id || c.taxId} className="panel rounded p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
+            <div className="flex flex-col items-start justify-between gap-3">
+              <div className="flex w-full flex-col space-y-2">
                 <div className="font-medium text-[var(--text)]">{c.name}</div>
                 <div className="muted max-w-[220px] truncate text-xs">{c.address}</div>
                 <div className="muted text-xs">{c.taxId}</div>
               </div>
-              <div className="flex w-[120px] flex-wrap gap-2 sm:w-auto">
+              <div className="flex w-full items-center justify-end">
                 <Link
                   to={`/clientes/${c.id}`}
-                  className="btn btn-outline-view flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="flex h-8 items-center justify-center gap-1 px-3 text-center text-green-400 sm:w-auto"
                 >
-                  <span>👁️</span>
-                  <span>Ver</span>
+                  <Icon className="w-6">
+                    <ViewEyeIcon />
+                  </Icon>
                 </Link>
                 <Link
                   to={`/clientes/${c.id}?edit=1`}
-                  className="btn btn-outline-edit flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="flex h-8 items-center justify-center gap-1 px-3 text-center text-blue-400 sm:w-auto"
                 >
-                  <span>✏️</span>
-                  <span>Editar</span>
+                  <Icon className="w-6">
+                    <EditIcon />
+                  </Icon>
                 </Link>
                 <button
-                  className="btn btn-outline-delete flex h-8 w-full items-center justify-center gap-1 px-3 text-center sm:w-auto"
+                  className="flex h-8 items-center justify-center gap-1 px-3 text-center text-red-400 sm:w-auto"
                   onClick={() => {
                     if (!c.id) return
                     setPendingDelete(c)
                     setConfirmOpen(true)
                   }}
                 >
-                  <span>🗑️</span>
-                  <span>Borrar</span>
+                  <Icon className="w-6">
+                    <TrashIcon />
+                  </Icon>
                 </button>
               </div>
             </div>
