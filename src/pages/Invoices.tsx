@@ -241,8 +241,8 @@ export default function Invoices() {
               onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
               aria-label="Dirección de ordenación"
             >
-              <option value="asc">Ascendente (A-Z / más antigua)</option>
               <option value="desc">Descendente (Z-A / más reciente)</option>
+              <option value="asc">Ascendente (A-Z / más antigua)</option>
             </select>
           </div>
         </div>
