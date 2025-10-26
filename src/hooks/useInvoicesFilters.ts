@@ -57,8 +57,10 @@ export function useInvoicesFilters(initial?: Partial<UseInvoicesFiltersState>): 
   )
 
   // Derivados para backend/UI
-  const serverOrderByField: 'invoiceDate' | 'invoiceId' = sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
-  const serverOrderDirection: 'asc' | 'desc' | undefined = sortBy === 'customer' ? undefined : sortDir
+  const serverOrderByField: 'invoiceDate' | 'invoiceId' =
+    sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
+  const serverOrderDirection: 'asc' | 'desc' | undefined =
+    sortBy === 'customer' ? undefined : sortDir
   const datesDisabled = sortBy === 'id'
 
   const reset = useCallback(() => {
