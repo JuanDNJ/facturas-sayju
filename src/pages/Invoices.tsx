@@ -22,9 +22,9 @@ export default function Invoices() {
   const [qFrom, setQFrom] = useState<string>('') // YYYY-MM-DD
   const [qTo, setQTo] = useState<string>('')
 
-  // ordenación
-  const [sortBy, setSortBy] = useState<'date' | 'customer' | 'id'>('id')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  // ordenación (por defecto: fecha desc => más recientes primero)
+  const [sortBy, setSortBy] = useState<'date' | 'customer' | 'id'>('date')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [dateClearedNotice, setDateClearedNotice] = useState(false)
 
   // confirmación de borrado
@@ -248,8 +248,7 @@ export default function Invoices() {
         </div>
         {sortBy === 'id' && dateClearedNotice && (
           <div className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-1 text-xs sm:col-span-2 lg:col-span-4">
-            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han
-            desactivado.
+            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han desactivado.
           </div>
         )}
       </div>
