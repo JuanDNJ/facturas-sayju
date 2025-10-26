@@ -244,7 +244,8 @@ export default function Invoices() {
         </div>
         {dateClearedNotice && sortBy === 'id' && (
           <div className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-1 text-xs sm:col-span-2 lg:col-span-4">
-            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han desactivado.
+            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han
+            desactivado.
           </div>
         )}
       </div>
@@ -255,6 +256,7 @@ export default function Invoices() {
         {!loading && !error && rows.length === 0 && (
           <div className="p-4 text-sm">No hay facturas todavía.</div>
         )}
+
         {/* Tabla solo en >= md */}
         <div className="hidden md:block">
           <table className="w-full text-sm">
@@ -373,6 +375,7 @@ export default function Invoices() {
             </div>
           ))}
         </div>
+
         {/* Controles de paginación */}
         <div className="flex flex-col gap-2 border-t border-[var(--panel-border)] p-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="muted text-xs">Página {currentPage}</div>
