@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import SuggestionsIcon from '../icons/SuggestionsIcon'
 import Icon from '../atomic/atoms/Icon'
 import ClientsIcon from '../icons/ClienstIcon'
@@ -8,7 +8,6 @@ import DashboardIcon from '../icons/DashboardIcon'
 import CompanySealIcons from '../icons/CompanySealIcons'
 import SettingsIcon from '../icons/SettingsIcon'
 import CloseIcon from '../icons/CloseIcon'
-import { helloWorld } from '../../apis/functions'
 
 // Prefetch simple de módulos de página al hacer hover para acelerar navegación
 function prefetchPage(
@@ -54,16 +53,6 @@ export default function Sidebar({
 }: SidebarProps) {
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null)
   const location = useLocation()
-  const [welcome, setWelcome] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchWelcomeMessage = async () => {
-      const result = await helloWorld()
-      console.log(result)
-      setWelcome(result.data as string)
-    }
-    fetchWelcomeMessage()
-  }, [])
 
   // Focus inicial y cierre con Escape cuando es modal
   useEffect(() => {
@@ -108,7 +97,7 @@ export default function Sidebar({
           <header className="flex flex-1 items-center justify-start gap-4 md:justify-between">
             <span className={collapsed ? 'md:hidden' : undefined}>
               <NavLink to="/" className={`text-4xl font-extrabold text-[currentColor] italic`}>
-                SA&JU {welcome ? `- ${welcome}` : ''}
+                SA&JU
               </NavLink>
             </span>
             <NavLink to="/" className={`rounded border-2 border-[currentColor]/50`}>
