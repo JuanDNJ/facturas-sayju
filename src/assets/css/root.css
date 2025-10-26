@@ -54,9 +54,9 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #1e1e1e;
+  --bg: #000b0e;
   /* gris más claro que el negro puro */
-  --panel: rgba(255, 255, 255, 0.08);
+  --panel: rgba(255, 255, 255, 0.048);
   --panel-border: rgba(255, 255, 255, 0.18);
   --text: rgba(255, 255, 255, 0.92);
   --muted: rgba(255, 255, 255, 0.72);
@@ -115,10 +115,10 @@
 /* Tema “papel antiguo” */
 :root[data-theme='paper'] {
   color-scheme: light;
-  --bg: #f3edd7;
+  --bg: #fff7d9;
   /* pergamino */
-  --panel: #efe6cda6;
-  --panel-border: #d7c9a1;
+  --panel: #fff9eaa6;
+  --panel-border: #d3cab2;
   --text: #3f2f1a;
   --muted: #6a5636;
   --menu-bg: #efe6cd;

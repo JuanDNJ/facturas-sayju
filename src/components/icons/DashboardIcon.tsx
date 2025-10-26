@@ -1,35 +1,30 @@
-const DashboardIcon = () => {
+import type { SVGProps } from 'react'
+
+function DashboardIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      fill="#000000"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 25 24"
       width="100%"
       height="100%"
-      viewBox="0 0 24 24"
-      id="dashboard"
-      data-name="Flat Line"
-      xmlns="http://www.w3.org/2000/svg"
-      className="icon flat-line"
+      {...props}
     >
-      <path
-        id="secondary"
-        d="M9,12H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H9a1,1,0,0,1,1,1v7A1,1,0,0,1,9,12Zm12,8V13a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1v7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,20Z"
-        style={{
-          fill: 'rgb(44, 169, 188)',
-          strokeWidth: 2,
-        }}
-      ></path>
-      <path
-        id="primary"
-        d="M21,7V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,7ZM10,20V17a1,1,0,0,0-1-1H4a1,1,0,0,0-1,1v3a1,1,0,0,0,1,1H9A1,1,0,0,0,10,20ZM9,12H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H9a1,1,0,0,1,1,1v7A1,1,0,0,1,9,12Zm12,8V13a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1v7a1,1,0,0,0,1,1h5A1,1,0,0,0,21,20Z"
-        style={{
-          fill: 'none',
-          stroke: 'rgb(0, 0, 0)',
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
-          strokeWidth: 2,
-        }}
-      ></path>
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      >
+        <path d="M10.5 13.026a.98.98 0 0 1-.975.98h-7.8a.98.98 0 0 1-.975-.98V2.236a.98.98 0 0 1 .976-.98l7.8.013a.98.98 0 0 1 .974.98z"></path>
+        <path
+          fill="currentColor"
+          d="M23.246 7.044a.97.97 0 0 1-.975.962h-7.8a.97.97 0 0 1-.975-.962V2.23a.97.97 0 0 1 .973-.962l7.8-.013a.97.97 0 0 1 .977.962zM10.5 22.79a.97.97 0 0 1-.977.966l-7.8-.013a.97.97 0 0 1-.973-.964v-4.81a.97.97 0 0 1 .975-.963h7.8a.97.97 0 0 1 .975.964z"
+        ></path>
+        <path d="M14.472 23.756a.98.98 0 0 1-.976-.981V11.987a.977.977 0 0 1 .975-.981h7.8a.976.976 0 0 1 .975.98v10.776a.98.98 0 0 1-.974.98z"></path>
+      </g>
     </svg>
   )
 }
+
 export default DashboardIcon
