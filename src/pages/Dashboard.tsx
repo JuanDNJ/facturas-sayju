@@ -1,7 +1,4 @@
 import { Link, NavLink } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
-import { getInvoices } from '../apis/invoices'
 import SuggestionsIcon from '../components/icons/SuggestionsIcon'
 import Icon from '../components/atomic/atoms/Icon'
 import ClientsIcon from '../components/icons/ClienstIcon'
@@ -9,86 +6,16 @@ import InvoicesIcon from '../components/icons/InvoicesIcon'
 import CompanySealIcons from '../components/icons/CompanySealIcons'
 import SettingsIcon from '../components/icons/SettingsIcon'
 import SummaryBookIcon from '../components/icons/SummaryBookIcon'
-
-interface MonthlyMetrics {
-  totalInvoices: number
-  totalAmount: number
-  paidInvoices: number
-  paidAmount: number
-  pendingInvoices: number
-  pendingAmount: number
-}
+import { useDashboardPage } from '../hooks/pages/useDashboardPage'
 
 export default function Dashboard() {
-  const { user } = useAuth()
-  const [metrics, setMetrics] = useState<MonthlyMetrics | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [alertSystem, setAlertSystem] = useState<boolean | undefined>(undefined)
-
-  const toggleAlertSystem = () => {
-    const newValue = !alertSystem
-    globalThis?.localStorage?.setItem('viewedAlerts', `${newValue}`)
-    setAlertSystem(newValue)
-  }
-
-  useEffect(() => {
-    setAlertSystem(() => globalThis?.localStorage?.getItem('viewedAlerts') === 'true')
-  }, [])
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      if (!user) return
-
-      setLoading(true)
-      try {
-        // Obtener facturas del mes actual
-        const now = new Date()
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-
-        const page = await getInvoices(user.uid, {
-          fromDate: startOfMonth,
-          toDate: endOfMonth,
-          pageSize: 100, // Suficiente para la mayoría de usuarios
-        })
-
-        const invoices = page.items
-        const totalInvoices = invoices.length
-        const totalAmount = invoices.reduce((sum, inv) => sum + (inv.totals?.totalAmount || 0), 0)
-
-        const paidInvoices = invoices.filter((inv) => (inv.status || 'pending') === 'paid')
-        const paidAmount = paidInvoices.reduce(
-          (sum, inv) => sum + (inv.totals?.totalAmount || 0),
-          0
-        )
-
-        const pendingInvoices = invoices.filter((inv) => (inv.status || 'pending') === 'pending')
-        const pendingAmount = pendingInvoices.reduce(
-          (sum, inv) => sum + (inv.totals?.totalAmount || 0),
-          0
-        )
-
-        setMetrics({
-          totalInvoices,
-          totalAmount,
-          paidInvoices: paidInvoices.length,
-          paidAmount,
-          pendingInvoices: pendingInvoices.length,
-          pendingAmount,
-        })
-      } catch (error) {
-        console.error('Error fetching metrics:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMetrics()
-  }, [user])
+  const { metrics, loading, alertSystem, toggleAlertSystem } = useDashboardPage()
   return (
     <section>
+      <h1 className="mb-4 flex items-center justify-between gap-4 text-2xl font-semibold sm:justify-start">
+        Dashboard
+      </h1>
       {/* NOTIFICACIONES */}
-
       <article className="mb-4 grid items-center gap-12 rounded py-3 md:grid-cols-2 md:justify-between">
         <aside className="flex justify-end md:col-span-2">
           <button
@@ -305,33 +232,37 @@ export default function Dashboard() {
             <div className="text-sm">Cargando métricas...</div>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
             <div className="panel rounded p-4">
               <div className="muted text-sm">Facturas del mes</div>
-              <div className="text-3xl font-bold">{metrics?.totalInvoices || 0}</div>
+              <small className="text-sm font-bold sm:text-lg md:text-xl lg:text-2xl">
+                {metrics?.totalInvoices || 0}
+              </small>
             </div>
             <div className="panel rounded p-4">
               <div className="muted text-sm">Importe total</div>
-              <div className="text-3xl font-bold">
+              <small className="text-sm font-bold sm:text-lg md:text-xl lg:text-2xl">
                 {new Intl.NumberFormat('es-ES', {
                   style: 'currency',
                   currency: 'EUR',
                 }).format(metrics?.totalAmount || 0)}
-              </div>
+              </small>
             </div>
             <div className="panel rounded bg-green-50 p-4">
               <div className="muted text-sm text-green-700">Cobradas</div>
-              <div className="text-3xl font-bold text-green-800">{metrics?.paidInvoices || 0}</div>
-              <div className="text-xs text-green-600">
+              <small className="block text-sm font-bold text-green-800 sm:text-lg md:text-xl lg:text-2xl">
+                {metrics?.paidInvoices || 0}
+              </small>
+              <small className="block text-xs text-green-600">
                 {new Intl.NumberFormat('es-ES', {
                   style: 'currency',
                   currency: 'EUR',
                 }).format(metrics?.paidAmount || 0)}
-              </div>
+              </small>
             </div>
             <div className="panel rounded bg-yellow-50 p-4">
               <div className="muted text-sm text-yellow-700">Pendientes</div>
-              <div className="text-3xl font-bold text-yellow-800">
+              <div className="text-sm font-bold text-yellow-800 sm:text-lg md:text-xl lg:text-2xl">
                 {metrics?.pendingInvoices || 0}
               </div>
               <div className="text-xs text-yellow-600">
