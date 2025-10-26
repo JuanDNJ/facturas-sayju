@@ -27,10 +27,10 @@ import { createHash as cryptoCreateHash } from 'crypto'
 // this will be the maximum concurrent request count.
 setGlobalOptions({ maxInstances: 10 })
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+export const helloWorld = onRequest((request, response) => {
+  logger.info('Hello logs!', { structuredData: true })
+  response.send('Bienvenido a SA&JU!')
+})
 
 export const getServerTimestamp = onRequest((request, response) => {
   logger.info('getServerTimestamp function triggered')
