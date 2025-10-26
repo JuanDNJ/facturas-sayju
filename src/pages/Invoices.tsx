@@ -10,30 +10,35 @@ import EditIcon from '../components/icons/EditIcon'
 import TrashIcon from '../components/icons/TrashIcon'
 import AddInvoiceIcon from '../components/icons/AddInvoiceIcon'
 import { useInvoicesPagination } from '../hooks/useInvoicesPagination'
+import { useInvoicesFilters } from '../hooks/useInvoicesFilters'
 
 export default function Invoices() {
   const { user } = useAuth()
   const { show } = useToast()
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  // filtros de búsqueda local (cliente / nº factura)
-  const [qInvoiceId, setQInvoiceId] = useState('')
-  const [qCustomer, setQCustomer] = useState('')
-  const [qFrom, setQFrom] = useState<string>('') // YYYY-MM-DD
-  const [qTo, setQTo] = useState<string>('')
-
-  // ordenación
-  const [sortBy, setSortBy] = useState<'date' | 'customer' | 'id'>('id')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
-  const [dateClearedNotice, setDateClearedNotice] = useState(false)
+  // Estado y lógica de filtros encapsulados en el hook
+  const {
+    qInvoiceId,
+    setQInvoiceId,
+    qCustomer,
+    setQCustomer,
+    qFrom,
+    setQFrom,
+    qTo,
+    setQTo,
+    sortBy,
+    setSortBy,
+    sortDir,
+    setSortDir,
+    dateClearedNotice,
+    serverOrderByField,
+    serverOrderDirection,
+    datesDisabled,
+  } = useInvoicesFilters()
 
   // confirmación de borrado
   const [confirmId, setConfirmId] = useState<string | null>(null)
-
-  const serverOrderByField: 'invoiceDate' | 'invoiceId' =
-    sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
-  const serverOrderDirection: 'asc' | 'desc' | undefined =
-    sortBy === 'customer' ? undefined : sortDir
 
   const {
     items: invoices,
@@ -172,11 +177,11 @@ export default function Invoices() {
           <input
             id="f_from"
             type="date"
-            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${datesDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
             value={qFrom}
             onChange={(e) => setQFrom(e.target.value)}
-            disabled={sortBy === 'id'}
-            title={sortBy === 'id' ? 'No disponible al ordenar por número de factura' : undefined}
+            disabled={datesDisabled}
+            title={datesDisabled ? 'No disponible al ordenar por número de factura' : undefined}
           />
         </div>
         <div>
@@ -186,11 +191,11 @@ export default function Invoices() {
           <input
             id="f_to"
             type="date"
-            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${sortBy === 'id' ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`panel w-full rounded px-2 py-1 sm:px-3 sm:py-2 ${datesDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
             value={qTo}
             onChange={(e) => setQTo(e.target.value)}
-            disabled={sortBy === 'id'}
-            title={sortBy === 'id' ? 'No disponible al ordenar por número de factura' : undefined}
+            disabled={datesDisabled}
+            title={datesDisabled ? 'No disponible al ordenar por número de factura' : undefined}
           />
         </div>
         <div className="mt-1 flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-4">
@@ -216,16 +221,7 @@ export default function Invoices() {
             <select
               className="btn btn-secondary w-full px-2 py-1 text-xs sm:w-auto"
               value={sortBy}
-              onChange={(e) => {
-                const next = e.target.value as 'date' | 'customer' | 'id'
-                if (next === 'id' && (qFrom || qTo)) {
-                  setQFrom('')
-                  setQTo('')
-                  setDateClearedNotice(true)
-                  window.setTimeout(() => setDateClearedNotice(false), 3500)
-                }
-                setSortBy(next)
-              }}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'customer' | 'id')}
               aria-label="Ordenar por"
             >
               <option value="date">Fecha de emisión</option>
@@ -246,10 +242,9 @@ export default function Invoices() {
             </select>
           </div>
         </div>
-        {sortBy === 'id' && dateClearedNotice && (
+        {dateClearedNotice && sortBy === 'id' && (
           <div className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-1 text-xs sm:col-span-2 lg:col-span-4">
-            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han
-            desactivado.
+            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han desactivado.
           </div>
         )}
       </div>
