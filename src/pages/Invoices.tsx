@@ -28,6 +28,9 @@ export default function Invoices() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [dateClearedNotice, setDateClearedNotice] = useState(false)
 
+  // confirmación de borrado
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+
   const serverOrderByField: 'invoiceDate' | 'invoiceId' = sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
   const serverOrderDirection: 'asc' | 'desc' | undefined = sortBy === 'customer' ? undefined : sortDir
 
@@ -407,16 +410,4 @@ export default function Invoices() {
       />
     </section>
   )
-}
-
-// Estado para el diálogo de confirmación
-function useConfirmState() {
-  const [confirmId, setConfirmId] = useState<string | null>(null)
-  return { confirmId, setConfirmId }
-}
-
-// Inyectar estado de confirmación dentro del componente
-function ConfirmableInvoices() {
-  const { confirmId, setConfirmId } = useConfirmState()
-  return <Invoices />
 }
