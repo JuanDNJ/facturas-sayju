@@ -167,9 +167,7 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
-  --color-under-construction: orange;
-  --color-primary: #333;
-  --color-dark: #333333;
+
   --color-stone-50: oklch(98.5% 0.001 106.423);
   --color-stone-100: oklch(97% 0.001 106.424);
   --color-stone-200: oklch(92.3% 0.003 48.717);
@@ -184,6 +182,11 @@
 
   --color-black: #000;
   --color-white: #fff;
+
+  --color-under-construction: orange;
+  --color-primary: blue;
+  --color-dark: var(--color-stone-700);
+  --color-light: var(--color-stone-50);
 
   --spacing: 0.25rem;
 

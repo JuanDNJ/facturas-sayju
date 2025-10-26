@@ -1,32 +1,18 @@
-const ViewEyeIcon = () => {
+import type { SVGProps } from 'react'
+
+export function ViewEyeIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      fill="currentColor"
-      height="100%"
-      width="100%"
-      version="1.1"
-      id="Icons"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32 32"
+      viewBox="0 0 16 16"
+      width="100%"
+      height="100%"
+      {...props}
     >
-      <g id="SVGRepo_bgCarrier" stroke-width="0" />
-
-      <g
-        id="SVGRepo_tracerCarrier"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        stroke="none"
-        strokeWidth="2.432"
-      >
-        {' '}
-        <path d="M29.8,15.4C29.6,15.1,23.6,7,16,7S2.4,15.1,2.2,15.4c-0.3,0.4-0.3,0.8,0,1.2C2.4,16.9,8.4,25,16,25s13.6-8.1,13.8-8.4 C30.1,16.2,30.1,15.8,29.8,15.4z M16,21c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S18.8,21,16,21z" />{' '}
-      </g>
-
-      <g id="SVGRepo_iconCarrier">
-        {' '}
-        <path d="M29.8,15.4C29.6,15.1,23.6,7,16,7S2.4,15.1,2.2,15.4c-0.3,0.4-0.3,0.8,0,1.2C2.4,16.9,8.4,25,16,25s13.6-8.1,13.8-8.4 C30.1,16.2,30.1,15.8,29.8,15.4z M16,21c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S18.8,21,16,21z" />{' '}
+      <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth=".929">
+        <path d="M8 3.895C12.447 3.895 14.5 8 14.5 8s-2.053 4.105-6.5 4.105S1.5 8 1.5 8S3.553 3.895 8 3.895Z"></path>
+        <path d="M9.94 8a2 2 0 1 1-3.999 0a2 2 0 0 1 4 0Z"></path>
       </g>
     </svg>
   )
 }
-export default ViewEyeIcon

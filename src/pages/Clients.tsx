@@ -8,10 +8,10 @@ import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import CustomSelect from '../components/ui/CustomSelect'
 import Icon from '../components/atomic/atoms/Icon'
-import ViewEyeIcon from '../components/icons/ViewEyeIcon'
+import { ViewEyeIcon } from '../components/icons/ViewEyeIcon'
 import EditIcon from '../components/icons/EditIcon'
 import TrashIcon from '../components/icons/TrashIcon'
-import AddInvoiceIcon from '../components/icons/AddInvoiceIcon'
+import { AddInvoiceIcon } from '../components/icons/AddInvoiceIcon'
 
 export default function Clients() {
   const { user } = useAuth()
@@ -131,10 +131,10 @@ export default function Clients() {
           to="/clientes/nuevo"
           className="flex w-full items-center justify-center gap-2 text-center md:w-auto"
         >
-          <Icon className="w-8 text-blue-300">
+          <Icon className="w-6 text-blue-300">
             <AddInvoiceIcon />
           </Icon>
-          <strong>Nuevo cliente</strong>
+          <strong className="text-sm">Nuevo cliente</strong>
         </Link>
       </div>
 
@@ -219,32 +219,29 @@ export default function Clients() {
                 <td className="px-4 py-3">{c.phone || '—'}</td>
                 <td className="px-4 py-3">{c.taxId}</td>
                 <td className="px-4 py-3 text-right">
-                  <div className="inline-flex gap-2">
-                    <Link
-                      to={`/clientes/${c.id}`}
-                      className="flex h-8 items-center gap-1 px-3 text-green-400"
-                    >
-                      <Icon className="w-6">
+                  <div className="inline-flex gap-4">
+                    <Link to={`/clientes/${c.id}`} className="flex h-8 items-center gap-1 px-3">
+                      <Icon className="w-8">
                         <ViewEyeIcon />
                       </Icon>
                     </Link>
                     <Link
                       to={`/clientes/${c.id}?edit=1`}
-                      className="flex h-8 items-center gap-1 px-3 text-blue-400"
+                      className="flex h-8 items-center gap-1 px-3"
                     >
-                      <Icon className="w-6">
+                      <Icon className="w-8">
                         <EditIcon />
                       </Icon>
                     </Link>
                     <button
-                      className="flex h-8 items-center gap-1 px-3 text-red-400"
+                      className="flex cursor-pointer items-center gap-1 px-3"
                       onClick={() => {
                         if (!c.id) return
                         setPendingDelete(c)
                         setConfirmOpen(true)
                       }}
                     >
-                      <Icon className="w-6">
+                      <Icon className="w-8">
                         <TrashIcon />
                       </Icon>
                     </button>

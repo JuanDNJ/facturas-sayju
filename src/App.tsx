@@ -9,6 +9,7 @@ const Invoices = lazy(() => import('./pages/Invoices'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Clients = lazy(() => import('./pages/Clients'))
 const Stamps = lazy(() => import('./pages/Stamps'))
+const StampView = lazy(() => import('./pages/StampView'))
 const InvoiceView = lazy(() => import('./pages/InvoiceView'))
 const ClientView = lazy(() => import('./pages/ClientView'))
 const NewClient = lazy(() => import('./pages/NewClient'))
@@ -42,6 +43,7 @@ function App() {
                 {/* Ruta antigua de ejemplo 'factura' ya no es necesaria */}
                 <Route path="clientes" element={<Clients />} />
                 <Route path="sellos" element={<Stamps />} />
+                <Route path="sellos/:id" element={<StampView />} />
                 <Route path="sugerencias" element={<Suggestions />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="registro/datos" element={<CompleteProfile />} />

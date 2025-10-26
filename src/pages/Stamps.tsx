@@ -17,6 +17,12 @@ import {
 } from '../apis/stamps'
 import { uploadStampLogo } from '../apis/storage'
 import { isValidDNI } from '../utils/validators'
+import Icon from '../components/atomic/atoms/Icon'
+import EditIcon from '../components/icons/EditIcon'
+import TrashIcon from '../components/icons/TrashIcon'
+import { ViewEyeIcon } from '../components/icons/ViewEyeIcon'
+import { Link } from 'react-router-dom'
+import { AddInvoiceIcon } from '../components/icons/AddInvoiceIcon'
 
 export default function Stamps() {
   const { user } = useAuth()
@@ -602,11 +608,11 @@ export default function Stamps() {
       )}
 
       {/* Listado de sellos creados */}
-      <div className="panel rounded p-4">
+      <div className="p-4">
         <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-2xl font-semibold">Mis sellos</h1>
           <button
-            className="btn btn-outline-create btn-sm flex w-full items-center justify-center gap-2 md:w-auto"
+            className="flex w-full items-center justify-center gap-2 text-center md:w-auto"
             onClick={() => {
               setDesignerOpen(true)
               setEditingId(null)
@@ -623,8 +629,10 @@ export default function Stamps() {
               setErrors({})
             }}
           >
-            <span>➕</span>
-            <span>Nuevo sello</span>
+            <Icon className="w-6 text-blue-300">
+              <AddInvoiceIcon />
+            </Icon>
+            <strong className="text-sm">Nuevo sello</strong>
           </button>
         </div>
 
@@ -721,8 +729,13 @@ export default function Stamps() {
                       <td className="px-4 py-3">{s.taxId || '—'}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex gap-2">
+                          <Link to={`/sellos/${s.id}`} className="flex h-8 items-center gap-1 px-3">
+                            <Icon className="w-8">
+                              <ViewEyeIcon />
+                            </Icon>
+                          </Link>
                           <button
-                            className="btn btn-outline-edit flex h-8 items-center gap-1 px-3"
+                            className="flex cursor-pointer items-center gap-1 px-3"
                             onClick={() => {
                               setStampDraft({
                                 name: s.name,
@@ -738,18 +751,20 @@ export default function Stamps() {
                               setDesignerOpen(true)
                             }}
                           >
-                            <span>✏️</span>
-                            <span>Editar</span>
+                            <Icon className="w-8">
+                              <EditIcon />
+                            </Icon>
                           </button>
                           <button
-                            className="btn btn-outline-delete flex h-8 items-center gap-1 px-3"
+                            className="flex cursor-pointer items-center gap-1 px-3"
                             onClick={() => {
                               setPendingDelete(s)
                               setConfirmOpen(true)
                             }}
                           >
-                            <span>🗑️</span>
-                            <span>Eliminar</span>
+                            <Icon className="w-8">
+                              <TrashIcon />
+                            </Icon>
                           </button>
                         </div>
                       </td>

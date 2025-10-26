@@ -1,13 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
-import SuggestionsIcon from '../icons/SuggestionsIcon'
+import { SuggestionsIcon } from '../icons/SuggestionsIcon'
 import Icon from '../atomic/atoms/Icon'
-import ClientsIcon from '../icons/ClienstIcon'
-import InvoicesIcon from '../icons/InvoicesIcon'
+import { InvoicesIcon } from '../icons/InvoicesIcon'
 import DashboardIcon from '../icons/DashboardIcon'
-import CompanySealIcons from '../icons/CompanySealIcons'
-import SettingsIcon from '../icons/SettingsIcon'
+import { SettingsIcon } from '../icons/SettingsIcon'
 import CloseIcon from '../icons/CloseIcon'
+import { UsersIcon } from '../icons/UsersIcon'
+import { StampIcon } from '../icons/StampIcon'
 
 // Prefetch simple de módulos de página al hacer hover para acelerar navegación
 function prefetchPage(
@@ -146,7 +146,7 @@ export default function Sidebar({
             }}
           >
             <Icon className="w-10">
-              <ClientsIcon />
+              <UsersIcon />
             </Icon>
             {!collapsed && <span className="text-lg">Clientes</span>}
           </NavLink>
@@ -178,7 +178,7 @@ export default function Sidebar({
             }}
           >
             <Icon className="w-10">
-              <CompanySealIcons />
+              <StampIcon />
             </Icon>
             {!collapsed && <span className="text-lg">Sellos</span>}
           </NavLink>

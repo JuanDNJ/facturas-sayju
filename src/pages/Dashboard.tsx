@@ -1,12 +1,14 @@
 import { Link, NavLink } from 'react-router-dom'
-import SuggestionsIcon from '../components/icons/SuggestionsIcon'
+import { SuggestionsIcon } from '../components/icons/SuggestionsIcon'
 import Icon from '../components/atomic/atoms/Icon'
-import ClientsIcon from '../components/icons/ClienstIcon'
-import InvoicesIcon from '../components/icons/InvoicesIcon'
-import CompanySealIcons from '../components/icons/CompanySealIcons'
-import SettingsIcon from '../components/icons/SettingsIcon'
+import { InvoicesIcon } from '../components/icons/InvoicesIcon'
+import { SettingsIcon } from '../components/icons/SettingsIcon'
 import SummaryBookIcon from '../components/icons/SummaryBookIcon'
 import { useDashboardPage } from '../hooks/pages/useDashboardPage'
+import { ExclamationAlertSolidIcon } from '../components/icons/ExclamationAlertSolidIcon'
+import { CollapaseRightIcon } from '../components/icons/CollapaseRightIcon'
+import { UsersIcon } from '../components/icons/UsersIcon'
+import { StampIcon } from '../components/icons/StampIcon'
 
 export default function Dashboard() {
   const { metrics, loading, alertSystem, toggleAlertSystem } = useDashboardPage()
@@ -17,86 +19,26 @@ export default function Dashboard() {
       </h1>
       {/* NOTIFICACIONES */}
       <article className="mb-4 grid items-center gap-12 rounded py-3 md:grid-cols-2 md:justify-between">
-        <aside className="flex justify-end md:col-span-2">
+        <aside className="flex md:col-span-2">
           <button
             onClick={toggleAlertSystem}
             className="inline-flex items-center gap-2"
             title="Abrir Notificaciones"
           >
-            {alertSystem && (
-              <div className="flex items-center gap-2">
-                <i className="w-6 sm:w-8">
-                  <svg
-                    fill="#000000"
-                    width="100%"
-                    height="100%"
-                    viewBox="0 0 24 24"
-                    id="notification-bell"
-                    data-name="Flat Line"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon flat-line"
-                  >
-                    <path
-                      id="secondary"
-                      d="M19.38,14.38a2.12,2.12,0,0,1,.62,1.5h0A2.12,2.12,0,0,1,17.88,18H6.12A2.12,2.12,0,0,1,4,15.88H4a2.12,2.12,0,0,1,.62-1.5L6,13V9a6,6,0,0,1,6-6h0a6,6,0,0,1,6,6v4Z"
-                      style={{
-                        fill: 'red',
-                        strokeWidth: 2,
-                      }}
-                    ></path>
-                    <path
-                      id="primary"
-                      d="M12,21h0a3,3,0,0,1-3-3h6A3,3,0,0,1,12,21Zm6-8V9a6,6,0,0,0-6-6h0A6,6,0,0,0,6,9v4L4.62,14.38A2.12,2.12,0,0,0,4,15.88H4A2.12,2.12,0,0,0,6.12,18H17.88A2.12,2.12,0,0,0,20,15.88h0a2.12,2.12,0,0,0-.62-1.5Z"
-                      style={{
-                        fill: 'none',
-                        stroke: 'rgb(0, 0, 0)',
-                        strokeLinecap: 'round',
-                        strokeLinejoin: 'round',
-                        strokeWidth: 2,
-                      }}
-                    ></path>
-                  </svg>
-                </i>
-                <small>Cerrar</small>
-              </div>
-            )}
-            {!alertSystem && (
-              <div className="flex items-center gap-2">
-                <i className="w-6 sm:w-8">
-                  <svg
-                    fill="#000000"
-                    width="100%"
-                    height="100%"
-                    viewBox="0 0 24 24"
-                    id="notification-bell"
-                    data-name="Flat Line"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon flat-line"
-                  >
-                    <path
-                      id="secondary"
-                      d="M19.38,14.38a2.12,2.12,0,0,1,.62,1.5h0A2.12,2.12,0,0,1,17.88,18H6.12A2.12,2.12,0,0,1,4,15.88H4a2.12,2.12,0,0,1,.62-1.5L6,13V9a6,6,0,0,1,6-6h0a6,6,0,0,1,6,6v4Z"
-                      style={{
-                        fill: 'rgb(44, 169, 188)',
-                        strokeWidth: 2,
-                      }}
-                    ></path>
-                    <path
-                      id="primary"
-                      d="M12,21h0a3,3,0,0,1-3-3h6A3,3,0,0,1,12,21Zm6-8V9a6,6,0,0,0-6-6h0A6,6,0,0,0,6,9v4L4.62,14.38A2.12,2.12,0,0,0,4,15.88H4A2.12,2.12,0,0,0,6.12,18H17.88A2.12,2.12,0,0,0,20,15.88h0a2.12,2.12,0,0,0-.62-1.5Z"
-                      style={{
-                        fill: 'none',
-                        stroke: 'rgb(0, 0, 0)',
-                        strokeLinecap: 'round',
-                        strokeLinejoin: 'round',
-                        strokeWidth: 2,
-                      }}
-                    ></path>
-                  </svg>
-                </i>
-                <small>Abrir</small>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Icon className="w-6 text-orange-400 sm:w-8">
+                <ExclamationAlertSolidIcon />
+              </Icon>
+              {!alertSystem ? (
+                <Icon className="w-6 rotate-90">
+                  <CollapaseRightIcon />
+                </Icon>
+              ) : (
+                <Icon className="w-6 -rotate-90">
+                  <CollapaseRightIcon />
+                </Icon>
+              )}
+            </div>
           </button>
         </aside>
         {alertSystem && (
@@ -302,7 +244,7 @@ export default function Dashboard() {
           <div className="panel relative flex min-h-[160px] flex-col justify-between overflow-hidden rounded p-4 md:col-span-5">
             <div className="flex items-start gap-3">
               <Icon className="w-10">
-                <ClientsIcon />
+                <UsersIcon />
               </Icon>
               <div>
                 <div className="text-lg font-semibold">Clientes</div>
@@ -340,7 +282,7 @@ export default function Dashboard() {
           <div className="panel relative flex min-h-[140px] flex-col justify-between rounded p-4 md:col-span-4">
             <div className="flex items-start gap-3">
               <Icon className="w-10">
-                <CompanySealIcons />
+                <StampIcon />
               </Icon>
               <div>
                 <div className="text-lg font-semibold">Sellos</div>

@@ -39,7 +39,7 @@ export default function NewClient() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Nuevo cliente</h1>
         <Icon className="w-6 sm:w-8">
-          <Link to="/invoices">
+          <Link to="/clientes">
             <BackwardIcon />
           </Link>
         </Icon>

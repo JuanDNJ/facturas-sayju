@@ -3,9 +3,10 @@ import { useAuth } from '../../hooks/useAuth'
 import { logoutUser } from '../../apis/auth'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ThemeSelector from '../ui/ThemeSelector'
-import MenuCollapseIcon from '../icons/MenuCollapseIcon'
 import Icon from '../atomic/atoms/Icon'
 import MenuHamburgerIcon from '../icons/MenuHamburgerIcon'
+import { CollapaseLeftIcon } from '../icons/CollapaseLeftIcon'
+import { CollapaseRightIcon } from '../icons/CollapaseRightIcon'
 export default function Topbar({
   onToggleSidebar,
   onToggleCollapse,
@@ -64,8 +65,8 @@ export default function Topbar({
         >
           {collapsed ? (
             <>
-              <Icon className="w-6 rotate-180 text-[#2CA9BC]">
-                <MenuCollapseIcon />
+              <Icon className="w-6 text-[#2CA9BC]">
+                <CollapaseRightIcon />
               </Icon>
               <strong className="text-2xl text-[currentColor]" title="Panel de control">
                 PC
@@ -74,7 +75,7 @@ export default function Topbar({
           ) : (
             <>
               <Icon className="text-under-construction w-6">
-                <MenuCollapseIcon />
+                <CollapaseLeftIcon />
               </Icon>
               <strong className="text-2xl text-[currentColor]" title="Panel de control">
                 PC
