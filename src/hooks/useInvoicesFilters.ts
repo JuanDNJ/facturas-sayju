@@ -37,8 +37,9 @@ export function useInvoicesFilters(initial?: Partial<UseInvoicesFiltersState>): 
   const [qCustomer, setQCustomer] = useState(initial?.qCustomer ?? '')
   const [qFrom, setQFrom] = useState(initial?.qFrom ?? '')
   const [qTo, setQTo] = useState(initial?.qTo ?? '')
-  const [sortBy, _setSortBy] = useState<SortBy>(initial?.sortBy ?? 'id')
-  const [sortDir, setSortDir] = useState<SortDir>(initial?.sortDir ?? 'asc')
+  // Por defecto: fecha desc => más recientes primero
+  const [sortBy, _setSortBy] = useState<SortBy>(initial?.sortBy ?? 'date')
+  const [sortDir, setSortDir] = useState<SortDir>(initial?.sortDir ?? 'desc')
   const [dateClearedNotice, setDateClearedNotice] = useState(false)
 
   // Cambiar sortBy con la lógica de limpieza de fechas al ordenar por id
@@ -65,8 +66,8 @@ export function useInvoicesFilters(initial?: Partial<UseInvoicesFiltersState>): 
     setQCustomer('')
     setQFrom('')
     setQTo('')
-    _setSortBy('id')
-    setSortDir('asc')
+    _setSortBy('date')
+    setSortDir('desc')
     setDateClearedNotice(false)
   }, [])
 
