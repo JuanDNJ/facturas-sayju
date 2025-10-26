@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { deleteInvoice } from '../apis/invoices'
-import type { Invoice } from '../types/invoice.types'
 import { useToast } from '../hooks/useToast'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import Icon from '../components/atomic/atoms/Icon'
@@ -31,8 +30,10 @@ export default function Invoices() {
   // confirmación de borrado
   const [confirmId, setConfirmId] = useState<string | null>(null)
 
-  const serverOrderByField: 'invoiceDate' | 'invoiceId' = sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
-  const serverOrderDirection: 'asc' | 'desc' | undefined = sortBy === 'customer' ? undefined : sortDir
+  const serverOrderByField: 'invoiceDate' | 'invoiceId' =
+    sortBy === 'id' ? 'invoiceId' : 'invoiceDate'
+  const serverOrderDirection: 'asc' | 'desc' | undefined =
+    sortBy === 'customer' ? undefined : sortDir
 
   const {
     items: invoices,
@@ -247,7 +248,8 @@ export default function Invoices() {
         </div>
         {sortBy === 'id' && dateClearedNotice && (
           <div className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-2 py-1 text-xs sm:col-span-2 lg:col-span-4">
-            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han desactivado.
+            Aviso: al ordenar por número de factura, los filtros de fecha no se aplican y se han
+            desactivado.
           </div>
         )}
       </div>

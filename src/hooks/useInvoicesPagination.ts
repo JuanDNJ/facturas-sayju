@@ -29,8 +29,17 @@ export type UseInvoicesPagination = {
  * Hook de paginación de facturas basado en cursores de Firestore.
  * Resetea a la página 1 cuando cambian los filtros/orden.
  */
-export function useInvoicesPagination(options: UseInvoicesPaginationOptions): UseInvoicesPagination {
-  const { uid, pageSize: initialSize = 10, fromDate, toDate, orderDirection, orderByField } = options
+export function useInvoicesPagination(
+  options: UseInvoicesPaginationOptions
+): UseInvoicesPagination {
+  const {
+    uid,
+    pageSize: initialSize = 10,
+    fromDate,
+    toDate,
+    orderDirection,
+    orderByField,
+  } = options
 
   const [items, setItems] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(false)
@@ -92,7 +101,7 @@ export function useInvoicesPagination(options: UseInvoicesPaginationOptions): Us
       setHasNext(Boolean(page.nextCursor))
       if (page.nextCursor) cursorStackRef.current = [...cursorStackRef.current, page.nextCursor]
       setCurrentPage((p) => p + 1)
-    } catch (e) {
+    } catch {
       setError('No se pudo cargar la siguiente página')
     } finally {
       setLoading(false)
@@ -123,7 +132,7 @@ export function useInvoicesPagination(options: UseInvoicesPaginationOptions): Us
       const trimmed = cursorStackRef.current.slice(0, nextLen - 1)
       cursorStackRef.current = page.nextCursor ? [...trimmed, page.nextCursor] : trimmed
       setCurrentPage((p) => Math.max(1, p - 1))
-    } catch (e) {
+    } catch {
       setError('No se pudo cargar la página anterior')
     } finally {
       setLoading(false)
