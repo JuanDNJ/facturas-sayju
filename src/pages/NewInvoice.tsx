@@ -47,7 +47,7 @@ export default function NewInvoice() {
   const [rectificationReason, setRectificationReason] = useState('')
 
   // Emisor
-  const [issuerMode, setIssuerMode] = useState<'stamp' | 'manual'>('manual')
+  const [issuerMode, setIssuerMode] = useState<'stamp' | 'manual'>('stamp')
   const [issuerName, setIssuerName] = useState('Sayju')
   const [issuerCompany, setIssuerCompany] = useState('Sayju S.A.')
   const [issuerAddress, setIssuerAddress] = useState('C/ Ejemplo 123, Madrid')
@@ -491,21 +491,20 @@ export default function NewInvoice() {
                 open={clienteOpen}
                 onOpenChange={(v) => setClienteOpen(v)}
                 className="space-y-2"
-                buttonClassName="btn btn-secondary px-2 py-1 text-xs sm:hidden"
+                buttonClassName="text-xs sm:hidden"
                 panelClassName="space-y-2 sm:block"
                 header={
                   <div className="flex w-full items-center justify-between">
-                    <div className="font-semibold">Cliente</div>
-                    <span className="sm:hidden">{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>
+                    <div className="font-semibold">
+                      <span className="sm:hidden">{clienteOpen ? 'Ocultar' : 'Mostrar'}</span>{' '}
+                      Cliente
+                    </div>
                   </div>
                 }
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label className="muted mb-1 block" htmlFor="customerId">
-                      Seleccionar cliente
-                    </label>
-                    <div className="flex items-center gap-2">
+                <div className="space-y-6">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-6">
                       <button
                         className="btn btn-primary px-2 py-1 text-xs"
                         onClick={() => {
@@ -545,13 +544,20 @@ export default function NewInvoice() {
                       </button>
                     </div>
                   </div>
+                  <label className="muted mb-1 block" htmlFor="searchCustomer">
+                    Buscar y seleccionar cliente
+                  </label>
                   <input
+                    id="searchCustomer"
                     className="panel mb-2 w-full rounded px-3 py-2"
                     placeholder="Buscar por nombre o DNI..."
                     value={customerQuery}
                     onChange={(e) => setCustomerQuery(e.target.value)}
                     aria-label="Buscar cliente por nombre o DNI"
                   />
+                  <label className="muted mb-1 block" htmlFor="customerId">
+                    Seleccionar cliente
+                  </label>
                   <CustomSelect
                     id="customerId"
                     value={customerId}

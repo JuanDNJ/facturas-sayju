@@ -249,65 +249,69 @@ export function InvoiceForm(props: {
   return (
     <>
       {/* Identificación */}
-      <div className="panel space-y-3 rounded p-4 text-sm">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div>
-            <label className="muted mb-1 block" htmlFor="invoiceKind">
-              Tipo
-            </label>
-            <CustomSelect
-              id="invoiceKind"
-              value={values.invoiceKind}
-              onChange={(value) =>
-                onValuesChange({
-                  invoiceKind: value as typeof values.invoiceKind,
-                })
-              }
-              options={[
-                { value: 'normal', label: 'Normal' },
-                { value: 'rectificativa', label: 'Rectificativa' },
-              ]}
-            />
-          </div>
-          <div>
-            <label className="muted mb-1 block" htmlFor="invoiceId">
-              Nº Factura
-            </label>
-            <input
-              id="invoiceId"
-              className="panel w-full rounded px-3 py-2"
-              value={values.invoiceId}
-              onChange={(e) => onValuesChange({ invoiceId: e.target.value })}
-            />
-            {errors.invoiceId && (
-              <div className="mt-1 text-xs text-red-600">{errors.invoiceId}</div>
-            )}
-          </div>
-          <div>
-            <label className="muted mb-1 block" htmlFor="invoiceDate">
-              Fecha
-            </label>
-            <input
-              id="invoiceDate"
-              type="date"
-              className="panel w-full rounded px-3 py-2"
-              value={values.invoiceDate}
-              onChange={(e) => onValuesChange({ invoiceDate: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="muted mb-1 block" htmlFor="expirationDate">
-              Vencimiento
-            </label>
-            <input
-              id="expirationDate"
-              type="date"
-              className="panel w-full rounded px-3 py-2"
-              value={values.expirationDate}
-              onChange={(e) => onValuesChange({ expirationDate: e.target.value })}
-            />
-          </div>
-        </div>
+      <article className="panel space-y-3 rounded p-4 text-sm">
+        <section className="flex gap-3">
+          <article className="flex flex-1 flex-col gap-3 sm:flex-row">
+            <div className="flex-1">
+              <label className="muted mb-1 block" htmlFor="invoiceKind">
+                Tipo
+              </label>
+              <CustomSelect
+                id="invoiceKind"
+                value={values.invoiceKind}
+                onChange={(value) =>
+                  onValuesChange({
+                    invoiceKind: value as typeof values.invoiceKind,
+                  })
+                }
+                options={[
+                  { value: 'normal', label: 'Normal' },
+                  { value: 'rectificativa', label: 'Rectificativa' },
+                ]}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="muted mb-1 block" htmlFor="invoiceId">
+                Nº Factura
+              </label>
+              <input
+                id="invoiceId"
+                className="panel w-full rounded px-3 py-2"
+                value={values.invoiceId}
+                onChange={(e) => onValuesChange({ invoiceId: e.target.value })}
+              />
+              {errors.invoiceId && (
+                <div className="mt-1 text-xs text-red-600">{errors.invoiceId}</div>
+              )}
+            </div>
+          </article>
+          <article className="flex flex-1 flex-col gap-3 sm:flex-row">
+            <div className="flex-1">
+              <label className="muted mb-1 block" htmlFor="invoiceDate">
+                Fecha
+              </label>
+              <input
+                id="invoiceDate"
+                type="date"
+                className="panel w-full rounded px-3 py-2"
+                value={values.invoiceDate}
+                onChange={(e) => onValuesChange({ invoiceDate: e.target.value })}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="muted mb-1 block" htmlFor="expirationDate">
+                Vencimiento
+              </label>
+              <input
+                id="expirationDate"
+                type="date"
+                className="panel w-full rounded px-3 py-2"
+                value={values.expirationDate}
+                onChange={(e) => onValuesChange({ expirationDate: e.target.value })}
+              />
+            </div>
+          </article>
+        </section>
 
         {values.invoiceKind === 'rectificativa' && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -384,7 +388,7 @@ export function InvoiceForm(props: {
             <IssuerContent />
           </div>
         </div>
-      </div>
+      </article>
 
       {/* Sección de cliente inyectable */}
       {customerSection}

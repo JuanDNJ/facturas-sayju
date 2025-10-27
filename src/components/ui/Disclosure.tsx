@@ -4,7 +4,7 @@ type DisclosureProps = {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  header: ReactNode
+  header?: ReactNode
   children: ReactNode
   className?: string
   panelClassName?: string
@@ -34,15 +34,17 @@ export default function Disclosure({
 
   return (
     <div className={className}>
-      <button
-        id={btnId}
-        className={buttonClassName ?? 'btn btn-secondary px-2 py-1 text-xs'}
-        aria-controls={panelId}
-        onClick={() => setOpen(!open)}
-        type="button"
-      >
-        {header}
-      </button>
+      {header && (
+        <h2
+          id={btnId}
+          className={buttonClassName ?? 'text-xs'}
+          aria-controls={panelId}
+          onClick={() => setOpen(!open)}
+        >
+          {header}
+        </h2>
+      )}
+
       <div
         id={panelId}
         role="region"
