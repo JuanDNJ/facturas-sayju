@@ -3,6 +3,7 @@ import InvoicesListMobile from './InvoicesListMobile'
 import PaginationControls from '../ui/PaginationControls'
 import type { InvoiceRow } from './types'
 import { PAGE_SIZE_OPTIONS } from './constants'
+import { CircleInfoIcon } from '../icons/CircleInfoIcon'
 
 interface InvoicesResultsProps {
   rows: InvoiceRow[]
@@ -37,16 +38,9 @@ export default function InvoicesResults({
       <div className="flex items-center justify-end border-b border-[var(--panel-border)] px-3 py-2">
         <div className="flex items-center gap-2">
           <span className="muted text-xs">{sizeLabel}</span>
-          <div className="group relative">
-            <button
-              type="button"
-              className="muted inline-flex h-4 w-4 items-center justify-center rounded-full border border-[var(--panel-border)] text-xs"
-              aria-label="Información sobre el tamaño de página"
-              tabIndex={0}
-            >
-              i
-            </button>
-            <div className="pointer-events-none absolute right-0 z-10 mt-1 hidden w-56 rounded border border-[var(--panel-border)] bg-[var(--panel)] p-2 text-xs shadow-md group-focus-within:block group-hover:block">
+          <div className="group relative w-6 text-blue-400">
+            <CircleInfoIcon />
+            <div className="pointer-events-none absolute right-0 z-10 mt-1 hidden w-56 rounded border border-[var(--panel-border)] bg-[#EDEDED] p-2 text-xs shadow-md group-focus-within:block group-hover:block">
               Cambiar tamaño recarga desde la primera página
             </div>
           </div>

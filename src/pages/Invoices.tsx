@@ -270,7 +270,7 @@ export default function Invoices() {
           })()}
         </div>
       </div>
-
+      {/* Lista de facturas */}
       <div className="panel overflow-x-auto rounded">
         {loading && <div className="p-4 text-sm">Cargando facturas…</div>}
         {error && <div className="p-4 text-sm text-red-600">{error}</div>}
